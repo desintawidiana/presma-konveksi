@@ -3,6 +3,12 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\Api\PelangganController;
+
+Route::get('/pelanggan', [PelangganController::class, 'index']);
+
+
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
