@@ -31,9 +31,7 @@
         rel="stylesheet">
 
     <!-- CSS Login -->
-    <link
-        rel="stylesheet"
-        href="{{ asset('assets/css/login.css') }}">
+    @vite('resources/css/auth/login.css')
 
     @stack('styles')
 </head>
@@ -45,7 +43,7 @@
     </main>
 
     <!-- JavaScript Login -->
-    <script src="{{ asset('assets/js/login.js') }}"></script>
+    @vite('resources/js/auth/login.js')
 
     @stack('scripts')
 </body>
