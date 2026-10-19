@@ -16,4 +16,21 @@ class PelangganController extends Controller
             'data' => $pelanggan,
         ]);
     }
+
+    public function store(\Illuminate\Http\Request $request)
+    {
+        $validated = $request->validate([
+            'nama' => 'required|string|max:150',
+            'no_whatsapp' => 'required|string|max:20|unique:pelanggan,no_whatsapp',
+            'instansi' => 'nullable|string|max:200',
+            'sumber_informasi' => 'nullable|in:REKOMENDASI_TEMAN,INSTAGRAM,TIKTOK,IKLAN,FACEBOOK,LAINNYA',
+        ]);
+
+        $pelanggan = Pelanggan::create($validated);
+
+        return response()->json([
+            'message' => 'Data pelanggan berhasil ditambahkan',
+            'data' => $pelanggan,
+        ], 201);
+    }
 }
