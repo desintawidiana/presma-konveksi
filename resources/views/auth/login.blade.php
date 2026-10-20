@@ -1,5 +1,5 @@
 
-@extends('layouts.auth')
+@extends('layout.auth')
 
 @section('title', 'Login | Presma Operations')
 @section('content')
