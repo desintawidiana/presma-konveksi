@@ -7,6 +7,8 @@ use App\Http\Controllers\Api\PelangganController;
 
 Route::get('/pelanggan', [PelangganController::class, 'index']);
 
+Route::post('/pelanggan', [PelangganController::class, 'store']);
+
 
 
 /*
