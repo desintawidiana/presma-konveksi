@@ -1,0 +1,115 @@
+/* Owner Dashboard Stitch: CSS tambahan, kelas utama tetap dari Tailwind sumber. */
+.owner-page { min-height: 100vh; }
+.owner-preview-banner { margin: 0 0 16px; padding: 10px 14px; border: 1px solid #eadab6; background: #fff9e8; color: #765313; font: 600 12px/1.5 Inter, sans-serif; border-radius: 8px; }
+.owner-page .owner-disabled-button { cursor: not-allowed; opacity: .6; }
+.owner-page .owner-disabled-link { cursor: not-allowed; }
+.owner-page .owner-hidden-row { display: none; }
+@media (max-width: 1023px) {
+    .owner-page aside { width: 72px !important; overflow-x: hidden; }
+    .owner-page aside nav a { font-size: 0; gap: 0; justify-content: center; }
+    .owner-page aside nav a span.material-symbols-outlined { font-size: 22px !important; }
+    .owner-page aside nav a div { gap: 0; }
+    .owner-page aside nav a div span:not(.material-symbols-outlined),
+    .owner-page aside nav a > span:not(.material-symbols-outlined),
+    .owner-page aside div.flex.flex-col > span, .owner-page aside .font-label-sm,
+    .owner-page aside button span:not(.material-symbols-outlined) { display: none; }
+    .owner-page .owner-shell { padding-left: 72px !important; }
+    .owner-page header { left: 72px !important; padding-left: 16px; padding-right: 16px; }
+}
+@media (max-width: 639px) {
+    .owner-page main { padding-left: 12px; padding-right: 12px; }
+    .owner-page header .flex.flex-col.text-left { display: none; }
+    .owner-page aside { width: 56px !important; }
+    .owner-page .owner-shell { padding-left: 56px !important; }
+    .owner-page header { left: 56px !important; }
+    .owner-page aside a { padding-left: 8px; padding-right: 8px; }
+}
+
+
+/* =====================================
+   OWNER - ORDER TABLE
+===================================== */
+
+#ownerOrdersTable {
+    width: 100%;
+    min-width: 1050px;
+    font-size: 12px;
+    border-collapse: collapse;
+}
+
+/* Header dan isi tabel */
+#ownerOrdersTable th,
+#ownerOrdersTable td {
+    padding: 10px 12px;
+    vertical-align: middle;
+}
+
+/* Header tabel */
+#ownerOrdersTable thead th {
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* Tulisan utama */
+#ownerOrdersTable tbody td,
+#ownerOrdersTable tbody .font-title-sm,
+#ownerOrdersTable tbody .font-body-sm,
+#ownerOrdersTable tbody .font-data-tabular {
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* Keterangan kecil */
+#ownerOrdersTable tbody .text-on-surface-variant {
+    font-size: 10px;
+}
+
+/* Cegah kolom tertentu turun baris */
+#ownerOrdersTable td:first-child,
+#ownerOrdersTable td:nth-child(4),
+#ownerOrdersTable td:nth-child(5),
+#ownerOrdersTable td:nth-child(6),
+#ownerOrdersTable td:nth-child(7) {
+    white-space: nowrap;
+}
+
+/* Badge status */
+#ownerOrdersTable tbody .rounded-full {
+    font-size: 10px;
+    padding: 4px 10px;
+    white-space: nowrap;
+}
+
+/* Avatar CS */
+#ownerOrdersTable tbody .w-7.h-7 {
+    width: 24px;
+    height: 24px;
+    font-size: 10px;
+}
+
+/* Tombol Detail berwarna maroon */
+#ownerOrdersTable tbody button {
+    background-color: #830909;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 7px 14px;
+    border: none;
+    border-radius: 6px;
+    white-space: nowrap;
+    opacity: 1;
+}
+
+/* Warna untuk tombol yang masih nonaktif */
+#ownerOrdersTable tbody button:disabled {
+    background-color: #830909;
+    color: #ffffff;
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+/* Hover hanya untuk tombol aktif */
+#ownerOrdersTable tbody button:not(:disabled):hover {
+    background-color: #a10b0b;
+}
