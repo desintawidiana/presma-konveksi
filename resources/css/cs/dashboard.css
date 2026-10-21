@@ -1,0 +1,69 @@
+/* Dashboard CS: penyesuaian responsif dari HTML Stitch asli */
+.cs-shell { min-height:100vh; }
+.cs-disabled-action { cursor:not-allowed!important; opacity:.7; }
+.cs-menu-toggle { display:none; align-items:center; justify-content:center; width:40px; height:40px; border-radius:8px; }
+.cs-menu-toggle:focus-visible, #cs-order-search:focus-visible { outline:2px solid #830909; outline-offset:2px; }
+.cs-backdrop[hidden] { display:none; }
+@media (max-width: 900px) {
+  .cs-shell { padding-left:0!important; }
+  .cs-sidebar { transform:translateX(-100%); transition:transform .2s ease; width:min(85vw, 256px)!important; }
+  .cs-sidebar.is-open { transform:translateX(0); }
+  .cs-header { left:0!important; padding:0 16px!important; }
+  .cs-main { padding-top:64px; }
+  .cs-menu-toggle { display:inline-flex; flex-shrink:0; }
+  .cs-backdrop:not([hidden]) { display:block;position:fixed;inset:0;background:rgba(0,0,0,.38);z-index:45; }
+}
+@media (max-width: 520px) {
+  .cs-header .font-label-md { font-size:11px; }
+  .cs-header .flex-col.text-left { display:none; }
+  .cs-main > div > div { padding-left:16px!important;padding-right:16px!important; }
+  #cs-order-search { min-width:0; }
+}
+
+
+/* =====================================
+   DASHBOARD CS - COMPACT ORDER TABLE
+===================================== */
+
+/* Ukuran tulisan seluruh tabel */
+.cs-order-table {
+    font-size: 12px;
+}
+
+/* Padding header dan isi tabel */
+.cs-order-table th,
+.cs-order-table td {
+    padding: 8px 10px;
+    vertical-align: middle;
+}
+
+/* Ukuran tulisan utama */
+.cs-order-table tbody td {
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+/* Tulisan informasi tambahan */
+.cs-order-table tbody td .text-secondary {
+    font-size: 10px;
+}
+
+/* Badge status dan deadline */
+.cs-order-table tbody td .rounded-full {
+    font-size: 10px;
+    padding: 4px 8px;
+    white-space: nowrap;
+}
+
+/* Tombol aksi */
+.cs-order-table tbody button {
+    height: 32px;
+    padding: 0 10px;
+    font-size: 11px;
+    gap: 5px;
+}
+
+/* Ikon tombol */
+.cs-order-table tbody button .material-symbols-outlined {
+    font-size: 15px;
+}

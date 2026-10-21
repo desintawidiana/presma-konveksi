@@ -2,38 +2,63 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\AuthController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes - Presma Operations
-|--------------------------------------------------------------------------
-*/
-
-// HALAMAN UTAMA
-// Saat membuka http://127.0.0.1:8000
-// langsung menampilkan Login.
-Route::view('/', 'auth.login')
-    ->name('home');
-
+Route::get('/', function () {
+    return view('welcome');
+});
 
 // HALAMAN LOGIN
-// Saat membuka http://127.0.0.1:8000/login
-// menampilkan Login yang sama.
 Route::view('/login', 'auth.login')
     ->name('login');
 
+// PROSES LOGIN
+Route::post('/login', [AuthController::class, 'login'])
+    ->name('login.process');
 
-// PREVIEW LOGIN
-// Hanya tersedia pada environment local.
+// LOGOUT
+Route::post('/logout', [AuthController::class, 'logout'])
+    ->middleware('auth')
+    ->name('logout');
+
+// PENGALIHAN DASHBOARD BERDASARKAN PERAN
+Route::get('/dashboard', function () {
+    $peran = Auth::user()->peran;
+
+    if ($peran === 'OWNER') {
+        return redirect()->route('dashboard.owner');
+    }
+
+    if ($peran === 'CS') {
+        return redirect()->route('dashboard.cs');
+    }
+
+    abort(403, 'Kamu tidak memiliki akses ke halaman ini.');
+})->middleware('auth')->name('dashboard');
+
+// DASHBOARD OWNER
+Route::view('/dashboard/owner', 'owner.dashboard')
+    ->middleware('auth')
+    ->name('dashboard.owner');
+
+// DASHBOARD CS
+Route::get('/dashboard/cs', function () {
+    if (Auth::user()->peran !== 'CS') {
+        abort(403, 'Kamu tidak memiliki akses ke dashboard CS.');
+    }
+
+    return view('cs.dashboard');
+})->middleware('auth')->name('dashboard.cs');
+
+// PREVIEW DASHBOARD OWNER
 if (app()->environment('local')) {
-
-    Route::view('/preview-login', 'auth.login')
-        ->name('preview.login');
-
+    Route::view('/owner', 'owner.dashboard')
+        ->name('owner.preview');
 }
 
-
-// DASHBOARD
-// Dipertahankan sesuai route proyek awal.
-Route::view('/dashboard', 'dashboard.index')
-    ->name('dashboard');
+// PREVIEW DASHBOARD CS
+if (app()->environment('local')) {
+    Route::view('/cs', 'cs.dashboard')
+        ->name('cs.preview');
+}
