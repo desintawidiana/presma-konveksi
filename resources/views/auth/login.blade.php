@@ -10,15 +10,15 @@
   <div class="relative bg-surface-container-lowest rounded-xl shadow-sm p-space-xl flex flex-col space-y-space-lg">
    <div class="flex flex-col items-center text-center">
     <div class="flex items-center justify-center mb-space-md">
-     <img alt="Presma Konveksi Logo" class="h-14 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2jpkBKyKwo2memhFqZzYuprVflzOSd_kAq30sXsPyLEKrFlHhT3kNHJ0dw5g6b52a6csR05mZTQv5xkhmNrpMOvYm9fA42TY-5qKS9LdSPp2Jj4Oxsh5cmz_W56hORjj6oYNTk1cVfVS19ssm4rCtzt9Rr3EkGPbDgzTczzwij9iIcqG2T2oYsQ4wC3hG0UgkGIClZrq6gPxH6Qx_YlZYbhT0Bh-lUJzPWk99ZKg_lmqNowPRPySXMTkmPm4MY4wu0e8"/>
+     <img alt="Presma Konveksi Logo" class="h-4 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCH04TrVIhhWGXLu9yIXZSvbekAQsY_2vo-cy5mrHBdxLdwk8qvvoUF9fRj3On_jh09BJTS4j9oII6vgAIEPsE4AL6-2WjTtT1_rL4ncfYJpcEx4axiPEWU0FFfahSNSxZymm4HewxRa9n5Ic_5hP5wx_EAfCqkwa21DhuMMSmlT6UF9SscbohipdCQ8tCIIykD51DFYAWrz8CsIhOIliVe0gE9LoMznRKns76QguuNQfearnPUAWhOEwpKBL_OtiI94SzDS3HdMa_S4dY"/>
     </div>
     <span class="font-label-sm text-label-sm uppercase tracking-wider text-primary font-semibold mb-1">
      Internal ERP &amp; SCM
     </span>
     <h1 class="font-headline-lg text-headline-lg text-on-surface">
-     Presma Operations
+     PRESMA OPRATIONS
     </h1>
-    <p class="font-body-md text-body-md text-secondary mt-1 max-w-[340px]">
+    <p class="font-body-md text-body-md text-secondary mt-1 max-w-[300px]">
      Kelola operasional Presma Konveksi dalam satu sistem.
     </p>
    </div>
@@ -55,17 +55,7 @@
       </button>
      </div>
     </div>
-    <div class="flex items-center justify-between pt-1">
-     <label class="flex items-center space-x-2 cursor-pointer select-none">
-      <input class="w-4 h-4 rounded text-primary-container bg-surface-container cursor-pointer accent-[#830909]" id="rememberMe" name="remember" type="checkbox" value="1"/>
-      <span class="font-body-sm text-body-sm text-on-surface">
-       Ingat saya
-      </span>
-     </label>
-     <a class="font-body-sm text-body-sm text-primary hover:text-primary-container font-medium underline underline-offset-4" href="#" id="forgotPassword">
-      Lupa kata sandi?
-     </a>
-    </div>
+
     <button class="w-full h-[44px] rounded-lg bg-primary-container text-on-primary font-title-sm text-title-sm flex items-center justify-center space-x-2 shadow-sm hover:opacity-95 active:scale-[0.99] transition-all" id="submitBtn" type="submit">
      <span class="">
       Masuk
@@ -82,7 +72,7 @@
        touch_app
       </span>
       <span class="font-label-sm text-label-sm text-on-surface font-semibold">
-       Contoh akun (pratinjau):
+        Akun (pratinjau):
       </span>
      </div>
      <span class="font-label-sm text-label-sm text-secondary">

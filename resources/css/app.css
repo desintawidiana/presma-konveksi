@@ -1,1 +1,3 @@
 @import './auth/login.css';
+@import './owner/dashboard.css';
+@import './cs/dashboard.css';
