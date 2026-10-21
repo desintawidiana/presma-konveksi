@@ -24,7 +24,13 @@
      Kelola operasional Presma Konveksi dalam satu sistem.
     </p>
    </div>
-   <form action="#" class="flex flex-col space-y-space-md" data-preview-only="true" id="loginForm" method="POST">
+   <form action="{{ route('login.process') }}" method="POST" id="loginForm" class="flex flex-col space-y-space-md">
+    @csrf
+    @if ($errors->has('identifier'))
+        <div class="rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">
+            {{ $errors->first('identifier') }}
+        </div>
+    @endif
     <div class="flex flex-col space-y-1.5">
      <label class="font-label-md text-label-md text-on-surface flex items-center justify-between" for="identifier">
       <span class="">

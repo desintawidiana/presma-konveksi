@@ -2,38 +2,25 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes - Presma Operations
-|--------------------------------------------------------------------------
-*/
-
-// HALAMAN UTAMA
-// Saat membuka http://127.0.0.1:8000
-// langsung menampilkan Login.
-Route::view('/', 'auth.login')
-    ->name('home');
-
+Route::get('/', function () {
+    return view('welcome');
+});
 
 // HALAMAN LOGIN
-// Saat membuka http://127.0.0.1:8000/login
-// menampilkan Login yang sama.
 Route::view('/login', 'auth.login')
     ->name('login');
 
+// PROSES LOGIN
+Route::post('/login', [AuthController::class, 'login'])
+    ->name('login.process');
 
-// PREVIEW LOGIN
-// Hanya tersedia pada environment local.
-if (app()->environment('local')) {
-
-    Route::view('/preview-login', 'auth.login')
-        ->name('preview.login');
-
-}
-
+// LOGOUT
+Route::post('/logout', [AuthController::class, 'logout'])
+    ->name('logout');
 
 // DASHBOARD
-// Dipertahankan sesuai route proyek awal.
-Route::view('/dashboard', 'dashboard.index')
+Route::view('/dashboard', 'owner.dashboard')
+    ->middleware('auth')
     ->name('dashboard');

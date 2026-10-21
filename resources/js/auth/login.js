@@ -25,11 +25,8 @@ document.addEventListener('DOMContentLoaded', () => {
         alert('Silakan hubungi administrator Presma Konveksi.');
     });
 
-    // Preview saja. Jangan kirim password sampai route autentikasi backend siap.
-    form.addEventListener('submit', (e) => {
-        if (form.dataset.previewOnly === 'true') {
-            e.preventDefault();
-            alert('Ini masih pratinjau Login. Autentikasi menunggu integrasi backend.');
-        }
+        document.getElementById('forgotPassword')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        alert('Silakan hubungi administrator Presma Konveksi.');
     });
 });
