@@ -110,3 +110,9 @@ if (app()->environment('local')) {
     Route::view('/cs', 'cs.dashboard');
 
 }
+
+
+if (app()->environment('local')) {
+    Route::view('/preview-customer', 'cs.customer')
+        ->name('cs.customer.preview');
+}
