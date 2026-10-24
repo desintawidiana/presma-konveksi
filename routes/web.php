@@ -116,3 +116,13 @@ if (app()->environment('local')) {
     Route::view('/preview-customer', 'cs.customer')
         ->name('cs.customer.preview');
 }
+
+
+if (app()->environment('local')) {
+    Route::view('/preview-order', 'cs.order')
+        ->name('cs.order.preview');
+}
+
+Route::view('/preview-order/detail', 'cs.order-detail')
+    ->name('cs.order.detail.preview');
+    

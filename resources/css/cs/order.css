@@ -1,0 +1,336 @@
+/* CS Order - scoped overrides for Stitch UI */
+.cs-order-page {
+    min-width: 0;
+}
+
+.cs-order-page>div {
+    min-width: 0;
+}
+
+.cs-order-page table {
+    font-size: 12px;
+}
+
+.cs-order-page table th {
+    padding: 10px 12px;
+    font-size: 10px;
+    line-height: 1.5;
+    white-space: nowrap;
+    letter-spacing: .03em;
+}
+
+.cs-order-page table td {
+    padding: 10px 12px;
+    font-size: 12px;
+    line-height: 1.45;
+    vertical-align: middle;
+}
+
+.cs-order-page table td .text-\[15px\] {
+    font-size: 12px;
+}
+
+.cs-order-page table td button {
+    font-size: 11px;
+    padding: 7px 10px;
+    white-space: nowrap;
+}
+
+.cs-order-page table td button .material-symbols-outlined {
+    font-size: 15px;
+}
+
+.cs-order-page table td:nth-child(1),
+.cs-order-page table td:nth-child(7),
+.cs-order-page table td:nth-child(8) {
+    white-space: nowrap;
+}
+
+.cs-order-page [data-cs-action] {
+    cursor: pointer;
+}
+
+.cs-order-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    background: rgba(25, 28, 28, .55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+
+.cs-order-overlay.hidden {
+    display: none;
+}
+
+.cs-order-modal {
+    width: 100%;
+    max-width: 620px;
+    max-height: 90vh;
+    overflow: auto;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, .2);
+}
+
+.cs-order-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e1e3e3;
+    padding: 16px 20px;
+}
+
+.cs-order-modal-header button {
+    padding: 6px 10px;
+    border-radius: 7px;
+    font-size: 16px;
+}
+
+.cs-order-modal-header button:hover {
+    background: #f3f4f4;
+}
+
+.cs-order-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 20px;
+}
+
+.cs-order-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #59413e;
+}
+
+.cs-order-form input,
+.cs-order-form textarea {
+    width: 100%;
+    background: #f3f4f4;
+    border: 1px solid #d9dada;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 13px;
+    color: #191c1c;
+}
+
+.cs-order-form input:focus,
+.cs-order-form textarea:focus {
+    outline: 2px solid rgba(131, 9, 9, .2);
+    border-color: #830909;
+}
+
+.cs-order-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.cs-order-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 14px 20px;
+    border-top: 1px solid #e1e3e3;
+}
+
+.cs-order-form .cs-order-actions {
+    padding: 12px 0 0;
+}
+
+.cs-order-btn-primary,
+.cs-order-btn-light {
+    padding: 9px 16px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.cs-order-btn-primary {
+    background: #830909;
+    color: #fff;
+}
+
+.cs-order-btn-primary:hover {
+    background: #a10b0b;
+}
+
+.cs-order-btn-light {
+    background: #f3f4f4;
+    color: #191c1c;
+}
+
+.cs-order-note {
+    padding: 10px 20px;
+    color: #635d5e;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.cs-order-form .cs-order-note {
+    padding: 0;
+}
+
+.cs-order-detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    padding: 20px;
+}
+
+.cs-order-detail-grid>div {
+    padding: 12px;
+    border: 1px solid #e1e3e3;
+    background: #f8f9f9;
+    border-radius: 8px;
+    min-width: 0;
+}
+
+.cs-order-detail-grid small {
+    display: block;
+    color: #635d5e;
+    font-size: 11px;
+    margin-bottom: 5px;
+}
+
+.cs-order-detail-grid strong {
+    display: block;
+    overflow-wrap: anywhere;
+    font-size: 13px;
+}
+
+.cs-order-toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 100;
+    background: #2e3131;
+    color: white;
+    padding: 11px 15px;
+    border-radius: 8px;
+    font-size: 12px;
+    box-shadow: 0 4px 20px #0002;
+    max-width: 340px;
+}
+
+@media(max-width:640px) {
+    .cs-order-page {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .cs-order-form-grid,
+    .cs-order-detail-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Unified interactive order status tabs */
+.cs-order-page .cs-order-tab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-shrink: 0;
+    padding: 11px 16px;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    border-radius: 8px 8px 0 0;
+    background: transparent;
+    color: #635d5e;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    box-shadow: none;
+    cursor: pointer;
+    transition: background .15s, color .15s;
+}
+
+.cs-order-page .cs-order-tab:hover {
+    background: #e7e8e8;
+    color: #830909;
+}
+
+.cs-order-page .cs-order-tab.cs-tab-active {
+    background: #fff;
+    color: #830909;
+    font-weight: 700;
+    border-bottom-color: #830909;
+}
+
+.cs-order-page .cs-order-tab>span:last-child {
+    display: inline-flex;
+    min-width: 24px;
+    justify-content: center;
+    align-items: center;
+    padding: 2px 7px;
+    border-radius: 999px;
+    font-size: 11px;
+}
+
+.cs-order-page .cs-order-kpi-number {
+    font-size: 38px !important;
+    line-height: 1.12 !important;
+    font-weight: 700;
+    letter-spacing: -.03em;
+}
+
+.cs-order-page .cs-order-header-btn {
+    height: 44px !important;
+    min-width: 200px;
+    padding: 0 16px !important;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+@media(max-width:640px) {
+    .cs-order-page .cs-order-kpi-number {
+        font-size: 32px !important;
+    }
+
+    .cs-order-page .cs-order-header-btn {
+        min-width: 0;
+    }
+}
+
+/* Kolom aksi order */
+.cs-order-page td:last-child {
+    min-width: 310px;
+    white-space: nowrap;
+}
+
+/* Tombol aksi dalam satu baris */
+.cs-order-page td:last-child .cs-order-actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    flex-wrap: nowrap;
+}
+
+/* Ukuran tombol */
+.cs-order-page .cs-order-actions a,
+.cs-order-page .cs-order-actions button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    min-height: 36px;
+    padding: 8px 12px;
+    white-space: nowrap;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+}

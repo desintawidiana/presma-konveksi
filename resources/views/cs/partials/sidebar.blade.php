@@ -110,13 +110,18 @@
                 <span>Customer</span>
             </a>
 
-
-            <a href="#"
-                class="flex items-center gap-3 rounded-lg px-3 py-2 text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface"
+            <a href="{{ route('cs.order.preview') }}"
+                class="flex items-center gap-3 rounded-lg px-3 py-2 text-label-md transition-colors
+                {{ request()->routeIs('cs.order.preview')
+                    ? 'bg-[#F7E7E7] text-[#830909] font-semibold'
+                    : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface' }}"
                 data-path="order-management">
-                <span class="material-symbols-outlined text-[20px]">shopping_bag</span>
+                <span class="material-symbols-outlined text-[20px]">
+                    shopping_bag
+                </span>
                 <span>Order</span>
             </a>
+
 
             <a href="#"
                 class="flex items-center gap-3 rounded-lg px-3 py-2 text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface"
