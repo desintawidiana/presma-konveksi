@@ -67,5 +67,8 @@ if (app()->environment('local')) {
         ->name('cs.preview');
 }
 
-Route::view('/preview-order/detail', 'cs.order-detail')
-    ->name('cs.order.detail.preview');
+// PREVIEW DETAIL PESANAN
+if (app()->environment('local')) {
+    Route::view('/preview-order/detail', 'cs.order-detail')
+        ->name('cs.order.detail.preview');
+}
