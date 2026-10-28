@@ -38,9 +38,13 @@ Route::get('/dashboard', function () {
 })->middleware('auth')->name('dashboard');
 
 // DASHBOARD OWNER
-Route::view('/dashboard/owner', 'owner.dashboard')
-    ->middleware('auth')
-    ->name('dashboard.owner');
+Route::get('/dashboard/owner', function () {
+    if (Auth::user()->peran !== 'OWNER') {
+        abort(403, 'Kamu tidak memiliki akses ke dashboard Owner.');
+    }
+
+    return view('owner.dashboard');
+})->middleware('auth')->name('dashboard.owner');
 
 // DASHBOARD CS
 Route::get('/dashboard/cs', function () {
@@ -62,3 +66,6 @@ if (app()->environment('local')) {
     Route::view('/cs', 'cs.dashboard')
         ->name('cs.preview');
 }
+
+Route::view('/preview-order/detail', 'cs.order-detail')
+    ->name('cs.order.detail.preview');
