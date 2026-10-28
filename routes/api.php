@@ -4,12 +4,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Api\PelangganController;
+use App\Http\Controllers\Api\PesananController;
 
 Route::get('/pelanggan', [PelangganController::class, 'index']);
-
 Route::post('/pelanggan', [PelangganController::class, 'store']);
 
-
+Route::get('/pesanan', [PesananController::class, 'index']);
+Route::post('/pesanan', [PesananController::class, 'store']);
 
 /*
 |--------------------------------------------------------------------------
