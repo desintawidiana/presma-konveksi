@@ -1,8 +1,8 @@
 @extends('layout.cs')
 @section('title', 'Order Management | Presma Operations')
 @section('content')
-    <main class="cs-order-page w-full pt-16 px-space-xl py-space-lg flex-1 bg-surface">
-        <div class="flex flex-col w-full gap-space-lg">
+    <main class="cs-order-page w-full min-w-0 pt-20 px-space-xl py-space-lg bg-surface">
+        <div class="cs-order-main-stack flex flex-col w-full min-w-0 gap-space-lg">
             <!-- Top Banner / Operational Context Bar -->
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md pb-space-xs">
                 <div class="flex flex-col gap-2">
@@ -16,10 +16,17 @@
                 <div class="flex items-center gap-space-sm self-start md:self-auto"><button
                         class="cs-order-header-btn inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-lg bg-surface-container-lowest hover:bg-surface-container text-on-surface font-title-sm text-title-sm font-medium border border-[#D9DADB] transition-colors shadow-sm"><span
                             class="material-symbols-outlined text-[18px] text-emerald-700">file_download</span><span
-                            class="">Export Data (.CSV)</span></button><button
-                        class="cs-order-header-btn inline-flex items-center gap-2 px-4 h-[44px] rounded-lg bg-[#830909] hover:bg-[#A10B0B] text-on-primary font-title-sm text-title-sm font-semibold transition-all shadow-sm"><span
-                            class="material-symbols-outlined text-[18px]">add_circle</span><span class="">Tambah Order
-                            Baru</span></button></div>
+                            class="">Export Data (.CSV)</span></button>
+                    <a href="{{ route('cs.public-order.preview') }}"
+                        class="cs-order-header-btn inline-flex items-center justify-center gap-2 px-4 h-[44px] rounded-lg bg-[#830909] hover:bg-[#A10B0B] text-white font-title-sm text-title-sm font-semibold transition-all shadow-sm">
+
+                        <span class="material-symbols-outlined text-[18px]">
+                            add_circle
+                        </span>
+
+                        <span>Tambah Order Baru</span>
+                    </a>
+                </div>
             </div>
             <!-- Operational Stat Cards / Queue Pulse -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md">
@@ -39,7 +46,8 @@
                     <div
                         class="border-t border-surface-variant pt-2.5 mt-3 flex items-center gap-1.5 text-on-surface-variant font-body-sm text-body-sm">
                         <span class="material-symbols-outlined text-[15px] text-primary">calendar_today</span><span
-                            class="">Periode aktif Oktober 2024</span></div>
+                            class="">Periode aktif Oktober 2024</span>
+                    </div>
                 </div>
                 <div
                     class="bg-surface-container-lowest p-4 rounded-2xl border border-[#D9DADB] flex flex-col justify-between shadow-sm h-full">
@@ -57,7 +65,8 @@
                     <div
                         class="border-t border-surface-variant pt-2.5 mt-3 flex items-center gap-1.5 text-on-surface-variant font-body-sm text-body-sm">
                         <span class="material-symbols-outlined text-[15px] text-amber-800">schedule</span><span
-                            class="">Fiksasi spesifikasi &amp; harga satuan</span></div>
+                            class="">Fiksasi spesifikasi &amp; harga satuan</span>
+                    </div>
                 </div>
                 <div
                     class="bg-surface-container-lowest p-4 rounded-2xl border border-[#D9DADB] flex flex-col justify-between shadow-sm h-full">
@@ -76,7 +85,8 @@
                     <div
                         class="border-t border-surface-variant pt-2.5 mt-3 flex items-center gap-1.5 text-on-surface-variant font-body-sm text-body-sm">
                         <span class="material-symbols-outlined text-[15px] text-tertiary">layers</span><span
-                            class="truncate">Jahit, Bordir Komputer, Finishing</span></div>
+                            class="truncate">Jahit, Bordir Komputer, Finishing</span>
+                    </div>
                 </div>
                 <div
                     class="bg-surface-container-lowest p-4 rounded-2xl border border-[#D9DADB] flex flex-col justify-between shadow-sm h-full">
@@ -94,7 +104,8 @@
                     <div
                         class="border-t border-surface-variant pt-2.5 mt-3 flex items-center gap-1.5 text-on-surface-variant font-body-sm text-body-sm">
                         <span class="material-symbols-outlined text-[15px] text-emerald-700">check_circle</span><span
-                            class="">Quality Check lolos &amp; siap ekspedisi</span></div>
+                            class="">Quality Check lolos &amp; siap ekspedisi</span>
+                    </div>
                 </div>
             </div>
             <!-- Main Workflow Workspace Container -->
@@ -572,7 +583,8 @@
                                 class="px-3 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-title-sm text-title-sm font-medium"
                                 id="btn-cancel-input" type="button">Batal</button><button
                                 class="px-4 py-1.5 rounded-lg bg-primary-container text-on-primary hover:bg-primary font-title-sm text-title-sm font-semibold shadow-sm"
-                                type="submit">Simpan Antrean</button></div>
+                                type="submit">Simpan Antrean</button>
+                        </div>
                     </form>
                 </div>
             </div>

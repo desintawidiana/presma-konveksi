@@ -125,4 +125,6 @@ if (app()->environment('local')) {
 
 Route::view('/preview-order/detail', 'cs.order-detail')
     ->name('cs.order.detail.preview');
-    
+
+
+ require __DIR__.'/presma-public-order-preview.php';

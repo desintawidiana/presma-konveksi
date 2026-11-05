@@ -388,3 +388,37 @@ const initCsOrderDetailV4 = () => {
     }
 };
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initCsOrderDetailV4, { once: true }); else initCsOrderDetailV4();
+
+async function copyTrackingCode() {
+    const code = document.getElementById('modalTrackingCode')?.textContent?.trim();
+    const label = document.getElementById('copyTrackingCodeLabel');
+
+    if (!code || code === 'Menyiapkan kode...') return;
+
+    try {
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(code);
+        } else {
+            const temp = document.createElement('textarea');
+            temp.value = code;
+            temp.style.position = 'fixed';
+            temp.style.opacity = '0';
+            document.body.appendChild(temp);
+            temp.select();
+
+            const copied = document.execCommand('copy');
+            temp.remove();
+
+            if (!copied) throw new Error('Copy gagal');
+        }
+
+        if (label) {
+            label.textContent = 'Tersalin!';
+            setTimeout(() => {
+                label.textContent = 'Salin';
+            }, 1800);
+        }
+    } catch (error) {
+        alert('Kode tracking gagal disalin. Silakan salin secara manual.');
+    }
+}
