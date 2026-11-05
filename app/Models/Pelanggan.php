@@ -18,4 +18,28 @@ class Pelanggan extends Model
         'instansi',
         'sumber_informasi',
     ];
+
+    /**
+     * Mengisi kolom turunan sebelum data disimpan.
+     */
+    protected static function booted(): void
+    {
+        static::saving(function (Pelanggan $pelanggan) {
+            if ($pelanggan->isDirty('no_whatsapp')) {
+                $nomor = preg_replace(
+                    '/\D+/',
+                    '',
+                    $pelanggan->no_whatsapp ?? ''
+                );
+
+                $pelanggan->hp_4_digit = substr($nomor, -4);
+            }
+        });
+
+        static::creating(function (Pelanggan $pelanggan) {
+            if (empty($pelanggan->dibuat_pada)) {
+                $pelanggan->dibuat_pada = now();
+            }
+        });
+    }
 }

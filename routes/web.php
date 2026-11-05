@@ -1,4 +1,3 @@
-
 <?php
 
 use Illuminate\Support\Facades\Route;
@@ -54,6 +53,15 @@ Route::get('/dashboard/cs', function () {
 
     return view('cs.dashboard');
 })->middleware('auth')->name('dashboard.cs');
+
+// HALAMAN CUSTOMER CS
+Route::get('/cs/customer', function () {
+    if (Auth::user()->peran !== 'CS') {
+        abort(403, 'Kamu tidak memiliki akses ke halaman Customer.');
+    }
+
+    return view('cs.customer');
+})->middleware('auth')->name('cs.customer');
 
 // PREVIEW DASHBOARD OWNER
 if (app()->environment('local')) {

@@ -1,0 +1,719 @@
+/* Detail Order: konten mengikuti layout.cs, tanpa sidebar/header duplikat. */
+.cs-order-detail-page {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    overflow: visible;
+    min-height: calc(100vh - 64px);
+}
+
+.cs-order-detail-page #csDynamicOrder.hidden,
+.cs-order-detail-page #csExampleOrder.hidden {
+    display: none !important;
+}
+
+.cs-detail-generic {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.cs-detail-generic-head {
+    background: #fff;
+    border: 1px solid #e1e3e3;
+    border-radius: 12px;
+    padding: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.cs-detail-generic-head h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #191c1c;
+    margin: 5px 0;
+}
+
+.cs-detail-generic-head p {
+    font-size: 13px;
+    color: #59413e;
+}
+
+.cs-detail-eyebrow {
+    color: #830909 !important;
+    font-size: 11px !important;
+    font-weight: 700;
+    letter-spacing: .06em;
+}
+
+.cs-detail-stage {
+    background: #f7e7e7;
+    color: #830909;
+    border-radius: 20px;
+    padding: 7px 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.cs-detail-info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.cs-detail-info-grid article,
+.cs-detail-generic-card {
+    background: #fff;
+    border: 1px solid #e1e3e3;
+    border-radius: 12px;
+    padding: 18px;
+    min-width: 0;
+}
+
+.cs-detail-info-grid small {
+    display: block;
+    font-size: 11px;
+    color: #635d5e;
+    margin-bottom: 8px;
+}
+
+.cs-detail-info-grid strong {
+    display: block;
+    font-size: 14px;
+    color: #191c1c;
+    overflow-wrap: anywhere;
+}
+
+.cs-detail-generic-card h2 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.cs-detail-generic-card p {
+    font-size: 13px;
+    line-height: 1.7;
+    color: #635d5e;
+}
+
+@media(max-width:850px) {
+    .cs-detail-info-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media(max-width:520px) {
+    .cs-detail-info-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Tombol dan modal lampiran form pelanggan */
+.cs-order-detail-page .cs-detail-action-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 34px;
+    padding: 7px 13px;
+    border: 1px solid #e1dada;
+    border-radius: 8px;
+    background: #fff;
+    color: #830909;
+    font-size: 12px;
+    font-weight: 650;
+    cursor: pointer;
+    white-space: nowrap;
+    text-decoration: none
+}
+
+.cs-order-detail-page .cs-detail-action-button:hover {
+    background: #f7e7e7
+}
+
+.cs-order-detail-page .cs-detail-accent {
+    border-color: #f59e0b
+}
+
+.cs-order-detail-page .cs-detail-link {
+    border-color: #a5c8ff;
+    color: #004785
+}
+
+.cs-detail-footer-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 24px;
+    padding-top: 22px;
+    border-top: 1px solid #e1e3e3
+}
+
+.cs-detail-footer-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 9px
+}
+
+.cs-detail-verified {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    color: #635d5e
+}
+
+.cs-detail-verified .material-symbols-outlined {
+    color: #008c68
+}
+
+.cs-detail-back-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 10px 16px;
+    background: #830909;
+    color: #fff !important;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 700
+}
+
+.cs-detail-back-button:hover {
+    background: #6b0707
+}
+
+.cs-detail-preview-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: #0008;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px
+}
+
+.cs-detail-preview-overlay.hidden,
+.cs-detail-notice.hidden {
+    display: none !important
+}
+
+.cs-detail-preview-box {
+    background: white;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 20px 50px #0003;
+    overflow: hidden
+}
+
+.cs-detail-preview-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    border-bottom: 1px solid #eee
+}
+
+.cs-detail-preview-head button {
+    padding: 4px 10px;
+    cursor: pointer
+}
+
+.cs-detail-preview-content {
+    padding: 28px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 12px
+}
+
+.cs-detail-preview-content .material-symbols-outlined {
+    color: #830909
+}
+
+.cs-detail-preview-content p {
+    font-size: 12px;
+    color: #635d5e;
+    line-height: 1.6
+}
+
+.cs-detail-notice {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    z-index: 110;
+    padding: 13px 18px;
+    border-radius: 9px;
+    background: #2e3131;
+    color: white;
+    max-width: 340px;
+    font-size: 12px;
+    box-shadow: 0 4px 16px #0003
+}
+
+@media(max-width:650px) {
+    .cs-order-detail-page .cs-detail-footer-buttons {
+        width: 100%
+    }
+
+    .cs-order-detail-page .cs-detail-footer-buttons>* {
+        flex: 1
+    }
+
+    .cs-order-detail-page .cs-detail-action-button {
+        white-space: normal
+    }
+}
+
+@media print {
+
+    aside,
+    header,
+    .cs-detail-footer-actions,
+    .cs-detail-action-button,
+    .cs-detail-preview-overlay,
+    .cs-detail-notice {
+        display: none !important
+    }
+
+    .cs-order-detail-page {
+        padding: 0 !important
+    }
+
+    .cs-order-detail-page * {
+        print-color-adjust: exact
+    }
+}
+
+/* Workflow CS revisi / verifikasi tanpa mengubah backend */
+.cs-review-toolbar {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 0 0 14px
+}
+
+.cs-review-toolbar-right {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px
+}
+
+.cs-review-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    border-radius: 8px;
+    padding: 10px 13px;
+    min-height: 40px;
+    border: 1px solid #ddd;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background .15s;
+    line-height: 1.2
+}
+
+.cs-review-btn .material-symbols-outlined {
+    font-size: 17px
+}
+
+.cs-review-neutral {
+    background: #fff;
+    color: #59413e;
+    border-color: #d9dadb
+}
+
+.cs-review-neutral:hover {
+    background: #f3f4f4
+}
+
+.cs-review-primary {
+    background: #830909;
+    color: white;
+    border-color: #830909
+}
+
+.cs-review-primary:hover {
+    background: #650507
+}
+
+.cs-review-warning {
+    background: #fff7ed;
+    color: #9a3412;
+    border-color: #fed7aa
+}
+
+.cs-review-warning:hover {
+    background: #ffedd5
+}
+
+.cs-review-btn:disabled {
+    opacity: .5;
+    cursor: not-allowed
+}
+
+.cs-review-status {
+    font-size: 12px;
+    color: #59413e;
+    background: #fff;
+    border: 1px solid #e1e3e3;
+    border-left: 4px solid #830909;
+    padding: 11px 14px;
+    border-radius: 7px;
+    margin-bottom: 20px
+}
+
+.cs-size-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 14px
+}
+
+.cs-size-toolbar>span {
+    font-size: 11px;
+    color: #635d5e
+}
+
+.cs-workflow-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: #0009;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 16px
+}
+
+.cs-workflow-overlay.hidden {
+    display: none !important
+}
+
+.cs-workflow-dialog {
+    background: #fff;
+    max-width: 740px;
+    width: 100%;
+    max-height: 90vh;
+    overflow: auto;
+    border-radius: 12px;
+    box-shadow: 0 14px 60px #0004
+}
+
+.cs-workflow-small {
+    max-width: 540px
+}
+
+.cs-workflow-dialog-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 17px 20px;
+    border-bottom: 1px solid #e1e3e3
+}
+
+.cs-workflow-dialog-head h2 {
+    font-size: 17px;
+    font-weight: 750;
+    color: #191c1c
+}
+
+.cs-workflow-dialog-head button {
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 4px 8px
+}
+
+.cs-workflow-form {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    font-size: 13px
+}
+
+.cs-workflow-form p {
+    font-size: 12px;
+    color: #635d5e;
+    line-height: 1.6
+}
+
+.cs-workflow-form label:not(.cs-confirm-check) {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #59413e
+}
+
+.cs-workflow-form input:not([type=checkbox]),
+.cs-workflow-form textarea {
+    width: 100%;
+    padding: 10px 11px;
+    border: 1px solid #d9dadb;
+    border-radius: 7px;
+    background: #f8f9f9;
+    outline: none;
+    font-size: 13px;
+    color: #191c1c
+}
+
+.cs-workflow-form input:focus,
+.cs-workflow-form textarea:focus {
+    border-color: #830909;
+    box-shadow: 0 0 0 2px #8309091f
+}
+
+.cs-edit-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px
+}
+
+.cs-edit-sizes {
+    border: 1px solid #ddd;
+    padding: 12px;
+    border-radius: 8px
+}
+
+.cs-edit-sizes legend {
+    font-weight: 700;
+    color: #830909;
+    padding: 0 6px
+}
+
+.cs-edit-size-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 7px
+}
+
+.cs-edit-sizes small {
+    display: block;
+    margin-top: 8px;
+    color: #635d5e
+}
+
+.cs-edit-hint {
+    background: #f8f9f9;
+    border-radius: 8px;
+    padding: 10px
+}
+
+.cs-workflow-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 9px;
+    padding-top: 8px;
+    border-top: 1px solid #e1e3e3
+}
+
+.cs-confirm-check {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: #59413e
+}
+
+.cs-confirm-check input {
+    accent-color: #830909
+}
+
+.cs-size-table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 12px
+}
+
+.cs-size-table th,
+.cs-size-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #e1e3e3;
+    text-align: left
+}
+
+.cs-size-table thead,
+.cs-size-table tfoot {
+    background: #f3f4f4
+}
+
+@media(max-width:700px) {
+    .cs-edit-fields {
+        grid-template-columns: 1fr
+    }
+
+    .cs-edit-size-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr))
+    }
+
+    .cs-review-toolbar-right {
+        width: 100%
+    }
+
+    .cs-review-toolbar-right>* {
+        flex: 1;
+        white-space: normal
+    }
+}
+
+@media print {
+
+    .cs-review-toolbar,
+    .cs-review-status,
+    .cs-workflow-overlay,
+    .cs-size-toolbar {
+        display: none !important
+    }
+}
+
+/* Tombol kembali adalah navigasi teks, bukan aksi workflow. */
+.cs-order-detail-page .cs-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #830909;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 650;
+    padding: 8px 2px;
+    background: transparent;
+    border: 0;
+    box-shadow: none
+}
+
+.cs-order-detail-page .cs-back-link:hover {
+    text-decoration: underline;
+    color: #5c0002
+}
+
+.cs-order-detail-page .cs-back-link .material-symbols-outlined {
+    font-size: 18px
+}
+
+.cs-order-detail-page .cs-workflow-form select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #d9dadb;
+    border-radius: 7px;
+    background: #f8f9f9;
+    font-size: 13px
+}
+
+.cs-order-detail-page .cs-stage-options {
+    display: flex;
+    flex-direction: column;
+    gap: 13px
+}
+
+.cs-order-detail-page .hidden {
+    display: none !important
+}
+
+.cs-order-detail-page #csStageConfirmation {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: flex-start;
+    font-weight: 600
+}
+
+.cs-order-detail-page #csStageConfirmation input {
+    margin-top: 3px
+}
+
+/* V5: perubahan dilakukan langsung pada lima bagian hasil form pelanggan. */
+.cs-section-edit {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    border: 1px solid #d8b9b9;
+    background: #fff;
+    color: #830909;
+    border-radius: 7px;
+    padding: 5px 9px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    margin-left: auto
+}
+
+.cs-section-edit:hover {
+    background: #fff3f3
+}
+
+.cs-section-edit .material-symbols-outlined {
+    font-size: 15px
+}
+
+.cs-form-changes {
+    margin: 12px 16px 0;
+    padding: 11px 13px;
+    background: #fffaf2;
+    border: 1px solid #f1dfbd;
+    border-radius: 8px;
+    color: #504238;
+    font-size: 12px;
+    line-height: 1.8;
+    overflow-wrap: anywhere
+}
+
+.cs-form-changes>strong {
+    display: block;
+    color: #830909;
+    margin-bottom: 4px
+}
+
+.cs-order-deadline {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 9px;
+    font-size: 12px;
+    color: #830909
+}
+
+.cs-order-deadline .material-symbols-outlined {
+    font-size: 16px
+}
+
+.cs-edit-context {
+    padding: 9px 12px;
+    background: #f9f6f6;
+    border-radius: 8px
+}
+
+.cs-order-detail-page #csEditOrderForm label[hidden],
+.cs-order-detail-page #csEditSizesGroup[hidden] {
+    display: none !important
+}
+
+.cs-order-page .cs-table-deadline {
+    display: block;
+    color: #830909;
+    margin-top: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap
+}
