@@ -63,6 +63,28 @@ Route::get('/cs/customer', function () {
     return view('cs.customer');
 })->middleware('auth')->name('cs.customer');
 
+// HALAMAN ORDER CS
+// Nama 'cs.order.preview' dipertahankan karena dipakai tombol "kembali" di
+// resources/views/cs/order-detail.blade.php (sebelumnya route ini tidak ada
+// sehingga halaman detail error "Route [cs.order.preview] not defined").
+Route::get('/cs/order', function () {
+    if (!in_array('CS', explode(',', (string) Auth::user()->peran))) {
+        abort(403, 'Kamu tidak memiliki akses ke halaman Order.');
+    }
+
+    return view('cs.order');
+})->middleware('auth')->name('cs.order.preview');
+
+// HALAMAN DETAIL ORDER CS (versi terlindungi login dari /preview-order/detail)
+// Frontend: set data-detail-url="{{ route('cs.order.detail') }}" pada .cs-order-page
+Route::get('/cs/order/detail', function () {
+    if (!in_array('CS', explode(',', (string) Auth::user()->peran))) {
+        abort(403, 'Kamu tidak memiliki akses ke halaman Detail Order.');
+    }
+
+    return view('cs.order-detail');
+})->middleware('auth')->name('cs.order.detail');
+
 // PREVIEW DASHBOARD OWNER
 if (app()->environment('local')) {
     Route::view('/owner', 'owner.dashboard')

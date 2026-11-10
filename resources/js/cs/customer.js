@@ -162,14 +162,23 @@ document.addEventListener('DOMContentLoaded', () => {
     async function apiRequest(url, options = {}) {
         const response = await fetch(url, {
             ...options,
+            credentials: 'same-origin',
             headers: {
                 Accept: 'application/json',
+                // API memakai sesi login Laravel, sehingga wajib kirim token CSRF.
+                'X-CSRF-TOKEN':
+                    document.querySelector('meta[name="csrf-token"]')?.content || '',
                 ...(options.body
                     ? { 'Content-Type': 'application/json' }
                     : {}),
                 ...options.headers,
             },
         });
+
+        // Sesi login habis -> kembali ke halaman login.
+        if (response.status === 401) {
+            window.location.assign('/login');
+        }
 
         const result = await response.json().catch(() => ({}));
 

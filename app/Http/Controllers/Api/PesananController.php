@@ -5,161 +5,195 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Pelanggan;
 use App\Models\Pesanan;
+use App\Models\UkuranPesanan;
+use App\Services\PesananService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class PesananController extends Controller
 {
-    public function index()
+    public function __construct(private PesananService $service)
     {
-        $pesanan = Pesanan::with([
-            'pelanggan',
-            'spesifikasi',
-            'ukuranPesanan',
-        ])->orderByDesc('dibuat_pada')->get();
+    }
+
+    /**
+     * Daftar order untuk tabel dashboard. Memakai view `v_order` yang sudah
+     * menghitung jumlah, total tagihan, DP, kekurangan, status pembayaran,
+     * dan tahap produksi.
+     *
+     * Filter opsional: ?status_order=BARU  ?tahap=Cutting  ?q=kata
+     */
+    public function index(Request $request)
+    {
+        $query = DB::table('v_order')->orderByDesc('no');
+
+        if ($request->filled('status_order')) {
+            $query->where('status_order', $request->query('status_order'));
+        }
+
+        if ($request->filled('tahap')) {
+            $query->where('tahap_saat_ini', $request->query('tahap'));
+        }
+
+        if ($request->filled('q')) {
+            $q = '%' . $request->query('q') . '%';
+            $query->where(function ($w) use ($q) {
+                $w->where('kode_order', 'like', $q)
+                  ->orWhere('customer', 'like', $q)
+                  ->orWhere('instansi', 'like', $q);
+            });
+        }
 
         return response()->json([
             'message' => 'Data pesanan berhasil diambil',
-            'data' => $pesanan,
+            'data' => $query->get(),
         ]);
     }
 
-    private function validasiPesanan(Request $request): array
+    /** Detail lengkap satu order (untuk halaman detail & cetak). */
+    public function show(Pesanan $pesanan)
     {
-        return $request->validate([
-            'pelanggan_id' => [
-                'required',
-                'integer',
-                Rule::exists('pelanggan', 'id'),
-            ],
+        $pesanan->load([
+            'pelanggan', 'spesifikasi', 'ukuranPesanan',
+            'invoice', 'pembayaran', 'workOrder',
+        ]);
 
-            'jenis_produk' => [
-                'required',
-                Rule::in([
-                    'Korsa',
-                    'Vest',
-                    'Kaos',
-                    'Polo',
-                    'Jaket',
-                    'Topi',
-                    'Celana/Rok',
-                    'Scrub',
-                    'Makloon',
-                    'Ganci',
-                    'Lanyard',
-                    'ID CARD',
-                    'Jersey',
-                    'Workshirt',
-                    'Lainnya',
-                ]),
-            ],
+        $data = $pesanan->toArray();
+        $data['ringkasan_pembayaran'] = DB::table('v_pembayaran_order')
+            ->where('pesanan_id', $pesanan->id)->first();
+        $data['riwayat_tahap'] = DB::table('riwayat_tahap')
+            ->where('pesanan_id', $pesanan->id)->orderBy('id')->get();
 
-            'keterangan' => ['nullable', 'string', 'max:255'],
-            'harga_satuan' => ['nullable', 'numeric', 'min:0'],
-            'deadline' => ['nullable', 'date', 'after_or_equal:today'],
-
-            'spesifikasi' => ['required', 'array'],
-            'spesifikasi.model_cuttingan' => ['nullable', 'string', 'max:200'],
-            'spesifikasi.lengan' => [
-                'nullable',
-                Rule::in(['PANJANG', 'PENDEK']),
-            ],
-            'spesifikasi.status_desain' => [
-                'required',
-                Rule::in(['SUDAH_ADA_FILE', 'DIBUATKAN_TIM']),
-            ],
-            'spesifikasi.catatan_desain' => ['nullable', 'string'],
-            'spesifikasi.bahan' => ['nullable', 'string', 'max:150'],
-            'spesifikasi.warna' => ['nullable', 'string', 'max:100'],
-            'spesifikasi.pakai_lanyard' => ['sometimes', 'boolean'],
-            'spesifikasi.pakai_id_card' => ['sometimes', 'boolean'],
-            'spesifikasi.model_saku' => ['nullable', 'string'],
-            'spesifikasi.pakai_sablon' => ['sometimes', 'boolean'],
-            'spesifikasi.pakai_bordir' => ['sometimes', 'boolean'],
-            'spesifikasi.ket_bordir_sablon' => ['nullable', 'string'],
-            'spesifikasi.tambahan' => ['nullable', 'string'],
-            'spesifikasi.variasi_lain' => ['nullable', 'string'],
-
-            'ukuran' => ['required', 'array', 'min:1'],
-            'ukuran.*.ukuran' => [
-                'required',
-                'distinct',
-                Rule::in([
-                    'XS',
-                    'S',
-                    'M',
-                    'L',
-                    'XL',
-                    '2XL',
-                    '3XL',
-                    '4XL',
-                    '5XL',
-                    '6XL',
-                    'TANPA_UKURAN',
-                ]),
-            ],
-            'ukuran.*.jumlah' => ['required', 'integer', 'min:1'],
+        return response()->json([
+            'message' => 'Detail pesanan berhasil diambil',
+            'data' => $data,
         ]);
     }
 
+    /** CS membuat order manual (misal pelanggan memesan lewat WhatsApp). */
     public function store(Request $request)
     {
-        $validated = $this->validasiPesanan($request);
+        $validated = $request->validate(array_merge([
+            'pelanggan_id' => ['required', 'integer', Rule::exists('pelanggan', 'id')],
+        ], PesananService::aturanIsiPesanan()));
 
-        $pesanan = DB::transaction(function () use ($validated) {
-            $pelanggan = Pelanggan::findOrFail(
-                $validated['pelanggan_id']
-            );
-
-            $pesanan = Pesanan::create([
-                'pelanggan_id' => $pelanggan->id,
-                'jenis_produk' => $validated['jenis_produk'],
-                'keterangan' => $validated['keterangan'] ?? null,
-                'harga_satuan' => $validated['harga_satuan'] ?? null,
-                'deadline' => $validated['deadline'] ?? null,
-                'status_order' => 'BARU',
-                'dibuat_dari' => 'FORM_CUSTOMER',
-            ]);
-
-            $spesifikasi = $validated['spesifikasi'];
-
-            $pesanan->spesifikasi()->create([
-                'model_cuttingan' => $spesifikasi['model_cuttingan'] ?? null,
-                'lengan' => $spesifikasi['lengan'] ?? null,
-                'status_desain' => $spesifikasi['status_desain'],
-                'catatan_desain' => $spesifikasi['catatan_desain'] ?? null,
-                'bahan' => $spesifikasi['bahan'] ?? null,
-                'warna' => $spesifikasi['warna'] ?? null,
-                'pakai_lanyard' => $spesifikasi['pakai_lanyard'] ?? false,
-                'pakai_id_card' => $spesifikasi['pakai_id_card'] ?? false,
-                'model_saku' => $spesifikasi['model_saku'] ?? null,
-                'pakai_sablon' => $spesifikasi['pakai_sablon'] ?? false,
-                'pakai_bordir' => $spesifikasi['pakai_bordir'] ?? false,
-                'ket_bordir_sablon' => $spesifikasi['ket_bordir_sablon'] ?? null,
-                'tambahan' => $spesifikasi['tambahan'] ?? null,
-                'variasi_lain' => $spesifikasi['variasi_lain'] ?? null,
-            ]);
-
-            foreach ($validated['ukuran'] as $item) {
-                $pesanan->ukuranPesanan()->create([
-                    'ukuran' => $item['ukuran'],
-                    'jumlah' => $item['jumlah'],
-                ]);
-            }
-
-            return $pesanan;
-        });
-
-        $pesanan->load([
-            'pelanggan',
-            'spesifikasi',
-            'ukuranPesanan',
-        ]);
+        $pesanan = $this->service->buat(
+            Pelanggan::findOrFail($validated['pelanggan_id']),
+            $validated,
+            'CS'
+        );
 
         return response()->json([
             'message' => 'Pesanan berhasil dibuat',
             'data' => $pesanan,
         ], 201);
+    }
+
+    /**
+     * Ubah data order. Harga & rincian ukuran otomatis DIKUNCI oleh database
+     * setelah invoice dibuat (pesan penolakan dari trigger diteruskan sebagai 422).
+     * Perubahan tercatat ke riwayat_perubahan oleh trigger.
+     */
+    public function update(Request $request, Pesanan $pesanan)
+    {
+        $aturan = PesananService::aturanIsiPesanan();
+
+        $validated = $request->validate([
+            'jenis_produk' => ['sometimes', 'required', Rule::in(PesananService::JENIS_PRODUK)],
+            'keterangan' => $aturan['keterangan'],
+            'harga_satuan' => $aturan['harga_satuan'],
+            'deadline' => ['nullable', 'date'],
+            'catatan_internal' => ['nullable', 'string'],
+
+            'spesifikasi' => ['sometimes', 'array'],
+            'spesifikasi.model_cuttingan' => $aturan['spesifikasi.model_cuttingan'],
+            'spesifikasi.lengan' => $aturan['spesifikasi.lengan'],
+            'spesifikasi.status_desain' => ['sometimes', Rule::in(['SUDAH_ADA_FILE', 'DIBUATKAN_TIM'])],
+            'spesifikasi.catatan_desain' => $aturan['spesifikasi.catatan_desain'],
+            'spesifikasi.bahan' => $aturan['spesifikasi.bahan'],
+            'spesifikasi.warna' => $aturan['spesifikasi.warna'],
+            'spesifikasi.pakai_lanyard' => $aturan['spesifikasi.pakai_lanyard'],
+            'spesifikasi.pakai_id_card' => $aturan['spesifikasi.pakai_id_card'],
+            'spesifikasi.model_saku' => $aturan['spesifikasi.model_saku'],
+            'spesifikasi.pakai_sablon' => $aturan['spesifikasi.pakai_sablon'],
+            'spesifikasi.pakai_bordir' => $aturan['spesifikasi.pakai_bordir'],
+            'spesifikasi.ket_bordir_sablon' => $aturan['spesifikasi.ket_bordir_sablon'],
+            'spesifikasi.tambahan' => $aturan['spesifikasi.tambahan'],
+            'spesifikasi.variasi_lain' => $aturan['spesifikasi.variasi_lain'],
+
+            'ukuran' => ['sometimes', 'array', 'min:1'],
+            'ukuran.*.ukuran' => $aturan['ukuran.*.ukuran'],
+            'ukuran.*.jumlah' => $aturan['ukuran.*.jumlah'],
+        ]);
+
+        DB::transaction(function () use ($validated, $pesanan) {
+            $pesanan->fill(collect($validated)->only([
+                'jenis_produk', 'keterangan', 'harga_satuan', 'deadline', 'catatan_internal',
+            ])->all())->save();
+
+            if (!empty($validated['spesifikasi'])) {
+                $pesanan->spesifikasi()->update($validated['spesifikasi']);
+            }
+
+            if (isset($validated['ukuran'])) {
+                // Tabel ukuran_pesanan memakai primary key gabungan
+                // (pesanan_id, ukuran), jadi diganti lewat hapus + isi ulang
+                // (tidak lewat model->update()).
+                UkuranPesanan::where('pesanan_id', $pesanan->id)->delete();
+
+                foreach ($validated['ukuran'] as $item) {
+                    $pesanan->ukuranPesanan()->create($item);
+                }
+            }
+        });
+
+        return response()->json([
+            'message' => 'Pesanan berhasil diperbarui',
+            'data' => $pesanan->fresh(['pelanggan', 'spesifikasi', 'ukuranPesanan']),
+        ]);
+    }
+
+    /** CS memverifikasi order: BARU -> DIKONFIRMASI. */
+    public function konfirmasi(Pesanan $pesanan)
+    {
+        if ($pesanan->status_order !== 'BARU') {
+            return response()->json([
+                'message' => 'Hanya order berstatus BARU yang bisa dikonfirmasi.',
+            ], 422);
+        }
+
+        $pesanan->update(['status_order' => 'DIKONFIRMASI']);
+
+        return response()->json([
+            'message' => 'Pesanan berhasil dikonfirmasi',
+            'data' => $pesanan->fresh(),
+        ]);
+    }
+
+    /** Membatalkan order (BARU/DIKONFIRMASI -> BATAL). */
+    public function batal(Request $request, Pesanan $pesanan)
+    {
+        $request->validate(['alasan' => ['nullable', 'string', 'max:255']]);
+
+        if ($pesanan->status_order === 'BATAL') {
+            return response()->json(['message' => 'Order sudah berstatus BATAL.'], 422);
+        }
+
+        $pesanan->status_order = 'BATAL';
+
+        if ($request->filled('alasan')) {
+            $pesanan->catatan_internal = trim(
+                ($pesanan->catatan_internal ? $pesanan->catatan_internal . "\n" : '')
+                . 'Dibatalkan: ' . $request->input('alasan')
+            );
+        }
+
+        $pesanan->save();
+
+        return response()->json([
+            'message' => 'Pesanan berhasil dibatalkan',
+            'data' => $pesanan->fresh(),
+        ]);
     }
 }

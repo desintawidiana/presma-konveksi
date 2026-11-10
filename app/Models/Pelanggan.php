@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Support\NomorWhatsapp;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 
 class Pelanggan extends Model
@@ -10,8 +12,11 @@ class Pelanggan extends Model
 
     protected $primaryKey = 'id';
 
+    // Kolom dibuat_pada diisi default oleh database (CURRENT_TIMESTAMP).
     public $timestamps = false;
 
+    // JANGAN masukkan hp_4_digit: kolom itu GENERATED di database
+    // (right(no_whatsapp, 4)) sehingga tidak boleh diisi dari Laravel.
     protected $fillable = [
         'nama',
         'no_whatsapp',
@@ -19,27 +24,20 @@ class Pelanggan extends Model
         'sumber_informasi',
     ];
 
-    /**
-     * Mengisi kolom turunan sebelum data disimpan.
-     */
-    protected static function booted(): void
+    protected $casts = [
+        'dibuat_pada' => 'datetime',
+    ];
+
+    /** Selalu simpan nomor dalam format 62xxxxxxxxxx. */
+    protected function noWhatsapp(): Attribute
     {
-        static::saving(function (Pelanggan $pelanggan) {
-            if ($pelanggan->isDirty('no_whatsapp')) {
-                $nomor = preg_replace(
-                    '/\D+/',
-                    '',
-                    $pelanggan->no_whatsapp ?? ''
-                );
+        return Attribute::set(
+            fn (?string $nilai) => NomorWhatsapp::normalisasi($nilai)
+        );
+    }
 
-                $pelanggan->hp_4_digit = substr($nomor, -4);
-            }
-        });
-
-        static::creating(function (Pelanggan $pelanggan) {
-            if (empty($pelanggan->dibuat_pada)) {
-                $pelanggan->dibuat_pada = now();
-            }
-        });
+    public function pesanan()
+    {
+        return $this->hasMany(Pesanan::class, 'pelanggan_id');
     }
 }

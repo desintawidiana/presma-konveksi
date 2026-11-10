@@ -4,13 +4,17 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Pelanggan;
+use App\Support\NomorWhatsapp;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use Illuminate\Database\QueryException;
 
 class PelangganController extends Controller
 {
-    // Menampilkan semua pelanggan
+    private const SUMBER = [
+        'REKOMENDASI_TEMAN', 'INSTAGRAM', 'TIKTOK', 'IKLAN', 'FACEBOOK', 'LAINNYA',
+    ];
+
     public function index()
     {
         return response()->json([
@@ -19,27 +23,22 @@ class PelangganController extends Controller
         ]);
     }
 
-    // Menambahkan pelanggan
     public function store(Request $request)
     {
+        $this->normalkanNomor($request);
+
         $validated = $request->validate([
             'nama' => 'required|string|max:150',
-            'no_whatsapp' => 'required|string|max:20|unique:pelanggan,no_whatsapp',
-            'instansi' => 'nullable|string|max:200',
-            'sumber_informasi' => [
-                'nullable',
-                Rule::in([
-                    'REKOMENDASI_TEMAN',
-                    'INSTAGRAM',
-                    'TIKTOK',
-                    'IKLAN',
-                    'FACEBOOK',
-                    'LAINNYA',
-                ]),
+            'no_whatsapp' => [
+                'required', 'string', 'max:20',
+                'regex:' . NomorWhatsapp::POLA,
+                Rule::unique('pelanggan', 'no_whatsapp'),
             ],
-        ]);
+            'instansi' => 'nullable|string|max:200',
+            'sumber_informasi' => ['nullable', Rule::in(self::SUMBER)],
+        ], $this->pesanValidasi());
 
-        $pelanggan = Pelanggan::create($validated);
+        $pelanggan = Pelanggan::create($validated)->refresh();
 
         return response()->json([
             'message' => 'Data pelanggan berhasil ditambahkan',
@@ -47,7 +46,6 @@ class PelangganController extends Controller
         ], 201);
     }
 
-    // Menampilkan satu pelanggan
     public function show(Pelanggan $pelanggan)
     {
         return response()->json([
@@ -56,33 +54,20 @@ class PelangganController extends Controller
         ]);
     }
 
-    // Mengubah data pelanggan
     public function update(Request $request, Pelanggan $pelanggan)
     {
+        $this->normalkanNomor($request);
+
         $validated = $request->validate([
             'nama' => 'sometimes|required|string|max:150',
             'no_whatsapp' => [
-                'sometimes',
-                'required',
-                'string',
-                'max:20',
-                Rule::unique('pelanggan', 'no_whatsapp')
-                    ->ignore($pelanggan->id),
+                'sometimes', 'required', 'string', 'max:20',
+                'regex:' . NomorWhatsapp::POLA,
+                Rule::unique('pelanggan', 'no_whatsapp')->ignore($pelanggan->id),
             ],
             'instansi' => 'sometimes|nullable|string|max:200',
-            'sumber_informasi' => [
-                'sometimes',
-                'nullable',
-                Rule::in([
-                    'REKOMENDASI_TEMAN',
-                    'INSTAGRAM',
-                    'TIKTOK',
-                    'IKLAN',
-                    'FACEBOOK',
-                    'LAINNYA',
-                ]),
-            ],
-        ]);
+            'sumber_informasi' => ['sometimes', 'nullable', Rule::in(self::SUMBER)],
+        ], $this->pesanValidasi());
 
         $pelanggan->update($validated);
 
@@ -92,7 +77,6 @@ class PelangganController extends Controller
         ]);
     }
 
-    // Menghapus pelanggan
     public function destroy(Pelanggan $pelanggan)
     {
         try {
@@ -102,9 +86,28 @@ class PelangganController extends Controller
                 'message' => 'Data pelanggan berhasil dihapus',
             ]);
         } catch (QueryException $e) {
+            // Foreign key: pelanggan masih punya pesanan.
             return response()->json([
                 'message' => 'Pelanggan tidak dapat dihapus karena masih memiliki data terkait.',
             ], 409);
         }
+    }
+
+    /** 0857... / +62 857... -> 62857..., sebelum divalidasi. */
+    private function normalkanNomor(Request $request): void
+    {
+        if ($request->has('no_whatsapp')) {
+            $request->merge([
+                'no_whatsapp' => NomorWhatsapp::normalisasi($request->input('no_whatsapp')),
+            ]);
+        }
+    }
+
+    private function pesanValidasi(): array
+    {
+        return [
+            'no_whatsapp.regex' => 'Nomor WhatsApp tidak valid (contoh: 085732240729).',
+            'no_whatsapp.unique' => 'Nomor WhatsApp sudah terdaftar pada pelanggan lain.',
+        ];
     }
 }
