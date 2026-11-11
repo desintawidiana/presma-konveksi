@@ -154,7 +154,7 @@ const startCSOrder = () => {
 
         const actionClass = bClass + ' bg-[#830909] text-white border-[#830909] hover:bg-[#6b0707]';
 
-        cells[8].innerHTML = `\<div class="flex items-center justify-center gap-1.5 flex-wrap">\<button type="button" class="${bClass}" data-cs-action="detail">Detail\</button>\<button type="button" class="${actionClass}" data-cs-action="next" ${stage === 'completed' ? 'disabled' : ''}>${actionByStage[stage] || 'Verifikasi'}\</button>\</div>`;
+        cells[8].innerHTML = `\<div class="cs-order-actions-inline">\<button type="button" class="cs-order-icon-action" data-cs-action="edit" title="Edit pesanan" aria-label="Edit pesanan"><span class="material-symbols-outlined">edit</span></button>\<button type="button" class="cs-order-icon-action is-danger" data-cs-action="delete" title="Hapus dari pratinjau" aria-label="Hapus dari pratinjau"><span class="material-symbols-outlined">delete</span></button>\<button type="button" class="${actionClass}" data-cs-action="next" ${stage === 'completed' ? 'disabled' : ''}>${actionByStage[stage] || 'Verifikasi'}\</button>\</div>`;
 
     };
 
@@ -198,39 +198,49 @@ const startCSOrder = () => {
 
 
 
+    let currentPage = 1;
+    let pageSize = 10;
+    const pagination = page.querySelector('[data-cs-pagination]');
     const updateFilters = () => {
-
         const q = (search?.value || '').toLocaleLowerCase('id-ID').trim();
-
-        let count = 0;
-
-        rows().forEach(row => {
-
-            const matches = (!q || row.textContent.toLocaleLowerCase('id-ID').includes(q)) &&
-
-                (!payment || payment.value === 'all' || row.dataset.payment === payment.value) &&
-
-                (!category || category.value === 'all' || row.dataset.category === category.value) &&
-
-                (activeTab === 'all' || row.dataset.stage === activeTab);
-
-            row.hidden = !matches;
-
-            row.style.display = matches ? '' : 'none';
-
-            if (matches) count++;
-
-        });
-
+        const matched = rows().filter(row =>
+            (!q || row.textContent.toLocaleLowerCase('id-ID').includes(q)) &&
+            (!payment || payment.value === 'all' || row.dataset.payment === payment.value) &&
+            (!category || category.value === 'all' || row.dataset.category === category.value) &&
+            (activeTab === 'all' || row.dataset.stage === activeTab)
+        );
+        const pages = Math.max(1, Math.ceil(matched.length / pageSize));
+        currentPage = Math.min(currentPage, pages);
+        const start = (currentPage - 1) * pageSize;
+        const end = Math.min(start + pageSize, matched.length);
+        rows().forEach(row => { row.hidden = !matched.includes(row) || matched.indexOf(row) < start || matched.indexOf(row) >= end; });
         const summary = page.querySelector('[data-cs-summary]');
-
-        if (summary) summary.textContent = `Menampilkan ${count} dari ${rows().length} order contoh`;
-
+        if (summary) summary.textContent = matched.length
+            ? `Menampilkan ${start + 1}–${end} dari ${matched.length} data`
+            : 'Tidak ada data yang sesuai filter';
+        if (!pagination) return;
+        pagination.innerHTML = `
+          <div class="presma-pagination-info">
+            <span>${matched.length ? `Menampilkan ${start + 1}–${end} dari ${matched.length} data` : 'Tidak ada data untuk ditampilkan'}</span>
+            <label>Tampilkan <select data-page-size aria-label="Jumlah data per halaman">
+              <option value="10" ${pageSize === 10 ? 'selected' : ''}>10</option>
+              <option value="20" ${pageSize === 20 ? 'selected' : ''}>20</option>
+            </select></label>
+          </div>
+          <div class="presma-page-actions">
+            <button type="button" data-prev aria-label="Halaman sebelumnya" ${currentPage <= 1 ? 'disabled' : ''}>‹</button>
+            <span class="presma-page-current">${currentPage} / ${pages}</span>
+            <button type="button" data-next aria-label="Halaman berikutnya" ${currentPage >= pages ? 'disabled' : ''}>›</button>
+          </div>`;
+        pagination.querySelector('[data-page-size]')?.addEventListener('change', e => { pageSize = Number(e.target.value) || 10; currentPage = 1; updateFilters(); });
+        pagination.querySelector('[data-prev]')?.addEventListener('click', () => { if (currentPage > 1) { currentPage--; updateFilters(); } });
+        pagination.querySelector('[data-next]')?.addEventListener('click', () => { if (currentPage < pages) { currentPage++; updateFilters(); } });
     };
 
     page.querySelectorAll('[data-cs-tab]').forEach(button => button.addEventListener('click', () => {
 
         activeTab = button.dataset.csTab;
+        currentPage = 1;
 
         page.querySelectorAll('[data-cs-tab]').forEach(b => b.classList.toggle('cs-tab-active', b === button));
 
@@ -240,11 +250,11 @@ const startCSOrder = () => {
 
     page.querySelectorAll('[data-cs-tab]').forEach(b => b.classList.toggle('cs-tab-active', b.dataset.csTab === activeTab));
 
-    search?.addEventListener('input', updateFilters);
+    search?.addEventListener('input', () => { currentPage = 1; updateFilters(); });
 
-    payment?.addEventListener('change', updateFilters);
+    payment?.addEventListener('change', () => { currentPage = 1; updateFilters(); });
 
-    category?.addEventListener('change', updateFilters);
+    category?.addEventListener('change', () => { currentPage = 1; updateFilters(); });
 
     const openModal = modal => { if (modal) { modal.classList.remove('hidden'); modal.querySelector('button, input')?.focus(); } };
 
@@ -318,7 +328,7 @@ const startCSOrder = () => {
 
         const base = page.dataset.detailUrl || '/preview-order/detail';
 
-        window.location.assign(base + '?code=' + encodeURIComponent(record.code) + (action === 'next' ? '&action=next' : ''));
+        window.location.assign(base + '?code=' + encodeURIComponent(record.code) + (action === 'next' ? '&action=next' : action === 'edit' ? '&action=edit' : ''));
 
     };
 
@@ -334,11 +344,21 @@ const startCSOrder = () => {
 
         const action = btn.dataset.csAction || 'detail';
 
-        if (action === 'detail' || action === 'verify' || action === 'next') {
+        if (action === 'detail' || action === 'verify' || action === 'next' || action === 'edit') {
 
             e.preventDefault();
 
             openDetail(row, action);
+
+        } else if (action === 'delete') {
+
+            e.preventDefault();
+            const code = row.querySelector('td')?.textContent.trim() || 'pesanan ini';
+            if (!window.confirm(`Hapus ${code} dari daftar pratinjau? Data database tidak akan berubah.`)) return;
+            row.remove();
+            currentPage = 1;
+            updateFilters();
+            toast(`${code} dihapus dari daftar pratinjau. Perubahan belum tersimpan ke database.`);
 
         } else if (action === 'tracking') {
 
@@ -392,21 +412,7 @@ const startCSOrder = () => {
 
         page.querySelectorAll('[data-cs-tab]').forEach(b => b.classList.toggle('cs-tab-active', b.dataset.csTab === 'verification'));
 
-        syncRowActions(tr); updateFilters(); closeModals(); createForm.reset(); toast('Order contoh ditambahkan ke antrean (belum tersimpan ke database).');
-
-    });
-
-    // Demo dataset only: pagination buttons are intentionally inactive.*
-
-    const pagination = page.querySelector('[data-cs-summary]')?.parentElement;
-
-    pagination?.querySelectorAll('button').forEach(b => {
-
-        b.disabled = true;
-
-        b.title = 'Pagination menunggu integrasi backend';
-
-        b.style.opacity = '.55';
+        syncRowActions(tr); currentPage = 1; updateFilters(); closeModals(); createForm.reset(); toast('Order contoh ditambahkan ke antrean (belum tersimpan ke database).');
 
     });
 

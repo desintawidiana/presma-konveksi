@@ -67,3 +67,44 @@
 .cs-order-table tbody button .material-symbols-outlined {
     font-size: 15px;
 }
+
+
+/* =====================================================
+   SHARED ORDER-STYLE KPI CARDS — CS DASHBOARD
+===================================================== */
+.cs-dashboard-page .cs-dashboard-kpi-grid > div {
+    min-height: 126px !important;
+    padding: 16px !important;
+    border: 1px solid #D9DADB !important;
+    border-radius: 16px !important;
+    background: #fff !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,.05) !important;
+    gap: 8px !important;
+}
+.cs-dashboard-page .cs-dashboard-kpi-grid > div > div:first-child > span:first-child {
+    color: #635D5E !important;
+    font-size: 10px !important;
+    line-height: 1.5 !important;
+    font-weight: 600 !important;
+    letter-spacing: .045em !important;
+    text-transform: uppercase;
+}
+.cs-dashboard-page .cs-dashboard-kpi-grid > div > div:first-child > span:last-child {
+    width: 30px !important;
+    height: 30px !important;
+    border-radius: 8px !important;
+}
+.cs-dashboard-page .cs-dashboard-kpi-grid > div > div:first-child .material-symbols-outlined {
+    font-size: 18px !important;
+}
+.cs-dashboard-page .cs-dashboard-kpi-grid .text-4xl {
+    font-size: 38px !important;
+    line-height: 1.12 !important;
+    font-weight: 700 !important;
+    letter-spacing: -.03em !important;
+}
+.cs-dashboard-page .cs-dashboard-kpi-grid .rounded-full {
+    font-size: 10px !important;
+    line-height: 1.4 !important;
+    padding: 4px 8px !important;
+}

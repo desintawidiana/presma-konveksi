@@ -1,0 +1,1359 @@
+/* Work Order page - mengikuti skala visual halaman CS Order Presma */
+.cs-wo-page {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 22px 24px 30px;
+    background: #f8f9f9;
+    color: #191c1c;
+    font-family: Inter, Arial, sans-serif
+}
+
+.cs-wo-page *,
+.cs-wo-page *::before,
+.cs-wo-page *::after {
+    box-sizing: border-box
+}
+
+.cs-wo-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 18px;
+    width: 100%;
+    min-width: 0
+}
+
+.cs-wo-stack>* {
+    min-width: 0;
+    max-width: 100%
+}
+
+.cs-wo-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 16px
+}
+
+.cs-wo-breadcrumb {
+    font-size: 11px;
+    color: #635d5e;
+    margin-bottom: 10px
+}
+
+.cs-wo-breadcrumb span {
+    padding: 0 6px;
+    color: #aaa
+}
+
+.cs-wo-heading h1 {
+    font-size: 20px;
+    line-height: 1.35;
+    font-weight: 700;
+    letter-spacing: -.02em;
+    margin: 0 0 6px;
+    color: #111
+}
+
+.cs-wo-heading p {
+    font-size: 12px;
+    line-height: 1.5;
+    color: #635d5e;
+    margin: 0;
+    max-width: 680px
+}
+
+.cs-wo-primary,
+.cs-wo-light {
+    min-height: 36px;
+    padding: 8px 12px;
+    border: 0;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    cursor: pointer;
+    white-space: nowrap
+}
+
+.cs-wo-primary {
+    background: #830909;
+    color: #fff
+}
+
+.cs-wo-primary:hover {
+    background: #a10b0b
+}
+
+.cs-wo-light {
+    background: #f3f4f4;
+    color: #191c1c
+}
+
+.cs-wo-primary .material-symbols-outlined {
+    font-size: 16px
+}
+
+.cs-wo-header-btn {
+    min-height: 38px;
+    padding: 0 14px;
+    font-size: 12px
+}
+
+.cs-wo-kpis {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px
+}
+
+.cs-wo-kpi {
+    background: #fff;
+    border: 1px solid #d9dada;
+    border-radius: 12px;
+    padding: 14px 15px 12px;
+    min-width: 0;
+    box-shadow: 0 1px 2px #00000008
+}
+
+.cs-wo-kpi-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    color: #830909;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .045em
+}
+
+.cs-wo-kpi-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 25px;
+    height: 25px;
+    border-radius: 6px;
+    background: #f1eeee;
+    color: #830909
+}
+
+.cs-wo-kpi-icon .material-symbols-outlined {
+    font-size: 15px
+}
+
+.cs-wo-icon-yellow {
+    background: #fff7df;
+    color: #9b7300
+}
+
+.cs-wo-icon-blue {
+    background: #e5efff;
+    color: #245d9b
+}
+
+.cs-wo-icon-green {
+    background: #e4f8f0;
+    color: #00845e
+}
+
+.cs-wo-kpi-number {
+    display: block;
+    font-size: 34px !important;
+    line-height: 1.1 !important;
+    font-weight: 700;
+    letter-spacing: -.03em;
+    margin: 6px 0 8px;
+    color: #101010
+}
+
+.cs-wo-kpi-foot {
+    border-top: 1px solid #e1e3e3;
+    padding-top: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+    color: #635d5e;
+    font-size: 10px;
+    min-width: 0
+}
+
+.cs-wo-chip {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 20px;
+    padding: 3px 7px;
+    font-size: 9px;
+    font-weight: 600;
+    white-space: nowrap
+}
+
+.cs-wo-chip-neutral {
+    background: #eee;
+    color: #625b5b
+}
+
+.cs-wo-chip-yellow {
+    background: #ffe2df;
+    color: #a43d31
+}
+
+.cs-wo-chip-blue {
+    background: #e5efff;
+    color: #245d9b
+}
+
+.cs-wo-chip-green {
+    background: #d8f8eb;
+    color: #007d58
+}
+
+.cs-wo-panel {
+    background: #fff;
+    border: 1px solid #d9dada;
+    border-radius: 12px;
+    overflow: hidden;
+    min-width: 0
+}
+
+.cs-wo-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-bottom: 1px solid #e1e3e3
+}
+
+.cs-wo-search {
+    height: 36px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: min(410px, 48%);
+    padding: 0 10px;
+    border: 1px solid #d9dada;
+    border-radius: 7px;
+    background: #f8f8f8
+}
+
+.cs-wo-search>.material-symbols-outlined {
+    font-size: 16px;
+    color: #635d5e
+}
+
+.cs-wo-search input {
+    border: 0;
+    outline: 0;
+    background: transparent;
+    width: 100%;
+    min-width: 0;
+    font: 12px Inter, Arial;
+    color: #191c1c
+}
+
+.cs-wo-filter {
+    display: flex;
+    align-items: center;
+    gap: 7px
+}
+
+.cs-wo-filter label {
+    font-size: 9px;
+    color: #830909;
+    font-weight: 700;
+    white-space: nowrap
+}
+
+.cs-wo-filter select {
+    height: 34px;
+    padding: 0 9px;
+    border: 1px solid #d9dada;
+    border-radius: 7px;
+    background: #f8f8f8;
+    font: 11px Inter, Arial;
+    color: #292323
+}
+
+.cs-wo-table-wrap {
+    width: 100%;
+    overflow-x: auto
+}
+
+.cs-wo-table {
+    width: 100%;
+    min-width: 1320px;
+    border-collapse: collapse;
+    font-size: 12px;
+    text-align: left
+}
+
+.cs-wo-table th {
+    padding: 10px 10px;
+    font-size: 9px;
+    line-height: 1.5;
+    white-space: nowrap;
+    letter-spacing: .03em;
+    text-align: left;
+    color: #830909;
+    font-weight: 700;
+    background: #fff;
+    border-bottom: 1px solid #d9dada
+}
+
+.cs-wo-table td {
+    padding: 10px 10px;
+    font-size: 11px;
+    line-height: 1.45;
+    vertical-align: middle;
+    border-bottom: 1px solid #e1e3e3;
+    color: #292323
+}
+
+.cs-wo-table tbody tr:last-child td {
+    border-bottom: 0
+}
+
+.cs-wo-table tbody tr:hover {
+    background: #fdfafa
+}
+
+.cs-wo-table td strong {
+    font-size: 11px;
+    font-weight: 700;
+    color: #191c1c
+}
+
+.cs-wo-number {
+    color: #830909 !important;
+    white-space: nowrap
+}
+
+.cs-wo-table td small {
+    display: block;
+    font-size: 10px;
+    color: #635d5e;
+    margin-top: 3px
+}
+
+.cs-wo-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 8px;
+    border-radius: 20px;
+    font-size: 9px;
+    font-weight: 600;
+    white-space: nowrap
+}
+
+.cs-wo-status-review {
+    background: #fff0c7;
+    color: #946000
+}
+
+.cs-wo-status-ready {
+    background: #e3efff;
+    color: #245d9b
+}
+
+.cs-wo-status-sent {
+    background: #d9f8eb;
+    color: #007c59
+}
+
+.cs-wo-status .material-symbols-outlined {
+    font-size: 12px
+}
+
+.cs-wo-file-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    max-width: 190px;
+    color: #830909;
+    text-decoration: none;
+    font-size: 10px;
+    font-weight: 600;
+    overflow-wrap: anywhere
+}
+
+.cs-wo-file-link:hover {
+    text-decoration: underline
+}
+
+.cs-wo-file-link>.material-symbols-outlined {
+    font-size: 15px;
+    flex: 0 0 auto
+}
+
+.cs-wo-file-link .cs-wo-external {
+    font-size: 12px;
+    color: #8b7b78
+}
+
+.cs-wo-note-cell {
+    max-width: 175px;
+    min-width: 130px;
+    white-space: normal;
+    color: #635d5e !important;
+    font-size: 10px !important
+}
+
+.cs-wo-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 6px;
+    white-space: nowrap
+}
+
+.cs-wo-review {
+    min-height: 30px;
+    padding: 6px 9px;
+    border: 1px solid #830909;
+    border-radius: 6px;
+    background: #830909;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer
+}
+
+.cs-wo-review:hover {
+    background: #a10b0b
+}
+
+.cs-wo-delete {
+    width: 30px;
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #eadada;
+    border-radius: 6px;
+    background: #fff;
+    font-size: 14px;
+    cursor: pointer
+}
+
+.cs-wo-delete:hover {
+    background: #fff0ef;
+    border-color: #d9a6a2
+}
+
+.cs-wo-footnote {
+    margin: 0;
+    padding: 10px 14px;
+    color: #635d5e;
+    font-size: 10px;
+    line-height: 1.5;
+    border-top: 1px solid #e1e3e3;
+    background: #fcfcfc
+}
+
+.cs-wo-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    background: rgba(25, 28, 28, .55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px
+}
+
+.cs-wo-overlay[hidden] {
+    display: none
+}
+
+.cs-wo-modal {
+    display: none;
+    position: fixed;
+    z-index: 91;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(650px, calc(100% - 32px));
+    max-height: 90vh;
+    overflow: auto;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 20px 60px #0003
+}
+
+.cs-wo-modal.is-open {
+    display: block
+}
+
+.cs-wo-modal-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e1e3e3;
+    padding: 15px 19px
+}
+
+.cs-wo-modal-head small {
+    font-size: 9px;
+    color: #830909;
+    font-weight: 700;
+    letter-spacing: .08em
+}
+
+.cs-wo-modal-head h2 {
+    font-size: 17px;
+    margin: 4px 0 0;
+    font-weight: 700
+}
+
+.cs-wo-close {
+    width: 30px;
+    height: 30px;
+    border: 0;
+    border-radius: 7px;
+    background: #f3f4f4;
+    color: #393232;
+    font-size: 21px;
+    cursor: pointer
+}
+
+.cs-wo-form {
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+    padding: 17px 19px
+}
+
+.cs-wo-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px
+}
+
+.cs-wo-form label,
+.cs-wo-full-label,
+.cs-wo-link-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #59413e;
+    min-width: 0
+}
+
+.cs-wo-form input,
+.cs-wo-form select,
+.cs-wo-form textarea {
+    width: 100%;
+    min-width: 0;
+    background: #f8f8f8;
+    border: 1px solid #d9dada;
+    border-radius: 7px;
+    padding: 9px 10px;
+    font: 12px Inter, Arial;
+    color: #191c1c
+}
+
+.cs-wo-form input:focus,
+.cs-wo-form textarea:focus,
+.cs-wo-form select:focus {
+    outline: 2px solid #83090922;
+    border-color: #830909
+}
+
+.cs-wo-file-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px
+}
+
+.cs-wo-field-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #59413e
+}
+
+.cs-wo-file-options {
+    display: grid;
+    grid-template-columns: 1fr 34px 1fr;
+    gap: 10px;
+    align-items: center
+}
+
+.cs-wo-upload-box {
+    min-height: 86px;
+    border: 1px dashed #cdbfbd;
+    border-radius: 8px;
+    background: #fcfafa;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 4px !important;
+    padding: 10px;
+    cursor: pointer
+}
+
+.cs-wo-upload-box>.material-symbols-outlined {
+    font-size: 22px;
+    color: #830909
+}
+
+.cs-wo-upload-box strong {
+    font-size: 11px;
+    color: #393232
+}
+
+.cs-wo-upload-box small {
+    font-size: 9px;
+    color: #817472
+}
+
+.cs-wo-upload-box input {
+    max-width: 190px;
+    padding: 3px;
+    font-size: 9px;
+    border: 0;
+    background: transparent
+}
+
+.cs-wo-or {
+    text-align: center;
+    color: #8b7b78;
+    font-size: 10px;
+    font-weight: 500
+}
+
+.cs-wo-link-field input {
+    font-weight: 400
+}
+
+.cs-wo-helper {
+    font-size: 10px;
+    color: #817472;
+    line-height: 1.5
+}
+
+.cs-wo-demo-warning {
+    display: flex;
+    gap: 7px;
+    align-items: flex-start;
+    margin: 0;
+    padding: 9px 10px;
+    background: #f4f5f5;
+    border-radius: 7px;
+    color: #635d5e;
+    font-size: 10px;
+    line-height: 1.5
+}
+
+.cs-wo-demo-warning .material-symbols-outlined {
+    font-size: 15px;
+    flex: 0 0 auto
+}
+
+.cs-wo-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 13px 19px;
+    border-top: 1px solid #e1e3e3
+}
+
+.cs-wo-detail-content {
+    padding: 17px 19px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px
+}
+
+.cs-wo-detail-item {
+    padding: 11px;
+    border: 1px solid #e1e3e3;
+    background: #f8f9f9;
+    border-radius: 8px;
+    min-width: 0
+}
+
+.cs-wo-detail-item small {
+    display: block;
+    color: #635d5e;
+    font-size: 10px;
+    margin-bottom: 5px
+}
+
+.cs-wo-detail-item strong,
+.cs-wo-detail-item a {
+    display: block;
+    overflow-wrap: anywhere;
+    font-size: 12px;
+    color: #191c1c
+}
+
+.cs-wo-detail-item a {
+    color: #830909
+}
+
+.cs-wo-empty {
+    padding: 25px !important;
+    text-align: center !important;
+    color: #635d5e !important
+}
+
+@media(max-width:1000px) {
+    .cs-wo-kpis {
+        grid-template-columns: repeat(2, minmax(0, 1fr))
+    }
+
+    .cs-wo-page {
+        padding: 18px 16px
+    }
+}
+
+@media(max-width:640px) {
+    .cs-wo-heading {
+        align-items: flex-start;
+        flex-direction: column
+    }
+
+    .cs-wo-heading h1 {
+        font-size: 18px
+    }
+
+    .cs-wo-toolbar {
+        align-items: stretch;
+        flex-direction: column
+    }
+
+    .cs-wo-search {
+        width: 100%
+    }
+
+    .cs-wo-filter {
+        justify-content: flex-end
+    }
+
+    .cs-wo-kpi {
+        padding: 12px
+    }
+
+    .cs-wo-kpi-number {
+        font-size: 30px !important
+    }
+
+    .cs-wo-kpi-foot {
+        align-items: flex-start;
+        flex-direction: column
+    }
+
+    .cs-wo-form-grid,
+    .cs-wo-detail-content {
+        grid-template-columns: 1fr
+    }
+
+    .cs-wo-file-options {
+        grid-template-columns: 1fr
+    }
+
+    .cs-wo-or {
+        padding: 0
+    }
+
+    .cs-wo-modal {
+        max-height: 92vh
+    }
+}
+
+
+/* Penyesuaian skala agar konsisten dengan halaman CS Order */
+.cs-wo-page {
+    padding: 24px 24px 32px
+}
+
+.cs-wo-stack {
+    gap: 20px
+}
+
+.cs-wo-heading h1 {
+    font-size: 21px
+}
+
+.cs-wo-heading p {
+    font-size: 13px;
+    max-width: 720px
+}
+
+.cs-wo-header-btn {
+    min-height: 42px;
+    padding: 0 16px;
+    font-size: 13px
+}
+
+.cs-wo-kpis {
+    gap: 12px
+}
+
+.cs-wo-kpi {
+    padding: 15px 16px 13px;
+    border-radius: 12px
+}
+
+.cs-wo-kpi-top {
+    font-size: 10px
+}
+
+.cs-wo-kpi-number {
+    font-size: 38px !important;
+    line-height: 1.12 !important;
+    margin: 7px 0 9px
+}
+
+.cs-wo-kpi-foot {
+    font-size: 10px;
+    padding-top: 9px
+}
+
+.cs-wo-toolbar {
+    padding: 13px 14px
+}
+
+.cs-wo-search {
+    height: 38px
+}
+
+.cs-wo-search input {
+    font-size: 12px
+}
+
+.cs-wo-filter label {
+    font-size: 10px
+}
+
+.cs-wo-filter select {
+    height: 36px;
+    font-size: 12px
+}
+
+.cs-wo-table {
+    min-width: 1450px;
+    font-size: 12px
+}
+
+.cs-wo-table th {
+    padding: 11px 12px;
+    font-size: 10px
+}
+
+.cs-wo-table td {
+    padding: 11px 12px;
+    font-size: 12px;
+    line-height: 1.45
+}
+
+.cs-wo-table td strong {
+    font-size: 12px
+}
+
+.cs-wo-table td small {
+    font-size: 10px
+}
+
+.cs-wo-status {
+    font-size: 10px;
+    padding: 5px 9px
+}
+
+.cs-wo-file-link {
+    font-size: 11px
+}
+
+.cs-wo-note-cell {
+    font-size: 11px !important
+}
+
+.cs-wo-review,
+.cs-wo-forward {
+    min-height: 34px;
+    padding: 7px 10px;
+    font-size: 11px;
+    border-radius: 7px
+}
+
+.cs-wo-actions {
+    gap: 7px
+}
+
+.cs-wo-delete {
+    width: 34px;
+    height: 34px;
+    border-radius: 7px;
+    color: #830909;
+    background: #fff;
+    border: 1px solid #eadada
+}
+
+.cs-wo-delete .material-symbols-outlined {
+    font-size: 18px;
+    line-height: 1
+}
+
+.cs-wo-delete:hover {
+    background: #fff0ef;
+    border-color: #d9a6a2
+}
+
+.cs-wo-forward {
+    border: 1px solid #830909;
+    background: #fff;
+    color: #830909;
+    font-weight: 600;
+    cursor: pointer
+}
+
+.cs-wo-forward:hover {
+    background: #f8e6e6
+}
+
+.cs-wo-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 14px;
+    border-top: 1px solid #e1e3e3;
+    background: #fff
+}
+
+.cs-wo-page-info {
+    font-size: 11px;
+    color: #635d5e
+}
+
+.cs-wo-page-controls {
+    display: flex;
+    align-items: center;
+    gap: 7px
+}
+
+.cs-wo-page-controls button {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #d9dada;
+    border-radius: 6px;
+    background: #fff;
+    color: #830909;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer
+}
+
+.cs-wo-page-controls button:disabled {
+    opacity: .35;
+    cursor: not-allowed
+}
+
+.cs-wo-page-controls span {
+    min-width: 26px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #830909
+}
+
+@media(max-width:900px) {
+    .cs-wo-page {
+        padding: 18px 16px
+    }
+
+    .cs-wo-kpi-number {
+        font-size: 32px !important
+    }
+
+    .cs-wo-table {
+        min-width: 1250px
+    }
+}
+
+@media(max-width:640px) {
+    .cs-wo-page {
+        padding: 16px
+    }
+
+    .cs-wo-heading h1 {
+        font-size: 19px
+    }
+
+    .cs-wo-kpi-number {
+        font-size: 30px !important
+    }
+
+    .cs-wo-pagination {
+        align-items: flex-start;
+        flex-direction: column
+    }
+}
+
+/* Drawer upload WO sesuai layout yang diminta */
+.wo-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: rgba(25, 28, 28, .48)
+}
+
+.wo-drawer {
+    position: fixed;
+    z-index: 101;
+    top: 0;
+    right: 0;
+    width: min(480px, 100%);
+    height: 100vh;
+    overflow-y: auto;
+    background: #fff;
+    box-shadow: -12px 0 35px #0002;
+    transform: translateX(105%);
+    transition: transform .25s ease;
+    padding: 0 22px 22px;
+    font-family: Inter, Arial, sans-serif;
+    color: #191c1c
+}
+
+.wo-drawer.is-open {
+    transform: translateX(0)
+}
+
+.wo-drawer-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 22px 0 17px;
+    border-bottom: 1px solid #e1e3e3;
+    margin-bottom: 18px
+}
+
+.wo-eyebrow {
+    display: block;
+    color: #830909;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    margin-bottom: 5px
+}
+
+.wo-drawer-head h2 {
+    margin: 0;
+    font-size: 19px;
+    line-height: 1.3;
+    font-weight: 700;
+    color: #191c1c
+}
+
+.wo-icon-btn {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 7px;
+    background: #f3f4f4;
+    color: #393232;
+    cursor: pointer
+}
+
+.wo-icon-btn .material-symbols-outlined {
+    font-size: 19px
+}
+
+#wo-upload-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px
+}
+
+.wo-field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px
+}
+
+.wo-field>label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #59413e
+}
+
+.wo-field>small,
+.wo-field small {
+    font-size: 10px;
+    line-height: 1.5;
+    color: #817472
+}
+
+.wo-field input:not([type=radio]):not([type=file]),
+.wo-field select,
+.wo-field textarea {
+    width: 100%;
+    min-height: 39px;
+    padding: 9px 11px;
+    border: 1px solid #d9dada;
+    border-radius: 8px;
+    background: #f8f8f8;
+    color: #191c1c;
+    font: 12px Inter, Arial, sans-serif
+}
+
+.wo-field textarea {
+    resize: vertical
+}
+
+.wo-field input:focus,
+.wo-field select:focus,
+.wo-field textarea:focus {
+    outline: 2px solid #83090922;
+    border-color: #830909
+}
+
+.wo-field input:disabled {
+    color: #8b8585;
+    background: #f0f0f0;
+    cursor: not-allowed
+}
+
+.wo-file-options {
+    display: flex;
+    gap: 18px;
+    align-items: center
+}
+
+.wo-choice {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: #393232;
+    cursor: pointer
+}
+
+.wo-choice input {
+    accent-color: #830909
+}
+
+.wo-dropzone {
+    min-height: 126px;
+    border: 1px dashed #cdbfbd;
+    border-radius: 9px;
+    background: #fcfafa;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    text-align: center;
+    padding: 14px;
+    cursor: pointer;
+    color: #635d5e
+}
+
+.wo-dropzone>.material-symbols-outlined {
+    font-size: 26px;
+    color: #830909
+}
+
+.wo-dropzone strong {
+    font-size: 12px;
+    color: #393232
+}
+
+.wo-dropzone span:not(.material-symbols-outlined) {
+    font-size: 10px
+}
+
+.wo-dropzone input {
+    max-width: 220px;
+    font-size: 10px
+}
+
+#wo-link-zone input {
+    width: 100%;
+    min-height: 39px;
+    padding: 9px 11px;
+    border: 1px solid #d9dada;
+    border-radius: 8px;
+    background: #f8f8f8;
+    font: 12px Inter, Arial
+}
+
+#wo-link-zone small {
+    display: block;
+    margin-top: 6px;
+    font-size: 10px;
+    color: #817472
+}
+
+.wo-alert {
+    display: flex;
+    gap: 8px;
+    padding: 11px;
+    border-radius: 8px;
+    background: #f3f4f4;
+    color: #635d5e;
+    font-size: 10px;
+    line-height: 1.5
+}
+
+.wo-alert .material-symbols-outlined {
+    font-size: 16px;
+    flex: 0 0 auto
+}
+
+.wo-drawer-actions,
+.wo-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding-top: 14px;
+    border-top: 1px solid #e1e3e3
+}
+
+.wo-btn {
+    min-height: 36px;
+    padding: 8px 14px;
+    border: 0;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer
+}
+
+.wo-btn-light {
+    background: #f3f4f4;
+    color: #191c1c
+}
+
+.wo-btn-primary {
+    background: #830909;
+    color: #fff
+}
+
+.wo-btn-primary:hover {
+    background: #a10b0b
+}
+
+.wo-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 110;
+    background: #191c1c8c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px
+}
+
+.wo-modal-backdrop[hidden],
+.wo-overlay[hidden],
+.wo-drawer [hidden] {
+    display: none !important
+}
+
+.wo-modal-card {
+    width: min(620px, 100%);
+    max-height: 90vh;
+    overflow: auto;
+    background: #fff;
+    border-radius: 13px;
+    padding: 0 20px 18px;
+    box-shadow: 0 20px 60px #0003
+}
+
+.wo-modal-card .wo-drawer-head {
+    margin-bottom: 0
+}
+
+.wo-modal-actions {
+    margin-top: 16px
+}
+
+@media(max-width:600px) {
+    .wo-drawer {
+        padding: 0 17px 18px
+    }
+
+    .wo-modal-card {
+        padding: 0 15px 15px
+    }
+
+    .wo-modal-card .cs-wo-detail-content {
+        grid-template-columns: 1fr
+    }
+}
+
+/* =====================================================
+   SHARED ORDER-STYLE COMPONENTS — WORK ORDER PAGE
+===================================================== */
+.cs-wo-page .cs-wo-kpi {
+    min-height: 126px !important;
+    padding: 16px !important;
+    border: 1px solid #D9DADB !important;
+    border-radius: 16px !important;
+    background: #fff !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,.05) !important;
+}
+.cs-wo-page .cs-wo-kpi-top {
+    color: #635D5E !important;
+    font-size: 10px !important;
+    line-height: 1.5 !important;
+    font-weight: 600 !important;
+    letter-spacing: .045em !important;
+}
+.cs-wo-page .cs-wo-kpi-icon {
+    width: 30px !important;
+    height: 30px !important;
+    border-radius: 8px !important;
+}
+.cs-wo-page .cs-wo-kpi-icon .material-symbols-outlined { font-size: 18px !important; }
+.cs-wo-page .cs-wo-kpi-number {
+    font-size: 38px !important;
+    line-height: 1.12 !important;
+    font-weight: 700 !important;
+    letter-spacing: -.03em !important;
+    margin: 7px 0 9px !important;
+}
+.cs-wo-page .cs-wo-kpi-foot {
+    padding-top: 9px !important;
+    font-size: 10px !important;
+    line-height: 1.45 !important;
+}
+.cs-wo-page .cs-wo-table {
+    font-family: Inter, Arial, sans-serif !important;
+    font-size: 12px !important;
+    border-collapse: collapse !important;
+}
+.cs-wo-page .cs-wo-table th {
+    padding: 10px 12px !important;
+    font-size: 10px !important;
+    line-height: 1.5 !important;
+    font-weight: 600 !important;
+    letter-spacing: .03em !important;
+    color: #635D5E !important;
+    background: #F8F9F9 !important;
+}
+.cs-wo-page .cs-wo-table td {
+    padding: 10px 12px !important;
+    font-size: 12px !important;
+    line-height: 1.45 !important;
+    color: #292323 !important;
+}
+.cs-wo-page .cs-wo-table td strong { font-size: 12px !important; line-height: 1.4 !important; }
+.cs-wo-page .cs-wo-table td small { font-size: 10px !important; line-height: 1.4 !important; }
+.cs-wo-page .cs-wo-status { font-size: 10px !important; }
