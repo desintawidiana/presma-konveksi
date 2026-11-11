@@ -11,8 +11,7 @@
                     <div class="flex items-center gap-space-xs text-on-surface-variant font-body-sm text-body-sm mb-1">
                     </div>
                     <div class="flex items-center gap-3">
-                        <h1 class="font-headline-lg text-headline-lg text-on-surface font-bold tracking-tight">Direktori
-                            &amp; Profil Pelanggan</h1>
+                        <h1 class="font-headline-lg text-headline-lg text-on-surface font-bold tracking-tight">Customer Management</h1>
                     </div>
                     <p class="font-body-md text-body-md text-on-surface-variant mt-0.5">Database kontak pemesan, instansi,
                         dan riwayat pesanan garmen konveksi (non-login account model).</p>
@@ -32,7 +31,7 @@
                 </div>
             </div>
             <!-- KPI Summary Banner -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-space-md">
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-space-md cs-customer-kpi-grid">
                 <!-- KPI 1 -->
                 <div
                     class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between relative overflow-hidden w-full">
@@ -229,7 +228,7 @@
                                         </td>
                                         <td class="py-3.5 px-4 font-data-tabular text-[12px]">
                                             <a class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 hover:bg-emerald-100 transition-colors font-mono font-medium text-[12px]"
-                                                href="https://wa.me/6281244918821" rel="noopener noreferrer"
+                                                href="https://wa.me/6287738974108" rel="noopener noreferrer"
                                                 target="_blank" title="Kirim Pesan WhatsApp">
                                                 <span
                                                     class="material-symbols-outlined text-[14px] text-emerald-700">chat</span>
@@ -292,7 +291,7 @@
                                         </td>
                                         <td class="py-3.5 px-4 font-data-tabular text-[12px]">
                                             <a class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-surface-container text-on-surface hover:bg-surface-container-high transition-colors font-mono text-[12px]"
-                                                href="https://wa.me/6287739128841" rel="noopener noreferrer"
+                                                href="https://wa.me/6287738974108" rel="noopener noreferrer"
                                                 target="_blank" title="Kirim Pesan WhatsApp">
                                                 <span
                                                     class="material-symbols-outlined text-[14px] text-emerald-700">chat</span>
@@ -355,7 +354,7 @@
                                         </td>
                                         <td class="py-3.5 px-4 font-data-tabular text-[12px]">
                                             <a class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-surface-container text-on-surface hover:bg-surface-container-high transition-colors font-mono text-[12px]"
-                                                href="https://wa.me/6281399812401" rel="noopener noreferrer"
+                                                href="https://wa.me/6287738974108" rel="noopener noreferrer"
                                                 target="_blank" title="Kirim Pesan WhatsApp">
                                                 <span
                                                     class="material-symbols-outlined text-[14px] text-emerald-700">chat</span>
@@ -418,7 +417,7 @@
                                         </td>
                                         <td class="py-3.5 px-4 font-data-tabular text-[12px]">
                                             <a class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-surface-container text-on-surface hover:bg-surface-container-high transition-colors font-mono text-[12px]"
-                                                href="https://wa.me/6285811094321" rel="noopener noreferrer"
+                                                href="https://wa.me/6287738974108" rel="noopener noreferrer"
                                                 target="_blank" title="Kirim Pesan WhatsApp">
                                                 <span
                                                     class="material-symbols-outlined text-[14px] text-emerald-700">chat</span>
@@ -481,7 +480,7 @@
                                         </td>
                                         <td class="py-3.5 px-4 font-data-tabular text-[12px]">
                                             <a class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-surface-container text-on-surface hover:bg-surface-container-high transition-colors font-mono text-[12px]"
-                                                href="https://wa.me/6281903445892" rel="noopener noreferrer"
+                                                href="https://wa.me/6287738974108" rel="noopener noreferrer"
                                                 target="_blank" title="Kirim Pesan WhatsApp">
                                                 <span
                                                     class="material-symbols-outlined text-[14px] text-emerald-700">chat</span>
@@ -544,7 +543,7 @@
                                         </td>
                                         <td class="py-3.5 px-4 font-data-tabular text-[12px]">
                                             <a class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-surface-container text-on-surface hover:bg-surface-container-high transition-colors font-mono text-[12px]"
-                                                href="https://wa.me/6282245671190" rel="noopener noreferrer"
+                                                href="https://wa.me/6287738974108" rel="noopener noreferrer"
                                                 target="_blank" title="Kirim Pesan WhatsApp">
                                                 <span
                                                     class="material-symbols-outlined text-[14px] text-emerald-700">chat</span>
@@ -580,9 +579,7 @@
                             </table>
                         </div>
                         <!-- Table Footer / Pagination -->
-                        <div
-                            class="p-3.5 bg-surface-container-low border-t border-surface-variant/60 text-on-surface-variant text-[12px]">
-                            Menampilkan 6 kontak contoh. Pencarian dan filter bekerja pada data pratinjau.</div>
+                        <div class="presma-pagination" id="customer-pagination" aria-label="Navigasi halaman tabel customer"></div>
                     </div>
                 </div>
                 <!-- Right Column: Customer Profile & Order History Detail Card (5 Cols) -->
@@ -620,7 +617,7 @@
                                 <div class="cs-customer-detail-line"><span>Email</span><strong id="detailEmail"></strong>
                                 </div>
                                 <div class="cs-customer-detail-line"><span>Alamat</span><strong
-                                        id="detailAddress"></strong></div><a class="cs-customer-wa-link" href="#"
+                                        id="detailAddress"></strong></div><a class="cs-customer-wa-link" href="https://wa.me/6287738974108"
                                     id="detailWa" rel="noopener noreferrer" target="_blank"><span
                                         class="material-symbols-outlined text-[16px]">chat</span> Hubungi via WhatsApp</a>
                             </div>

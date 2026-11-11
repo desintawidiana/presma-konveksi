@@ -19,6 +19,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const search = document.getElementById('cs-order-search');
     const rows = [...document.querySelectorAll('[data-cs-row]')];
     let filter = 'all';
+    const filterButtons = [...document.querySelectorAll('[data-cs-filter]')];
+    filterButtons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.csFilter === filter)));
     const render = () => {
         const query = (search?.value ?? '').trim().toLocaleLowerCase('id');
         for (const row of rows) {
@@ -30,10 +32,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     search?.addEventListener('input', render);
-    document.querySelectorAll('[data-cs-filter]').forEach(button => {
+    filterButtons.forEach(button => {
         button.addEventListener('click', () => {
             filter = button.dataset.csFilter;
-            document.querySelectorAll('[data-cs-filter]').forEach(b => b.setAttribute('aria-pressed', String(b === button)));
+            filterButtons.forEach(b => {
+                const active = b === button;
+                b.setAttribute('aria-pressed', String(active));
+                b.classList.toggle('is-active', active);
+            });
             render();
         });
     });

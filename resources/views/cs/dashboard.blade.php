@@ -1,9 +1,9 @@
 @extends('layout.cs')
 
-@section('title', 'Dashboard Customer Service | Presma Operations')
+@section('title', 'Dashboard | Presma Operations')
 
 @section('content')
-    <main class="relative pt-16 min-h-screen bg-surface cs-main">
+    <main class="relative pt-16 min-h-screen bg-surface cs-main cs-dashboard-page">
         <div class="flex flex-col w-full">
             <div class="px-space-lg py-space-lg flex flex-col gap-space-lg max-w-[1720px] mx-auto w-full">
                 <!-- 1. HEADER RINGKAS & ACTIONS -->
@@ -24,16 +24,16 @@
                                 disabled="disabled" title="Fitur ini akan dihubungkan setelah modul backend siap"
                                 type="button"><span
                                     class="material-symbols-outlined text-[18px] text-secondary">download</span><span
-                                    class="">Export Laporan (XLSX)<br /></span></button><button aria-disabled="true"
-                                class="inline-flex items-center justify-center gap-2 px-5 h-[44px] rounded-lg bg-[#830909] text-on-primary hover:bg-[#830909] transition-colors shadow-sm font-title-sm font-semibold cs-disabled-action"
-                                disabled="disabled" title="Fitur ini akan dihubungkan setelah modul backend siap"
-                                type="button"><span class="material-symbols-outlined text-[18px]">add</span><span
-                                    class="">Buat Order Baru</span></button></div>
+                                    class="">Export Laporan (XLSX)<br /></span></button><a href="{{ route('cs.public-order.preview') }}"
+                                class="inline-flex items-center justify-center gap-2 px-5 h-[44px] rounded-lg bg-[#830909] text-on-primary hover:bg-[#A10B0B] transition-colors shadow-sm font-title-sm font-semibold">
+                                <span class="material-symbols-outlined text-[18px]">add</span>
+                                <span>Buat Order Baru</span>
+                            </a></div>
                     </div>
                     <div></div>
                 </div>
                 <!-- 2. 4 KARTU METRIK KPI UTAMA (PRESMA UI KIT CARD) -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md cs-dashboard-kpi-grid">
                     <!-- Card 1: Pesanan Baru -->
                     <div
                         class="p-4 rounded-xl bg-surface-container-lowest shadow-sm border border-[#D9DADB] flex flex-col justify-between hover:bg-surface-container-low/50 transition-colors gap-3">
@@ -144,13 +144,11 @@
                             <span
                                 class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container font-label-sm text-secondary font-semibold">
                                 <span class="w-1.5 h-1.5 rounded-full bg-[#16804B]"></span>Finansial Realtime</span>
-                            <button aria-disabled="true"
-                                class="px-3 h-[44px] rounded-lg bg-surface-container-lowest border border-[#D9DADB] hover:bg-surface-container-low text-on-surface font-label-sm font-medium transition-colors flex items-center gap-1.5 shadow-sm cs-disabled-action"
-                                disabled="disabled" title="Fitur ini akan dihubungkan setelah modul backend siap"
-                                type="button">
-                                <span class="material-symbols-outlined text-[16px] text-secondary">receipt</span>
-                                <span class="">Rekap Tagihan</span>
-                            </button>
+                            <a href="{{ route('cs.invoice-pembayaran.preview') }}"
+                                class="inline-flex items-center gap-1.5 rounded-lg border border-[#D9DADB] bg-white px-3 h-[40px] text-[13px] font-semibold text-on-surface shadow-sm transition-colors hover:bg-[#F7E7E7] hover:text-[#830909]">
+                                <span class="material-symbols-outlined text-[17px]">receipt</span>
+                                <span>Rekap Tagihan</span>
+                            </a>
                         </div>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -213,18 +211,18 @@
                         class="p-space-md flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#D9DADB]">
                         <div class="flex items-center gap-2 overflow-x-auto">
                             <button
-                                class="px-3.5 h-[44px] rounded-lg bg-[#830909] text-on-primary hover:bg-[#A10B0B] transition-colors shadow-sm font-label-md font-semibold shrink-0 flex items-center gap-2"
+                                class="cs-queue-filter is-active px-3.5 h-[40px] rounded-lg bg-[#830909] text-on-primary transition-colors shadow-sm font-label-md font-semibold shrink-0 flex items-center gap-2"
                                 data-cs-filter="all" type="button">
                                 <span class="material-symbols-outlined text-[18px]">tune</span>
                                 <span class="">Semua Antrean (6)</span>
                             </button>
                             <button
-                                class="px-3.5 h-[44px] rounded-lg bg-surface-container-lowest border border-[#D9DADB] text-on-surface hover:bg-surface-container-low font-label-md font-medium transition-colors shrink-0"
+                                class="cs-queue-filter px-3.5 h-[40px] rounded-lg bg-surface-container-lowest border border-[#D9DADB] text-on-surface hover:bg-surface-container-low font-label-md font-medium transition-colors shrink-0"
                                 data-cs-filter="verify" type="button">
                                 Perlu Verifikasi (4)
                             </button>
                             <button
-                                class="inline-flex items-center gap-1.5 px-3.5 h-[44px] rounded-lg bg-[#FDE8E8] border border-error/20 text-[#C62B2B] hover:bg-[#FDE8E8]/70 font-label-md font-semibold transition-colors shrink-0"
+                                class="cs-queue-filter inline-flex items-center gap-1.5 px-3.5 h-[40px] rounded-lg bg-surface-container-lowest border border-[#D9DADB] text-on-surface hover:bg-surface-container-low font-label-md font-medium transition-colors shrink-0"
                                 data-cs-filter="urgent" type="button">
                                 <span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
                                 Mendesak (2)

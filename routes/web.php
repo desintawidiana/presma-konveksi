@@ -126,5 +126,48 @@ if (app()->environment('local')) {
 Route::view('/preview-order/detail', 'cs.order-detail')
     ->name('cs.order.detail.preview');
 
-
  require __DIR__.'/presma-public-order-preview.php';
+
+Route::view('/preview-work-order', 'cs.work-order')
+    ->name('cs.work-order.preview');
+
+ if (app()->environment('local')) {
+    Route::view('/preview-invoice-pembayaran', 'cs.invoice-pembayaran')
+        ->name('cs.invoice-pembayaran.preview');
+
+    Route::view('/preview-invoice/create', 'cs.invoice-create')
+        ->name('cs.invoice.create.preview');
+
+    Route::view('/preview-pembayaran/create', 'cs.pembayaran-create')
+        ->name('cs.pembayaran.create.preview');
+}
+
+if (app()->environment('local')) {
+    Route::view('/preview-tracking', 'tracking.index')
+        ->name('cs.tracking.preview');
+}
+
+// Route aplikasi setelah autentikasi dan otorisasi role diaktifkan.
+// Project saat ini memiliki OWNER dan CS. Tambahkan nilai role produksi
+// sesuai nilai persis yang disimpan pada kolom users.peran.
+Route::get('/tracking', function () {
+    $role = strtoupper(trim(Auth::user()->peran ?? ''));
+    $allowedRoles = ['OWNER', 'CS']; // Tambahkan 'PRODUKSI' jika role tersebut sudah dibuat.
+
+    abort_unless(in_array($role, $allowedRoles, true), 403);
+
+    // CS memakai layout.cs; Owner perlu view/layout khusus Owner.
+    // Untuk saat ini route ini dipakai CS. Buat route terpisah untuk Owner
+    // jika layout dan sidebar Owner berbeda.
+    abort_unless($role === 'CS', 403, 'Route tampilan ini disiapkan untuk CS.');
+
+    return view('tracking.index');
+})->middleware('auth')->name('tracking.index');
+
+Route::prefix('cs')->name('cs.')->group(function () {
+    Route::view('/notifikasi', 'cs.notification')
+        ->name('notification');
+
+    Route::view('/profil', 'cs.profile')
+        ->name('profile');
+});

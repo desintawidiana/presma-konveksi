@@ -450,3 +450,95 @@
     font-size: 11px;
     line-height: 1.6;
 }
+
+/* =====================================================
+   SHARED ORDER-STYLE COMPONENTS — CUSTOMER PAGE
+   Acuan ukuran: halaman Order Management
+===================================================== */
+.cs-customer-page .cs-customer-kpi-grid > div {
+    min-height: 126px;
+    padding: 16px !important;
+    border: 1px solid #D9DADB !important;
+    border-radius: 16px !important;
+    background: #fff !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,.05) !important;
+    gap: 8px;
+}
+.cs-customer-page .cs-customer-kpi-grid > div > div:first-child > span:first-child {
+    color: #635D5E !important;
+    font-size: 10px !important;
+    line-height: 1.5 !important;
+    font-weight: 600 !important;
+    letter-spacing: .045em !important;
+    text-transform: uppercase;
+}
+.cs-customer-page .cs-customer-kpi-grid > div > div:first-child > div {
+    width: 30px !important;
+    height: 30px !important;
+    border-radius: 8px !important;
+}
+.cs-customer-page .cs-customer-kpi-grid > div > div:first-child .material-symbols-outlined {
+    font-size: 18px !important;
+}
+.cs-customer-page .cs-customer-kpi-grid .font-display-lg {
+    font-size: 38px !important;
+    line-height: 1.12 !important;
+    font-weight: 700 !important;
+    letter-spacing: -.03em !important;
+    color: #191C1C !important;
+}
+.cs-customer-page .cs-customer-kpi-grid .font-label-md {
+    font-size: 11px !important;
+    line-height: 1.4 !important;
+}
+.cs-customer-page #customerDirectoryTable {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: Inter, Arial, sans-serif;
+    font-size: 12px !important;
+}
+.cs-customer-page #customerDirectoryTable thead th {
+    padding: 10px 12px !important;
+    font-size: 10px !important;
+    line-height: 1.5 !important;
+    font-weight: 600 !important;
+    letter-spacing: .03em !important;
+    color: #635D5E !important;
+    background: #F8F9F9 !important;
+    border-bottom: 1px solid #D9DADB !important;
+    white-space: nowrap;
+}
+.cs-customer-page #customerDirectoryTable tbody td {
+    padding: 10px 12px !important;
+    font-size: 12px !important;
+    line-height: 1.45 !important;
+    color: #292323;
+    vertical-align: middle;
+    border-bottom: 1px solid #E1E3E3 !important;
+}
+.cs-customer-page #customerDirectoryTable tbody td strong,
+.cs-customer-page #customerDirectoryTable tbody td .font-semibold,
+.cs-customer-page #customerDirectoryTable tbody td .font-bold {
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+}
+.cs-customer-page #customerDirectoryTable tbody td small,
+.cs-customer-page #customerDirectoryTable tbody td .text-\[11px\],
+.cs-customer-page #customerDirectoryTable tbody td .text-\[10px\] {
+    font-size: 10px !important;
+    line-height: 1.4 !important;
+}
+.cs-customer-page #customerDirectoryTable tbody tr:hover { background: #F8F5F5 !important; }
+.cs-customer-page .cs-customer-actions { gap: 6px; }
+.cs-customer-page .cs-customer-detail-action,
+.cs-customer-page .cs-customer-edit-row {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px;
+    padding: 0 !important;
+    justify-content: center;
+    border-radius: 8px !important;
+    font-size: 0 !important;
+}
+.cs-customer-page .cs-customer-detail-action .material-symbols-outlined,
+.cs-customer-page .cs-customer-edit-row .material-symbols-outlined { font-size: 17px !important; }

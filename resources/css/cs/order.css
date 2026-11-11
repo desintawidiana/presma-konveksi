@@ -388,3 +388,74 @@
         font-size: 12px;
     }
 }
+
+/* Compact icon actions: Edit and Delete */
+.cs-order-page .cs-order-actions-inline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    flex-wrap: nowrap;
+}
+.cs-order-page .cs-order-actions-inline button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    padding: 0 !important;
+    border: 1px solid #D9DADB;
+    border-radius: 8px;
+    background: #fff;
+    color: #4B4546;
+    cursor: pointer;
+    transition: background .15s, color .15s, border-color .15s;
+}
+.cs-order-page .cs-order-actions-inline button .material-symbols-outlined { font-size: 17px !important; }
+.cs-order-page .cs-order-actions-inline button:hover { background: #F7E7E7; color: #830909; border-color: #E8CACA; }
+.cs-order-page .cs-order-actions-inline button.is-danger { color: #B42332; }
+.cs-order-page .cs-order-actions-inline button.is-danger:hover { background: #FCEDEF; border-color: #F0CDD2; }
+.cs-order-page .cs-order-actions-inline button[data-cs-action="next"] {
+    width: auto;
+    min-width: 34px;
+    height: 34px;
+    padding: 0 10px !important;
+    background: #830909;
+    color: #fff;
+    border-color: #830909;
+    font-size: 11px;
+}
+.cs-order-page .cs-order-actions-inline button[data-cs-action="next"]:hover { background: #A10B0B; color: #fff; }
+.cs-order-page #csOrderTable td:last-child { min-width: 245px !important; }
+.cs-order-page #csOrderTable td:last-child .cs-order-actions-inline {
+    display: inline-flex !important;
+    flex-wrap: nowrap !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 6px !important;
+}
+
+
+/* Order table actions: keep labels text-only and consistently centered */
+.cs-order-page #csOrderTable thead th:last-child {
+    text-align: center !important;
+}
+.cs-order-page #csOrderTable tbody td:last-child {
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+.cs-order-page #csOrderTable tbody td:last-child > div,
+.cs-order-page #csOrderTable tbody td:last-child .cs-order-actions,
+.cs-order-page #csOrderTable tbody td:last-child .cs-order-actions-inline {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+    width: 100%;
+}
+.cs-order-page #csOrderTable tbody td:last-child a,
+.cs-order-page #csOrderTable tbody td:last-child button {
+    justify-content: center !important;
+    text-align: center !important;
+}

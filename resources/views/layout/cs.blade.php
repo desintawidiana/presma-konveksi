@@ -159,11 +159,10 @@
 
 <body class="bg-surface font-body-md text-on-surface antialiased">
     @include('cs.partials.sidebar')
-    <div class="cs-shell pl-64">
+    <div class="cs-shell">
         @include('cs.partials.header')
         @yield('content')
     </div>
     <div class="cs-backdrop" id="cs-backdrop" hidden></div>
 </body>
-
 </html>

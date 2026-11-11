@@ -7,8 +7,7 @@
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md pb-space-xs">
                 <div class="flex flex-col gap-2">
                     <div class="flex items-center gap-2 flex-wrap"></div>
-                    <h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight font-bold">Order Management
-                        &amp; Verifikasi</h1>
+                    <h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight font-bold">Order Management</h1>
                     <p class="font-body-md text-body-md text-on-surface-variant max-w-3xl leading-relaxed">Verifikasi pesanan
                         masuk dari formulir web pelanggan, lengkapi rincian spesifikasi, input kalkulasi harga satuan, dan
                         delegasikan data pola ke divisi desainer.</p>
@@ -168,7 +167,7 @@
                                 <th class="py-3.5 px-4 font-semibold w-56">Status Order &amp; Produksi</th>
                                 <th class="py-3.5 px-4 font-semibold w-40">Status Pembayaran</th>
                                 <th class="py-3.5 px-4 font-semibold text-right w-44">Total Nilai Order</th>
-                                <th class="py-3.5 px-4 font-semibold text-center w-56">Tindakan / Aksi</th>
+                                <th class="py-3.5 px-4 font-semibold text-center w-56"> Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-[#D9DADB] bg-surface-container-lowest">
@@ -224,8 +223,7 @@
                                             data-cs-action="verify"><span
                                                 class="material-symbols-outlined text-[16px]">verified</span>Verifikasi</button><button
                                             class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-title-sm text-title-sm font-medium border border-[#D9DADB] transition-colors"
-                                            data-cs-action="detail"><span
-                                                class="material-symbols-outlined text-[16px]">visibility</span>Detail
+                                            data-cs-action="detail">Detail
                                             Pesanan</button></div>
                                 </td>
                             </tr>
@@ -279,8 +277,7 @@
                                 <td class="py-3.5 px-4 text-center">
                                     <div class="flex items-center justify-center gap-2"><button
                                             class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-title-sm text-title-sm font-medium border border-[#D9DADB] transition-colors"
-                                            data-cs-action="detail"><span
-                                                class="material-symbols-outlined text-[16px]">visibility</span>Detail
+                                            data-cs-action="detail">Detail
                                             Pesanan</button><button
                                             class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-primary font-title-sm text-title-sm font-medium border border-[#D9DADB] transition-colors"
                                             data-cs-action="tracking"><span
@@ -338,8 +335,7 @@
                                 <td class="py-3.5 px-4 text-center">
                                     <div class="flex items-center justify-center gap-2"><button
                                             class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-title-sm text-title-sm font-medium border border-[#D9DADB] transition-colors"
-                                            data-cs-action="detail"><span
-                                                class="material-symbols-outlined text-[16px]">visibility</span>Detail
+                                            data-cs-action="detail">Detail
                                             Pesanan</button><button
                                             class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-primary font-title-sm text-title-sm font-medium border border-[#D9DADB] transition-colors"
                                             data-cs-action="tracking"><span
@@ -397,8 +393,7 @@
                                 <td class="py-3.5 px-4 text-center">
                                     <div class="flex items-center justify-center gap-2"><button
                                             class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-title-sm text-title-sm font-medium border border-[#D9DADB] transition-colors"
-                                            data-cs-action="detail"><span
-                                                class="material-symbols-outlined text-[16px]">visibility</span>Detail
+                                            data-cs-action="detail">Detail
                                             Pesanan</button><button
                                             class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-emerald-700 hover:text-emerald-800 font-title-sm text-title-sm font-medium border border-[#D9DADB] transition-colors"
                                             data-cs-action="tracking"><span
@@ -459,8 +454,7 @@
                                             data-cs-action="verify"><span
                                                 class="material-symbols-outlined text-[16px]">verified</span>Verifikasi</button><button
                                             class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-title-sm text-title-sm font-medium border border-[#D9DADB] transition-colors"
-                                            data-cs-action="detail"><span
-                                                class="material-symbols-outlined text-[16px]">visibility</span>Detail
+                                            data-cs-action="detail">Detail
                                             Pesanan</button></div>
                                 </td>
                             </tr>
@@ -514,8 +508,7 @@
                                 <td class="py-3.5 px-4 text-center">
                                     <div class="flex items-center justify-center gap-2"><button
                                             class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-title-sm text-title-sm font-medium border border-[#D9DADB] transition-colors"
-                                            data-cs-action="detail"><span
-                                                class="material-symbols-outlined text-[16px]">visibility</span>Detail
+                                            data-cs-action="detail">Detail
                                             Pesanan</button><button
                                             class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-primary font-title-sm text-title-sm font-medium border border-[#D9DADB] transition-colors"
                                             data-cs-action="tracking"><span
@@ -526,19 +519,7 @@
                         </tbody>
                     </table>
                 </div>
-                <div
-                    class="p-4 border-t border-[#D9DADB] flex flex-col sm:flex-row items-center justify-between gap-3 bg-surface-container-lowest">
-                    <span data-cs-summary class="font-body-sm text-body-sm text-on-surface-variant">Menampilkan 0 dari 6
-                        order contoh</span>
-                    <div class="flex items-center gap-1.5"><button
-                            class="px-3 py-1.5 rounded-lg bg-surface-container text-on-surface-variant font-title-sm text-title-sm disabled:opacity-50 cursor-not-allowed"
-                            disabled="">Sebelumnya</button><button
-                            class="w-8 h-8 rounded-lg bg-[#830909] text-on-primary font-title-sm text-title-sm font-bold shadow-sm">1</button><button
-                            class="w-8 h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-title-sm text-title-sm transition-colors">2</button><button
-                            class="w-8 h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-title-sm text-title-sm transition-colors">3</button><button
-                            class="px-3 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-title-sm text-title-sm transition-colors">Berikutnya</button>
-                    </div>
-                </div>
+                <div class="presma-pagination" data-cs-pagination aria-label="Navigasi halaman tabel order"></div>
             </div>
             <!-- Operational Flow Reference Card (CS Quick Guide) -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">

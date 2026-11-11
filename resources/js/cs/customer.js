@@ -8,7 +8,7 @@ const presmaCustomers = [
         org: 'BEM FEB Universitas Indonesia',
         role: 'Koordinator Divisi Pengadaan & Logistik',
         phone: '+62 812-4491-8821',
-        waUrl: 'https://wa.me/6281244918821',
+        waUrl: 'https://wa.me/6287738974108',
         email: 'farhan.saputra@ui.ac.id',
         address: 'Gedung Student Center FEB UI, Kampus UI Depok, Jl. Prof. Dr. Sumitro Djojohadikusumo, Pondok Cina, Beji, Kota Depok, Jawa Barat 16424',
         totalOrders: '3 Batch',
@@ -58,7 +58,7 @@ const presmaCustomers = [
         org: 'Himpunan Mahasiswa Mesin UGM',
         role: 'Ketua Divisi Logistik & Inventaris',
         phone: '+62 877-3912-8841',
-        waUrl: 'https://wa.me/6287739128841',
+        waUrl: 'https://wa.me/6287738974108',
         email: 'rizky.ananda.mesin@ugm.ac.id',
         address: 'Kantor HMM FT UGM, Jl. Grafika No. 2, Kampus UGM, Sinduadi, Mlati, Sleman, D.I. Yogyakarta 55281',
         totalOrders: '2 Batch',
@@ -99,7 +99,7 @@ const presmaCustomers = [
         org: 'PT Sinar Maju Perkasa',
         role: 'General Affairs & Procurement Manager',
         phone: '+62 813-9981-2401',
-        waUrl: 'https://wa.me/6281399812401',
+        waUrl: 'https://wa.me/6287738974108',
         email: 'budi.santoso@sinarmaju.co.id',
         address: 'Kawasan Industri Candi Blok C-12, Ngaliyan, Kota Semarang, Jawa Tengah 50181',
         totalOrders: '5 Batch',
@@ -140,7 +140,7 @@ const presmaCustomers = [
         org: 'DEMA UIN Sunan Kalijaga',
         role: 'Menteri Koordinator Minat & Bakat',
         phone: '+62 858-1109-4321',
-        waUrl: 'https://wa.me/6285811094321',
+        waUrl: 'https://wa.me/6287738974108',
         email: 'lutfi.hakim99@uin-suka.ac.id',
         address: 'Gedung Student Center Lt. 2 DEMA UIN Suka, Jl. Marsda Adisucipto No. 1, Caturtunggal, Depok, Sleman 55281',
         totalOrders: '1 Batch',
@@ -172,7 +172,7 @@ const presmaCustomers = [
         org: 'Komunitas Sinema Jogja',
         role: 'Head of Merchandising & Festival Production',
         phone: '+62 819-0344-5892',
-        waUrl: 'https://wa.me/6281903445892',
+        waUrl: 'https://wa.me/6287738974108',
         email: 'nadia.cinema.jogja@gmail.com',
         address: 'Rumah Kreatif Sinema Jogja, Jl. Bantul Km 6.5, Kasihan, Bantul, D.I. Yogyakarta 55188',
         totalOrders: '2 Batch',
@@ -211,7 +211,7 @@ const presmaCustomers = [
         org: 'Himpunan Biologi UNISA',
         role: 'Sekretaris Panitia Makrab Biologi',
         phone: '+62 822-4567-1190',
-        waUrl: 'https://wa.me/6282245671190',
+        waUrl: 'https://wa.me/6287738974108',
         email: 'tika.rahayu.bio@unisa.ac.id',
         address: 'Kampus Terpadu UNISA Yogyakarta, Jl. Siliwangi (Ringroad Barat) No. 63, Mlangi, Sleman 55292',
         totalOrders: '1 Batch',
@@ -254,7 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const escapeHTML = v => String(v ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
     const byId = id => presmaCustomers.find(c => c.id === Number(id));
     const text = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val || '—'; };
-    const waHref = phone => 'https://wa.me/' + String(phone || '').replace(/\D/g, '').replace(/^0/, '62');
+    const waHref = () => 'https://wa.me/6287738974108';
     const lockBody = () => document.body.classList.toggle('cs-modal-open', !drawer.classList.contains('hidden') || !editModal.classList.contains('hidden') || !addModal.classList.contains('hidden'));
     const show = el => { el.classList.remove('hidden'); lockBody(); };
     const hide = el => { el.classList.add('hidden'); lockBody(); };
@@ -277,18 +277,42 @@ document.addEventListener('DOMContentLoaded', () => {
         row.setAttribute('aria-selected', String(activeId === c.id));
     }
     function redraw() { presmaCustomers.forEach(updateRow); filterRows(); }
+    let customerPage = 1;
+    let customerPageSize = 10;
+    const customerPagination = document.getElementById('customer-pagination');
     function filterRows() {
-        const q = (search?.value || '').trim().toLowerCase(); let shown = 0;
-        tbody.querySelectorAll('.customer-row').forEach(row => {
-            const c = byId(row.dataset.index); if (!c) return;
+        const q = (search?.value || '').trim().toLowerCase();
+        const allRows = [...tbody.querySelectorAll('.customer-row')];
+        const matched = allRows.filter(row => {
+            const c = byId(row.dataset.index); if (!c) return false;
             const matchText = [c.code, c.name, c.org, c.phone, c.city, c.email].join(' ').toLowerCase().includes(q);
             const matchCategory = !category || category.value === 'Semua Kategori' || category.value === categoryFor(c);
             const matchQuick = activeFilter === 'all' || (activeFilter === 'repeat' && parseInt(c.totalOrders, 10) > 1) || (activeFilter === 'active' && c.orders.some(o => !o.status.includes('Selesai'))) || (activeFilter === 'diy' && /Yogyakarta|Sleman|Bantul/i.test(c.city));
-            row.hidden = !(matchText && matchCategory && matchQuick); if (!row.hidden) shown++;
+            return matchText && matchCategory && matchQuick;
         });
-        let summary = document.getElementById('customerVisibleSummary');
-        if (!summary) { summary = document.createElement('p'); summary.id = 'customerVisibleSummary'; summary.className = 'cs-customer-visible-summary'; table.parentElement.after(summary); }
-        summary.textContent = shown ? `Menampilkan ${shown} pelanggan dari ${presmaCustomers.length} data pratinjau.` : 'Tidak ada pelanggan yang sesuai filter.';
+        const pages = Math.max(1, Math.ceil(matched.length / customerPageSize));
+        customerPage = Math.min(customerPage, pages);
+        const begin = (customerPage - 1) * customerPageSize;
+        const end = Math.min(begin + customerPageSize, matched.length);
+        allRows.forEach(row => { row.hidden = !matched.includes(row) || matched.indexOf(row) < begin || matched.indexOf(row) >= end; });
+        if (customerPagination) {
+            customerPagination.innerHTML = `
+              <div class="presma-pagination-info">
+                <span>${matched.length ? `Menampilkan ${begin + 1}–${end} dari ${matched.length} data` : 'Tidak ada data untuk ditampilkan'}</span>
+                <label>Tampilkan <select data-customer-page-size aria-label="Jumlah data per halaman">
+                  <option value="10" ${customerPageSize === 10 ? 'selected' : ''}>10</option>
+                  <option value="20" ${customerPageSize === 20 ? 'selected' : ''}>20</option>
+                </select></label>
+              </div>
+              <div class="presma-page-actions">
+                <button type="button" data-customer-prev aria-label="Halaman sebelumnya" ${customerPage <= 1 ? 'disabled' : ''}>‹</button>
+                <span class="presma-page-current">${customerPage} / ${pages}</span>
+                <button type="button" data-customer-next aria-label="Halaman berikutnya" ${customerPage >= pages ? 'disabled' : ''}>›</button>
+              </div>`;
+            customerPagination.querySelector('[data-customer-page-size]')?.addEventListener('change', e => { customerPageSize = Number(e.target.value) || 10; customerPage = 1; filterRows(); });
+            customerPagination.querySelector('[data-customer-prev]')?.addEventListener('click', () => { if (customerPage > 1) { customerPage--; filterRows(); } });
+            customerPagination.querySelector('[data-customer-next]')?.addEventListener('click', () => { if (customerPage < pages) { customerPage++; filterRows(); } });
+        }
     }
     function populateDetail(c) {
         text('detailInitials', c.initials); text('customerDrawerTitle', c.name);
@@ -355,8 +379,8 @@ document.addEventListener('DOMContentLoaded', () => {
         page.querySelectorAll('[data-filter]').forEach(b => { b.classList.toggle('cs-customer-filter-active', b.dataset.filter === 'all'); b.setAttribute('aria-pressed', String(b.dataset.filter === 'all')); });
         hide(addModal); activeId = id; redraw(); openDetail(id);
     });
-    search?.addEventListener('input', filterRows); category?.addEventListener('change', filterRows);
-    page.querySelectorAll('[data-filter]').forEach(btn => btn.addEventListener('click', () => { activeFilter = btn.dataset.filter; page.querySelectorAll('[data-filter]').forEach(b => { b.classList.toggle('cs-customer-filter-active', b === btn); b.setAttribute('aria-pressed', String(b === btn)); }); filterRows(); }));
+    search?.addEventListener('input', () => { customerPage = 1; filterRows(); }); category?.addEventListener('change', () => { customerPage = 1; filterRows(); });
+    page.querySelectorAll('[data-filter]').forEach(btn => btn.addEventListener('click', () => { activeFilter = btn.dataset.filter; customerPage = 1; page.querySelectorAll('[data-filter]').forEach(b => { b.classList.toggle('cs-customer-filter-active', b === btn); b.setAttribute('aria-pressed', String(b === btn)); }); filterRows(); }));
     document.getElementById('customerSort')?.addEventListener('click', () => { ascending = !ascending; presmaCustomers.slice().sort((a, b) => ascending ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)).forEach(c => { const r = tbody.querySelector(`[data-index="${c.id}"]`); if (r) tbody.appendChild(r); }); filterRows(); });
     document.getElementById('customerExport')?.addEventListener('click', () => {
         const out = [['ID', 'Nama', 'Instansi', 'WhatsApp', 'Kota', 'Total Order']];
