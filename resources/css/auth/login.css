@@ -1,5 +1,5 @@
 /* CSS tambahan. Tata letak utama memakai Tailwind Stitch pada layout/auth.blade.php. */
-html, body { margin: 0; min-height: 100%; }
+html, body { margin: 0; min-height: 100%;}
 body { font-family: Inter, sans-serif; }
 #loginForm input[type="text"], #loginForm input[type="password"] { border: 1px solid #e1e3e3; }
 #loginForm input:focus { border-color: #830909; box-shadow: 0 0 0 3px rgba(131,9,9,.08); }

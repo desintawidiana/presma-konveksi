@@ -36,34 +36,55 @@
             class="flex flex-col gap-1 px-space-sm"
             data-active-classes="bg-primary-container text-on-primary font-semibold shadow-sm"
         >
+            {{-- Dashboard --}}
             <a
                 href="{{ route('dashboard.cs') }}"
-                aria-current="page"
-                class="flex items-center gap-3 rounded-lg bg-[#F7E7E7] px-3 py-2 font-semibold text-[#830909] transition-colors"
+                @if (request()->routeIs('dashboard.cs'))
+                    aria-current="page"
+                @endif
+                class="flex items-center gap-3 rounded-lg px-3 py-2 transition-colors
+                    {{ request()->routeIs('dashboard.cs')
+                        ? 'bg-[#F7E7E7] font-semibold text-[#830909]'
+                        : 'text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface' }}"
                 data-path="cs-dashboard"
             >
-                <span class="material-symbols-outlined text-[20px] text-[#830909]">grid_view</span>
+                <span class="material-symbols-outlined text-[20px]">grid_view</span>
                 <span>Dashboard</span>
             </a>
 
+            {{-- Customer --}}
             <a
-                href="#"
-                class="flex items-center gap-3 rounded-lg px-3 py-2 text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface"
+                href="{{ route('cs.customer') }}"
+                @if (request()->routeIs('cs.customer'))
+                    aria-current="page"
+                @endif
+                class="flex items-center gap-3 rounded-lg px-3 py-2 transition-colors
+                    {{ request()->routeIs('cs.customer')
+                        ? 'bg-[#F7E7E7] font-semibold text-[#830909]'
+                        : 'text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface' }}"
                 data-path="customer-management"
             >
                 <span class="material-symbols-outlined text-[20px]">people</span>
                 <span>Customer</span>
             </a>
 
+            {{-- Order --}}
             <a
-                href="#"
-                class="flex items-center gap-3 rounded-lg px-3 py-2 text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface"
-                data-path="order-management"
-            >
+            href="{{ route('cs.order') }}"
+            @if (request()->routeIs('cs.order', 'cs.order.detail'))
+                aria-current="page"
+            @endif
+            class="flex items-center gap-3 rounded-lg px-3 py-2 transition-colors
+                {{ request()->routeIs('cs.order', 'cs.order.detail')
+                    ? 'bg-[#F7E7E7] font-semibold text-[#830909]'
+                    : 'text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface' }}"
+            data-path="order-management"
+        >
                 <span class="material-symbols-outlined text-[20px]">shopping_bag</span>
                 <span>Order</span>
             </a>
 
+            {{-- Work Order --}}
             <a
                 href="#"
                 class="flex items-center gap-3 rounded-lg px-3 py-2 text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface"
@@ -73,6 +94,7 @@
                 <span>Work Order</span>
             </a>
 
+            {{-- Invoice dan Pembayaran --}}
             <a
                 href="#"
                 class="flex items-center gap-3 rounded-lg px-3 py-2 text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface"
@@ -82,6 +104,7 @@
                 <span>Invoice &amp; Pembayaran</span>
             </a>
 
+            {{-- Tracking --}}
             <a
                 href="#"
                 class="flex items-center gap-3 rounded-lg px-3 py-2 text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface"
