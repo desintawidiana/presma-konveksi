@@ -7,6 +7,8 @@ use App\Models\Pelanggan;
 use App\Models\Pesanan;
 use App\Models\UkuranPesanan;
 use App\Services\PesananService;
+use App\Support\AlurOrder;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -26,29 +28,44 @@ class PesananController extends Controller
      */
     public function index(Request $request)
     {
-        $query = DB::table('v_order')->orderByDesc('no');
+        $query = $this->queryOrder()->orderByDesc('o.no');
 
         if ($request->filled('status_order')) {
-            $query->where('status_order', $request->query('status_order'));
+            $query->where('o.status_order', $request->query('status_order'));
         }
 
         if ($request->filled('tahap')) {
-            $query->where('tahap_saat_ini', $request->query('tahap'));
+            $query->where('o.tahap_saat_ini', $request->query('tahap'));
         }
 
         if ($request->filled('q')) {
             $q = '%' . $request->query('q') . '%';
             $query->where(function ($w) use ($q) {
-                $w->where('kode_order', 'like', $q)
-                  ->orWhere('customer', 'like', $q)
-                  ->orWhere('instansi', 'like', $q);
+                $w->where('o.kode_order', 'like', $q)
+                  ->orWhere('o.customer', 'like', $q)
+                  ->orWhere('o.instansi', 'like', $q);
             });
         }
 
+        $data = $query->get()->map(function ($row) {
+            $row->alur = AlurOrder::tahap($row);
+            $row->alur_label = AlurOrder::LABEL[$row->alur];
+
+            return $row;
+        });
+
         return response()->json([
             'message' => 'Data pesanan berhasil diambil',
-            'data' => $query->get(),
+            'data' => $data,
         ]);
+    }
+
+    /** v_order + status Work Order, dipakai index/show/dashboard. */
+    public static function queryOrder()
+    {
+        return DB::table('v_order as o')
+            ->leftJoin('work_order as w', 'w.pesanan_id', '=', 'o.no')
+            ->select('o.*', 'w.id as work_order_id', 'w.status_wo');
     }
 
     /** Detail lengkap satu order (untuk halaman detail & cetak). */
@@ -60,10 +77,18 @@ class PesananController extends Controller
         ]);
 
         $data = $pesanan->toArray();
+        $ringkasan = $this->queryOrder()->where('o.no', $pesanan->id)->first();
+
+        $data['ringkasan'] = $ringkasan;
+        $data['alur'] = AlurOrder::tahap($ringkasan);
+        $data['alur_label'] = AlurOrder::LABEL[$data['alur']];
         $data['ringkasan_pembayaran'] = DB::table('v_pembayaran_order')
             ->where('pesanan_id', $pesanan->id)->first();
-        $data['riwayat_tahap'] = DB::table('riwayat_tahap')
-            ->where('pesanan_id', $pesanan->id)->orderBy('id')->get();
+        $data['riwayat_tahap'] = DB::table('riwayat_tahap as r')
+            ->leftJoin('pengguna as p', 'p.id', '=', 'r.diubah_oleh')
+            ->where('r.pesanan_id', $pesanan->id)
+            ->orderBy('r.id')
+            ->get(['r.*', 'p.nama as diubah_oleh_nama']);
 
         return response()->json([
             'message' => 'Detail pesanan berhasil diambil',
@@ -167,6 +192,41 @@ class PesananController extends Controller
 
         return response()->json([
             'message' => 'Pesanan berhasil dikonfirmasi',
+            'data' => $pesanan->fresh(),
+        ]);
+    }
+
+    /**
+     * CS menyerahkan barang ke pelanggan: Packing -> Selesai.
+     * Syarat (aplikasi): order sudah lunas. Syarat QC lolos dijaga trigger DB.
+     */
+    public function serahTerima(Request $request, Pesanan $pesanan)
+    {
+        $validated = $request->validate(['catatan' => ['nullable', 'string', 'max:255']]);
+
+        $row = $this->queryOrder()->where('o.no', $pesanan->id)->first();
+
+        if ($pesanan->tahap_saat_ini !== 'Packing') {
+            return response()->json([
+                'message' => 'Serah terima hanya bisa dilakukan saat order berada di tahap Packing.',
+            ], 422);
+        }
+
+        if ((float) $row->kekurangan > 0) {
+            return response()->json([
+                'message' => 'Pelunasan harus selesai sebelum serah terima.',
+            ], 422);
+        }
+
+        DB::statement('CALL ubah_tahap_produksi(?, ?, ?, ?)', [
+            $pesanan->id,
+            'Selesai',
+            $validated['catatan'] ?? 'Serah terima ke pelanggan',
+            Auth::id(),
+        ]);
+
+        return response()->json([
+            'message' => 'Order selesai: barang telah diserahkan ke pelanggan',
             'data' => $pesanan->fresh(),
         ]);
     }

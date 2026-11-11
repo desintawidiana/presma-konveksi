@@ -1,390 +1,470 @@
-// PRESMA CS detail: workflow simulasi saja; tidak ada penulisan database/API.
-const initCsOrderDetailV4 = () => {
+// Halaman Detail Order CS — terhubung ke database lewat API.
+// Alur: Verifikasi -> Invoice+DP -> Work Order -> (Produksi) -> Pelunasan -> Serah Terima
+import {
+    api, esc, rupiah, tanggal, waLink, toast, normalisasiWa,
+    GAYA_ALUR, badge, statusBayar, LABEL_BAYAR, GAYA_BAYAR, SUMBER, UKURAN,
+} from './api.js';
+
+const startDetail = () => {
     const page = document.querySelector('.cs-order-detail-page');
-    if (!page) return;
+    if (!page || !page.querySelector('#csOrderBody')) return;
+
+    const $ = (sel) => page.querySelector(sel);
+    const body = $('#csOrderBody');
+    const statusLine = $('#csWorkflowStatus');
+    const btnEdit = $('#csOpenEdit');
+    const btnRevisi = $('#csOpenRevision');
+    const btnBatal = $('#csOpenCancel');
+    const btnNext = $('#csNextAction');
     const params = new URLSearchParams(window.location.search);
-    const code = params.get('code') || 'ORD-2024-0330';
-    const isExample = code === 'ORD-2024-0330';
-    const key = 'presma.cs.order.' + code;
-    const defaultSizes = { S: 45, M: 120, L: 110, XL: 50, '2XL': 15, '3XL': 10 };
-    const base = isExample ? {
-        code, customer: 'Farhan Saputra', phone: '0812-2891-7890', organization: 'BEM Fakultas Teknik UGM', product: 'Korsa PDH Nagata Drill',
-        fabric: 'Nagata Drill Grade A Original', color: 'Khaki Sand kombinasi Navy Tua', quantity: 350,
-        date: '24 Okt 2024', owner: 'Abiyyu', status: 'Menunggu Verifikasi CS', payment: 'DP 50% Masuk', amount: 'Rp 50.175.000',
-        stage: 'verification', paymentCode: 'dp', notes: '', sizes: defaultSizes, deadline: '2024-11-05'
-    } : { code, customer: '', phone: '', organization: '', product: '', fabric: '', color: '', quantity: 0, date: '', owner: '', status: 'Menunggu Verifikasi CS', payment: '', amount: '', stage: 'verification', notes: '', deadline: '', sizes: null };
-    let record = { ...base };
-    try { const stored = JSON.parse(sessionStorage.getItem(key) || 'null'); if (stored && typeof stored === 'object') record = { ...base, ...stored }; } catch (e) { }
-    if (!record.code) record.code = code;
-    if (!record.workflowStage) { record.workflowStage = record.verifiedAt ? 'payment' : record.stage === 'ready' ? 'ready' : record.stage === 'production' ? 'tracking' : 'verification'; }
-    const el = id => page.querySelector('#' + id);
-    const setText = (id, value) => { if (el(id)) el(id).textContent = String(value ?? '-'); };
-    const notify = (message) => { const n = el('csDetailNotice'); if (!n) return; n.textContent = message; n.classList.remove('hidden'); };
-    const persist = () => { try { sessionStorage.setItem(key, JSON.stringify(record)); } catch (e) { notify('Penyimpanan browser diblokir. Perubahan hanya berlaku selama halaman ini terbuka.'); } };
-    const number = (val) => Math.max(0, Number(val) || 0);
-    const sanitize = (v) => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-    const qtyTotal = sizes => sizes ? Object.values(sizes).reduce((n, v) => n + number(v), 0) : 0;
-    const resolveStage = () => {
-        if (record.status === 'Perlu Revisi Pelanggan' || record.status === 'Perlu Verifikasi Ulang CS') return 'verification';
-        return record.workflowStage || (record.verifiedAt ? 'payment' : (record.stage === 'ready' ? 'ready' : record.stage === 'production' ? 'tracking' : 'verification'));
+    const id = params.get('id');
+
+    let o = null;          // data order dari API
+    let daftarTahap = [];  // tahap produksi berurutan
+
+    // ---------- util tampilan ------------------------------------------------
+    const nilai = (x) => (x === null || x === undefined || x === '' ? '<span class="text-secondary font-normal">—</span>' : esc(x));
+    const kv = (label, isi, ekstra = '') => `
+        <div class="p-3 bg-surface-container-low rounded-lg border border-surface-container">
+            <span class="text-on-surface-variant block text-[11px]">${esc(label)}</span>
+            <strong class="text-on-surface text-sm block mt-0.5 ${ekstra}">${isi}</strong>
+        </div>`;
+    const kartu = (ikon, judul, isi, sisi = '') => `
+        <section class="border border-surface-container rounded-xl overflow-hidden bg-surface-container-lowest">
+            <div class="w-full px-4 py-3 bg-surface-container-low flex items-center justify-between border-b border-surface-container">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-[19px]">${ikon}</span>
+                    <span class="text-xs font-bold text-on-surface uppercase tracking-wide">${esc(judul)}</span>
+                </div>${sisi}
+            </div>
+            <div class="p-4 text-xs">${isi}</div>
+        </section>`;
+    const grid = (isi, kolom = 'sm:grid-cols-2 lg:grid-cols-4') =>
+        `<div class="grid grid-cols-1 ${kolom} gap-3">${isi}</div>`;
+    const ya = (b) => (b ? 'Ya' : 'Tidak');
+
+    // ---------- aturan tombol per posisi alur ---------------------------------
+    const AKSI_UTAMA = {
+        verification: 'Verifikasi & Fiksasi Pesanan',
+        payment: 'Terbitkan Invoice & Catat DP',
+        wo: () => (o.work_order ? 'Teruskan WO ke Produksi' : 'Buat Work Order'),
+        settlement: 'Catat Pelunasan',
+        ready: 'Serah Terima ke Pelanggan',
     };
-    const actionLabel = () => ({ verification: 'Verifikasi', payment: 'Pembayaran / Tanpa DP', wo: 'Upload WO', tracking: 'Tracking Produksi', settlement: 'Pembayaran / Pelunasan', ready: 'Siap Kirim', handover: 'Selesai', completed: 'Selesai' })[resolveStage()] || 'Verifikasi';
-    const updateActions = () => {
-        const stage = resolveStage();
-        el('csOpenVerify')?.classList.toggle('hidden', stage !== 'verification');
-        el('csNextAction')?.classList.toggle('hidden', stage === 'verification' || stage === 'completed');
-        setText('csNextActionText', actionLabel());
+    const PETUNJUK = {
+        verification: 'Periksa data pesanan, lengkapi harga satuan, lalu fiksasi.',
+        payment: 'Pesanan terverifikasi. Terbitkan invoice dan catat DP dari pelanggan.',
+        wo: 'DP sudah masuk. Buat Work Order dan teruskan ke Tim Produksi.',
+        tracking: 'Pesanan sedang dikerjakan Tim Produksi. CS cukup memantau tahapnya di bawah.',
+        settlement: 'Barang sudah di tahap Packing. Tagih dan catat pelunasan.',
+        ready: 'Sudah lunas. Serahkan barang ke pelanggan, lalu tandai selesai.',
+        completed: 'Order selesai. Barang telah diserahkan ke pelanggan.',
+        cancelled: 'Order ini dibatalkan.',
     };
-    const humanDeadline = raw => {
-        if (!raw) return 'Belum ditentukan';
-        const date = /^\d{4}-\d{2}-\d{2}$/.test(raw) ? new Date(raw + 'T12:00:00') : null;
-        return date && !Number.isNaN(date.getTime()) ? date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : String(raw);
-    };
-    const editedLabels = {
-        identity: { customer: 'Nama pemesan', phone: 'No. WhatsApp', organization: 'Instansi', source: 'Sumber informasi' },
-        specification: { product: 'Jenis produk', fabric: 'Bahan kain', color: 'Warna produk', cutting: 'Model / cutting', category: 'Kategori', quantity: 'Kuantitas', deadline: 'Target deadline' },
-        embroidery: { embroidery: 'Detail bordir / sablon', merchandise: 'Merchandise', notes: 'Catatan pelanggan / CS' },
-        sizes: { quantity: 'Total kuantitas', sizeFileUrl: 'Excel nama & ukuran' },
-        attachments: { designUrl: 'Tautan berkas desain', address: 'Alamat pengiriman' }
-    };
-    const renderChanges = () => {
-        Object.entries(editedLabels).forEach(([section, labels]) => {
-            const box = page.querySelector(`[data-cs-changes="${section}"]`);
-            if (!box) return;
-            const changed = (record.editedFields || []).filter(k => Object.prototype.hasOwnProperty.call(labels, k));
-            if (section === 'sizes' && (record.editedFields || []).some(k => k === 'sizes')) changed.push('sizes');
-            box.classList.toggle('hidden', !changed.length);
-            box.replaceChildren();
-            if (!changed.length) return;
-            const head = document.createElement('strong'); head.textContent = 'Data terbaru setelah perubahan CS'; box.append(head);
-            changed.forEach(k => {
-                const item = document.createElement('div');
-                const lbl = document.createElement('span'); lbl.textContent = (labels[k] || 'Distribusi ukuran') + ': ';
-                const val = document.createElement('b'); val.textContent = k === 'sizes' ? sizeKeys.map(size => `${size} ${number(record.sizes?.[size])}`).join(' • ') : k === 'deadline' ? humanDeadline(record[k]) : String(record[k] || 'Belum diisi');
-                item.append(lbl, val); box.append(item);
-            });
-        });
-    };
-    const updateStatus = () => {
-        const status = record.status || 'Belum diverifikasi';
-        setText('csWorkflowStatus', 'Status: ' + status + '. ' + (record.revisionReason ? 'Catatan: ' + record.revisionReason + '. ' : '') + 'Mode pratinjau frontend, belum tersimpan ke backend.');
-    };
+
+    const terkunci = () => Boolean(o?.invoice); // harga & ukuran dikunci trigger setelah invoice
+
+    // ---------- render halaman ----------------------------------------------
     const render = () => {
-        if (isExample) {
-            el('csExampleOrder')?.classList.remove('hidden'); el('csDynamicOrder')?.classList.add('hidden');
-            const top = el('csExampleOrder')?.querySelector('section:first-child');
-            if (top) { const pill = top.querySelector('span.rounded-full'); if (pill) pill.textContent = record.status; const summary = top.querySelector('p'); if (summary) summary.textContent = `${record.customer} • ${record.organization} • ${record.product}, ${record.quantity} pcs`; }
-            const form = el('csExampleOrder')?.querySelector('section:nth-child(2)');
-            if (form) {
-                const headings = ['Nama Lengkap Pemesan:', 'No. WhatsApp / HP:', 'Instansi / Kampus / Sekolah:', 'Jenis Produk:', 'Bahan Baku Kain:', 'Warna Produk:'];
-                const values = [record.customer, record.phone, record.organization, record.product, record.fabric, record.color];
-                headings.forEach((heading, i) => {
-                    const node = Array.from(form.querySelectorAll('span')).find(s => s.textContent.trim() === heading);
-                    const value = node?.parentElement?.querySelector('strong'); if (value) value.textContent = values[i] || 'Belum ada data';
-                });
-                if (record.sizes) {
-                    const block = Array.from(form.querySelectorAll('div')).find(d => d.querySelector(':scope > span')?.textContent?.trim() === 'S' && d.querySelector('span.text-lg'));
-                    const sizeGrid = block?.parentElement;
-                    if (sizeGrid) {
-                        ['S', 'M', 'L', 'XL', '2XL', '3XL'].forEach((size, i) => {
-                            const box = sizeGrid.children[i]; const numberEl = box?.querySelector('.text-lg'); if (numberEl) numberEl.textContent = String(number(record.sizes[size]));
-                        });
-                    }
-                    const totalBadge = Array.from(form.querySelectorAll('span')).find(s => s.textContent.trim().startsWith('Total:') && s.textContent.includes('Pcs'));
-                    if (totalBadge) totalBadge.textContent = `Total: ${qtyTotal(record.sizes)} Pcs`;
-                }
-            }
-        } else {
-            el('csExampleOrder')?.classList.add('hidden'); el('csDynamicOrder')?.classList.remove('hidden');
-            [['genericCode', code], ['genericCustomer', record.customer || 'Data pelanggan belum tersedia'], ['genericProduct', record.product], ['genericOrg', record.organization], ['genericDate', record.date], ['genericOwner', record.owner], ['genericStage', record.status], ['genericPayment', record.payment], ['genericAmount', record.amount]].forEach(([id, v]) => setText(id, v));
-            setText('genericNote', record.notes || 'Rincian ukuran, kain, bordir dan lampiran belum tersedia untuk pesanan ini. CS dapat melengkapi data melalui tombol Edit Pesanan.');
-        }
-        if (!isExample) el('csOpenSizes')?.classList.add('hidden');
-        el('csOpenEdit')?.classList.toggle('hidden', isExample);
-        setText('csDetailDeadline', humanDeadline(record.deadline));
-        setText('genericDeadline', humanDeadline(record.deadline));
-        renderChanges();
-        [['csExtraSource', 'source'], ['csExtraCutting', 'cutting'], ['csExtraEmbroidery', 'embroidery'], ['csExtraMerchandise', 'merchandise'], ['csExtraAddress', 'address'], ['csExtraDeadline', 'deadline'], ['csExtraWo', 'woNumber'], ['csExtraTracking', 'trackingProgress'], ['csExtraNotes', 'notes']].forEach(([id, k]) => setText(id, record[k] || 'Belum diisi'));
-        [['Design', 'designUrl'], ['Size', 'sizeFileUrl']].forEach(([suffix, k]) => {
-            const link = el('csExtra' + suffix + 'Link'); const missing = el('csExtraNo' + suffix);
-            const value = String(record[k] || '').trim();
-            const valid = /^https:\/\//i.test(value);
-            if (link) { link.hidden = !valid; if (valid) link.href = value; else link.removeAttribute('href'); }
-            if (missing) missing.hidden = valid;
-        });
-        updateActions(); updateStatus(); document.title = 'Detail ' + code + ' | Presma Operations';
-    };
-    const modals = ['csStageModal', 'csEditOrderModal', 'csRevisionModal', 'csVerifyModal', 'csSizesModal', 'csDetailPreviewModal'];
-    const open = id => { el(id)?.classList.remove('hidden'); document.body.style.overflow = 'hidden'; };
-    const close = () => { modals.forEach(id => el(id)?.classList.add('hidden')); document.body.style.overflow = ''; };
-    modals.forEach(id => el(id)?.addEventListener('click', e => { if (e.target === el(id)) close(); }));
-    page.querySelectorAll('[data-workflow-close]').forEach(b => b.addEventListener('click', close));
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
-    const editForm = el('csEditOrderForm');
-    const sizeKeys = ['S', 'M', 'L', 'XL', '2XL', '3XL'];
-    const sizeName = (s) => 'size' + s;
-    const updateEditSum = () => {
-        if (!editForm || !record.sizes) return;
-        const sum = sizeKeys.reduce((n, k) => n + number(editForm.elements[sizeName(k)].value), 0);
-        setText('csEditSizeTotal', `Total rincian ukuran: ${sum} pcs | Kuantitas order: ${editForm.elements.quantity.value || 0} pcs`);
-    };
-    const editGroups = {
-        identity: ['customer', 'phone', 'organization', 'source'],
-        specification: ['product', 'fabric', 'color', 'cutting', 'category', 'quantity', 'deadline'],
-        embroidery: ['embroidery', 'merchandise', 'notes'],
-        sizes: ['quantity', 'sizeFileUrl'],
-        attachments: ['designUrl', 'address'],
-        all: ['customer', 'phone', 'organization', 'product', 'fabric', 'color', 'deadline', 'quantity', 'notes', 'category', 'owner', 'source', 'cutting', 'embroidery', 'merchandise', 'address', 'designUrl', 'sizeFileUrl']
-    };
-    const sectionTitles = { identity: '1. Identitas & Kontak Pemesan', specification: '2. Spesifikasi Produk, Kain & Warna', embroidery: '3. Bordir, Merchandise & Catatan', sizes: '4. Distribusi Ukuran', attachments: '5. Berkas Desain & Lampiran', all: 'Edit Pesanan' };
-    let activeEditSection = 'all';
-    const openSectionEdit = section => {
-        activeEditSection = editGroups[section] ? section : 'all';
-        const allowed = new Set(editGroups[activeEditSection]);
-        const selected = editForm.querySelectorAll('.cs-edit-fields label');
-        selected.forEach(label => {
-            const input = label.querySelector('input,textarea,select');
-            const visible = allowed.has(input?.name);
-            label.hidden = !visible;
-            if (input) { input.disabled = !visible; input.required = visible && (input.name === 'customer' || input.name === 'product' || input.name === 'quantity'); }
-        });
-        const noteLabel = editForm.elements.notes?.closest('label');
-        if (noteLabel && !noteLabel.closest('.cs-edit-fields')) {
-            noteLabel.hidden = !allowed.has('notes');
-            editForm.elements.notes.disabled = !allowed.has('notes');
-        }
-        const sizesGroup = el('csEditSizesGroup');
-        sizesGroup.hidden = activeEditSection !== 'sizes' || !record.sizes;
-        sizesGroup.querySelectorAll('input').forEach(input => input.disabled = sizesGroup.hidden);
-        editGroups.all.forEach(k => { if (editForm.elements[k]) editForm.elements[k].value = record[k] ?? ''; });
-        if (record.sizes) sizeKeys.forEach(k => { editForm.elements[sizeName(k)].value = number(record.sizes[k]); });
-        setText('csEditTitle', 'Edit ' + sectionTitles[activeEditSection]);
-        setText('csEditContext', 'Perubahan di bagian ini akan memperbarui hasil form pelanggan. Setelah disimpan, order yang sudah difiksasi memerlukan verifikasi ulang.');
-        updateEditSum(); open('csEditOrderModal');
-    };
-    el('csOpenEdit')?.addEventListener('click', () => openSectionEdit('all'));
-    page.querySelectorAll('[data-cs-edit-section]').forEach(button => button.addEventListener('click', () => openSectionEdit(button.dataset.csEditSection)));
-    editForm?.addEventListener('input', updateEditSum);
-    editForm?.addEventListener('submit', e => {
-        e.preventDefault(); if (!editForm.reportValidity()) return;
-        const update = {};
-        editGroups[activeEditSection].forEach(k => {
-            if (!editForm.elements[k]) return;
-            update[k] = k === 'quantity' ? number(editForm.elements[k].value) : editForm.elements[k].value.trim();
-        });
-        if ('quantity' in update && (!Number.isInteger(update.quantity) || update.quantity < 1)) return notify('Jumlah pesanan harus bilangan bulat minimal 1 pcs.');
-        if (activeEditSection === 'sizes' && record.sizes) {
-            const sizes = Object.fromEntries(sizeKeys.map(k => [k, number(editForm.elements[sizeName(k)].value)]));
-            if (sizeKeys.some(k => !Number.isInteger(sizes[k]))) return notify('Jumlah setiap ukuran harus bilangan bulat.');
-            if (qtyTotal(sizes) !== (update.quantity ?? record.quantity)) return notify('Jumlah seluruh ukuran harus sesuai kuantitas pesanan.');
-            update.sizes = sizes;
-        }
-        if (activeEditSection === 'specification' && record.sizes && 'quantity' in update && update.quantity !== qtyTotal(record.sizes)) return notify('Jumlah pesanan harus sama dengan rekap ukuran. Untuk mengubah kuantitas, perbarui melalui Edit Distribusi Ukuran.');
-        const changed = Object.keys(update).filter(k => JSON.stringify(update[k]) !== JSON.stringify(record[k]));
-        if (!changed.length) { close(); return notify('Tidak ada perubahan data.'); }
-        Object.assign(record, update);
-        record.editedFields = [...new Set([...(record.editedFields || []), ...changed])];
-        record.lastEditedAt = new Date().toISOString();
-        if (record.verifiedAt) { record.status = 'Perlu Verifikasi Ulang CS'; record.workflowStage = 'verification'; record.verifiedAt = null; record.paymentApprovedAt = null; record.woIssuedAt = null; }
-        persist(); close(); render(); notify('Perubahan bagian ' + sectionTitles[activeEditSection] + ' disimpan di sesi browser. Belum masuk database.');
-    });
-    const revisionForm = el('csRevisionForm');
-    const revisionMessage = () => `Halo Kak ${record.customer || 'Pelanggan'}, terkait pesanan ${code}, mohon bantu konfirmasi: ${revisionForm.elements.reason.value.trim()}. Terima kasih, CS Presma Konveksi.`;
-    el('csOpenRevision')?.addEventListener('click', () => { revisionForm.elements.reason.value = record.revisionReason || ''; open('csRevisionModal'); });
-    revisionForm?.addEventListener('submit', e => { e.preventDefault(); if (!revisionForm.reportValidity()) return; record.revisionReason = revisionForm.elements.reason.value.trim(); record.status = 'Perlu Revisi Pelanggan'; record.stage = 'verification'; record.workflowStage = 'verification'; record.verifiedAt = null; persist(); close(); render(); notify('Pesanan ditandai perlu revisi. Hubungi pelanggan menggunakan draft pesan, tidak ada pesan dikirim otomatis.'); });
-    el('csCopyRevision')?.addEventListener('click', async () => {
-        const message = revisionMessage(); if (!revisionForm.elements.reason.value.trim()) return notify('Isi catatan revisi sebelum menyalin pesan.');
-        try { await navigator.clipboard.writeText(message); notify('Draft pesan disalin. Tempel ke WhatsApp pelanggan setelah nomor dikonfirmasi.'); }
-        catch (e) { notify('Browser tidak mengizinkan penyalinan otomatis. Salin catatan secara manual.'); }
-    });
-    el('csOpenVerify')?.addEventListener('click', () => { el('csVerifyCheck').checked = false; el('csConfirmVerify').disabled = true; open('csVerifyModal'); });
-    el('csVerifyCheck')?.addEventListener('change', e => el('csConfirmVerify').disabled = !e.target.checked);
-    el('csConfirmVerify')?.addEventListener('click', () => {
-        if (!el('csVerifyCheck').checked) return;
-        record.status = 'Terverifikasi / Fiksasi CS'; record.stage = 'verification'; record.workflowStage = 'payment'; record.revisionReason = ''; record.verifiedAt = new Date().toISOString(); persist(); close(); render(); notify('Pesanan difiksasi dalam pratinjau. Tahap berikutnya: Pembayaran / pengecualian DP.');
-    });
-    const stageForm = el('csStageForm');
-    const stageTitle = el('csStageTitle');
-    const paymentChoice = el('csPaymentChoice');
-    const paymentOptions = () => {
-        const without = paymentChoice?.value === 'without_dp';
-        el('csPoReasonLabel')?.classList.toggle('hidden', !without);
-        el('csDpReferenceLabel')?.classList.toggle('hidden', without);
-        if (stageForm) { stageForm.elements.poReason.required = without; stageForm.elements.dpAmount.required = !without; }
-    };
-    paymentChoice?.addEventListener('change', paymentOptions);
-    el('csNextAction')?.addEventListener('click', () => {
-        const stage = resolveStage();
-        if (stage === 'completed') return;
-        if (stage === 'tracking') {
-            stageTitle.textContent = 'Update Tracking Produksi';
-        } else stageTitle.textContent = actionLabel();
-        stageForm.reset();
-        el('csPaymentSection')?.classList.toggle('hidden', stage !== 'payment');
-        el('csWoSection')?.classList.toggle('hidden', stage !== 'wo');
-        el('csTrackingSection')?.classList.toggle('hidden', stage !== 'tracking');
-        el('csSettlementSection')?.classList.toggle('hidden', stage !== 'settlement');
-        el('csReadySection')?.classList.toggle('hidden', stage !== 'ready');
-        el('csHandoverSection')?.classList.toggle('hidden', stage !== 'handover');
-        if (stage === 'payment') paymentOptions();
-        el('csStageDescription').textContent = { payment: 'Validasi DP atau catat persetujuan pengecualian DP sebelum membuat WO.', wo: 'Catat nomor WO dan PIC produksi sebelum mengalihkan order ke tracking.', tracking: 'Catat progres produksi. Hanya QC selesai yang mengalihkan ke tahap pelunasan.', settlement: 'Validasi sisa tagihan, atau pembayaran penuh untuk pesanan tanpa DP, sebelum siap kirim.', ready: 'Konfirmasi pesanan siap kirim dengan ekspedisi atau metode pengambilan.', handover: 'Konfirmasi barang telah diserahkan/diterima agar order dapat ditutup.', completed: 'Order telah selesai.' }[stage] || 'Konfirmasi tahap berikutnya.';
-        el('csStageSubmit').textContent = stage === 'tracking' ? 'Simpan Update Tracking' : stage === 'ready' ? 'Konfirmasi Siap Kirim' : stage === 'handover' ? 'Tandai Selesai' : 'Konfirmasi Tahap';
-        open('csStageModal');
-    });
-    stageForm?.addEventListener('submit', e => {
-        e.preventDefault(); const stage = resolveStage();
-        if (stage === 'payment') {
-            if (paymentChoice.value === 'without_dp') {
-                const reason = stageForm.elements.poReason.value.trim();
-                if (reason.length < 8) return notify('Isi nomor PO/alasan dan persetujuan khusus minimal 8 karakter.');
-                record.dpExceptionReason = reason; record.dpAmount = 0; record.payment = 'Tanpa DP (Persetujuan Khusus)'; record.paymentCode = 'without_dp';
-            } else {
-                const amount = Number(stageForm.elements.dpAmount.value);
-                if (!Number.isFinite(amount) || amount <= 0) return notify('Masukkan nominal DP yang telah diverifikasi.');
-                record.dpAmount = amount; record.payment = 'DP Diterima'; record.paymentCode = 'dp'; record.dpExceptionReason = '';
-            }
-            record.paymentApprovedAt = new Date().toISOString(); record.workflowStage = 'wo'; record.status = 'Menunggu Upload WO'; record.stage = 'verification';
-        } else if (stage === 'wo') {
-            const wo = stageForm.elements.woNumber.value.trim(); const des = stageForm.elements.designer.value.trim();
-            if (!wo || !des) return notify('Nomor WO dan PIC produksi wajib diisi.');
-            record.woNumber = wo; record.designer = des; record.woIssuedAt = new Date().toISOString(); record.workflowStage = 'tracking'; record.stage = 'production'; record.status = 'Produksi Berjalan';
-        } else if (stage === 'tracking') {
-            record.trackingProgress = stageForm.elements.trackingProgress.value; record.trackingNote = stageForm.elements.trackingNote.value.trim();
-            record.status = 'Produksi: ' + record.trackingProgress;
-            if (record.trackingProgress === 'Siap Kirim (QC Selesai)') {
-                record.workflowStage = 'settlement'; record.stage = 'production'; record.status = 'QC Selesai - Menunggu Pelunasan';
-            }
-        } else if (stage === 'settlement') {
-            const value = Number(stageForm.elements.settlementAmount.value);
-            const reference = stageForm.elements.settlementReference.value.trim();
-            if (!Number.isFinite(value) || value <= 0) return notify('Masukkan nominal pembayaran akhir lebih dari Rp0.');
-            if (reference.length < 3) return notify('Isi nomor referensi atau bukti pembayaran akhir.');
-            // Jika nominal kontrak numerik tersedia, jangan izinkan pelunasan lebih kecil dari sisa tagihan.
-            const total = Number(record.totalAmount || 0);
-            const remainder = total > 0 ? Math.max(0, total - number(record.dpAmount)) : null;
-            if (remainder !== null && value < remainder) return notify('Pembayaran akhir kurang dari sisa tagihan Rp' + remainder.toLocaleString('id-ID') + '.');
-            record.settlementAmount = value; record.settlementReference = reference;
-            record.settledAt = new Date().toISOString(); record.payment = 'Lunas'; record.paymentCode = 'paid';
-            record.workflowStage = 'ready'; record.stage = 'ready'; record.status = 'Lunas - Menunggu Siap Kirim';
-        } else if (stage === 'ready') {
-            const method = stageForm.elements.deliveryMethod.value;
-            const note = stageForm.elements.deliveryNote.value.trim();
-            if (!method || note.length < 3) return notify('Pilih metode pengiriman dan isi referensi/keterangan pengiriman.');
-            record.deliveryMethod = method; record.deliveryNote = note;
-            record.readyAt = new Date().toISOString(); record.workflowStage = 'handover'; record.stage = 'ready'; record.status = 'Siap Kirim';
-        } else if (stage === 'handover') {
-            const ref = stageForm.elements.handoverReference.value.trim();
-            if (ref.length < 3) return notify('Isi bukti/resi penyerahan barang sebelum menutup order.');
-            record.handoverReference = ref; record.completedAt = new Date().toISOString();
-            record.workflowStage = 'completed'; record.status = 'Selesai & Diserahkan'; record.stage = 'ready';
-        }
-        record.lastWorkflowAt = new Date().toISOString(); persist(); close(); render(); notify('Status ' + code + ' diperbarui di sesi pratinjau. Belum dikirim ke backend.');
-    });
-    const renderSizes = () => {
-        const body = el('csSizeRows'); if (!body || !record.sizes) return;
-        body.innerHTML = sizeKeys.map(k => `<tr><td>${sanitize(k)}</td><td>${number(record.sizes[k])}</td><td>${['2XL', '3XL'].includes(k) ? 'Jumbo' : 'Standar'}</td></tr>`).join('');
-        setText('csSizeGrand', qtyTotal(record.sizes));
-    };
-    el('csOpenSizes')?.addEventListener('click', () => { if (!record.sizes) return notify('Distribusi ukuran order ini belum tersedia.'); renderSizes(); open('csSizesModal'); });
-    el('csDownloadSizes')?.addEventListener('click', () => {
-        if (!record.sizes) return;
-        const lines = [['Kode Order', code], ['Pelanggan', record.customer], ['Produk', record.product], [], ['Ukuran', 'Jumlah (pcs)', 'Kategori'], ...sizeKeys.map(k => [k, String(number(record.sizes[k])), ['2XL', '3XL'].includes(k) ? 'Jumbo' : 'Standar']), ['TOTAL', String(qtyTotal(record.sizes)), '']];
-        const csv = lines.map(row => row.map(v => '"' + String(v ?? '').replace(/"/g, '""') + '"').join(';')).join('\r\n');
-        const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'detail-ukuran-' + code + '.csv'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
-    });
+        const p = o.pelanggan || {};
+        const s = o.spesifikasi || {};
+        const uk = o.ukuran_pesanan || [];
+        const rp = o.ringkasan_pembayaran || {};
+        const bayar = statusBayar({ total_pembayaran: rp.total_pembayaran, total_dibayar: rp.total_dibayar, dp: rp.dp });
+        const totalPcs = uk.reduce((a, x) => a + Number(x.jumlah || 0), 0);
+        const belumDirinci = uk.length > 0 && uk.every((x) => x.ukuran === 'TANPA_UKURAN');
+        const idxTahap = daftarTahap.findIndex((t) => t.nama === o.tahap_saat_ini);
 
-    // Cetak hanya brief lengkap desainer, bukan dashboard/sidebar/modal CS.
-    // Browser menyediakan pilihan "Save as PDF"; tidak diperlukan akun desainer.
-    const printDesignerBrief = () => {
-        const safe = sanitize;
-        const validUrl = (value) => {
-            try { const u = new URL(String(value || '')); return ['https:', 'http:'].includes(u.protocol) && !/1aBcDeFgHiJkLmNoP|contoh|example/i.test(u.href) ? u.href : null; }
-            catch { return null; }
-        };
-        const detailSections = [
-            ['1. Identitas & Kontak Pemesan', 'identity'],
-            ['2. Spesifikasi Produk, Kain & Warna', 'specification'],
-            ['3. Detail Bordir & Merchandise', 'embroidery'],
-            ['4. Distribusi Ukuran', 'sizes'],
-            ['5. Berkas Desain & Lampiran', 'attachments']
-        ];
-        const groups = {
-            identity: [['customer', 'Nama pemesan'], ['phone', 'Nomor WhatsApp'], ['organization', 'Instansi'], ['source', 'Sumber informasi']],
-            specification: [['product', 'Produk'], ['category', 'Kategori'], ['fabric', 'Bahan'], ['color', 'Warna'], ['cutting', 'Model / cutting'], ['quantity', 'Kuantitas'], ['deadline', 'Deadline']],
-            embroidery: [['embroidery', 'Bordir / sablon'], ['merchandise', 'Merchandise'], ['notes', 'Catatan khusus']],
-            sizes: [['sizeFileUrl', 'Excel nama dan ukuran']],
-            attachments: [['designUrl', 'Link desain'], ['address', 'Alamat pengiriman']]
-        };
-        const edited = new Set(record.editedFields || []);
-        const valueHtml = (key) => {
-            const val = record[key]; if (val === null || val === undefined || String(val).trim() === '') return '';
-            if (key === 'deadline') return safe(humanDeadline(val));
-            const url = validUrl(val);
-            if (url && (key === 'designUrl' || key === 'sizeFileUrl')) return `<a href="${safe(url)}" target="_blank" rel="noopener">${safe(url)}</a>`;
-            return safe(val);
-        };
-        const rowsFor = group => (groups[group] || []).filter(([key]) => valueHtml(key) && (edited.has(key) || (groups[group] || []).some(([k]) => edited.has(k)))).map(([key, label]) => `<tr><th>${safe(label)}</th><td>${valueHtml(key)}</td></tr>`).join('');
-        const sectionCards = Array.from(page.querySelectorAll('#csExampleOrder .cs-form-changes'));
-        const cardFor = (group) => {
-            const changes = page.querySelector(`[data-cs-changes="${group}"]`);
-            const card = changes?.parentElement;
-            if (!card) return '';
-            const clone = card.cloneNode(true);
-            clone.querySelectorAll('button,.cs-form-changes,.material-symbols-outlined,.cs-size-toolbar,.cs-section-edit,[data-detail-action]').forEach(node => node.remove());
-            // Teks lama pada kartu yang memang sudah diedit tidak boleh dianggap data terbaru.
-            // Detail contoh tetap dilampirkan untuk field yang belum diubah.
-            const labels = { identity: ['customer', 'phone', 'organization', 'source'], specification: ['product', 'fabric', 'color', 'quantity', 'cutting', 'category', 'deadline'], embroidery: ['embroidery', 'merchandise', 'notes'], sizes: ['sizes', 'quantity'], attachments: ['designUrl', 'sizeFileUrl', 'address'] };
-            if ((labels[group] || []).some(key => edited.has(key))) return '';
-            if (group === 'attachments') return '';// Hanya tautan asli boleh masuk PDF, bukan link contoh Stitch
-            const content = clone.innerHTML;
-            return `<div class="original">${content}</div>`;
-        };
-        const sizeRows = record.sizes ? Object.entries(record.sizes).map(([k, v]) => `<tr><td>${safe(k)}</td><td>${number(v)} pcs</td></tr>`).join('') : '';
-        const links = [['File desain pelanggan', 'designUrl'], ['Excel nama dan ukuran', 'sizeFileUrl']]
-            .filter(([, key]) => validUrl(record[key]))
-            .map(([label, key]) => `<p><strong>${safe(label)}:</strong> <a href="${safe(validUrl(record[key]))}">${safe(record[key])}</a></p>`).join('');
-        const blocks = detailSections.map(([title, group]) => {
-            const changed = rowsFor(group);
-            let body = changed ? `<table class="fields"><tbody>${changed}</tbody></table>` : '';
-            if (group === 'sizes' && sizeRows) body += `<table class="sizes"><thead><tr><th>Ukuran</th><th>Jumlah</th></tr></thead><tbody>${sizeRows}<tr><th>Total</th><th>${qtyTotal(record.sizes)} pcs</th></tr></tbody></table>`;
-            body += cardFor(group);
-            if (group === 'attachments') body += links || '<p class="muted">Berkas asli belum ditautkan. Minta CS mengunggah atau memasukkan URL berkas yang valid.</p>';
-            if (!body) body = '<p class="muted">Rincian bagian ini belum tersedia.</p>';
-            return `<section class="section"><h2>${safe(title)}</h2>${body}</section>`;
+        statusLine.textContent = `Status: ${o.alur_label} • Tahap produksi: ${o.tahap_saat_ini}. ${PETUNJUK[o.alur] || ''}`;
+
+        // Kepala + progres tahap produksi
+        const chips = daftarTahap.map((t, i) => {
+            const gaya = i < idxTahap ? 'background:#d1fae5;color:#065f46'
+                : i === idxTahap ? 'background:#830909;color:#fff'
+                    : 'background:#f3f4f4;color:#6b7280';
+            return `<span class="px-2.5 py-1 rounded-full text-[11px] font-semibold" style="${gaya}">${esc(t.nama)}</span>`;
         }).join('');
-        const html = `<!doctype html><html lang="id"><head><meta charset="utf-8"><title>Form Desainer - ${safe(code)}</title>
-  <style>
-  @page{size:A4;margin:15mm 14mm}*{box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;color:#252525;margin:0;font-size:11px;line-height:1.45}
-  header{border-bottom:3px solid #830909;padding-bottom:12px;margin-bottom:15px}header .brand{color:#830909;font-size:12px;font-weight:800;letter-spacing:.06em}h1{font-size:21px;margin:8px 0 5px}h2{font-size:13px;background:#f6eeee;border-left:3px solid #830909;padding:8px 10px;margin:0 0 10px}.meta{display:grid;grid-template-columns:1fr 1fr;gap:5px 16px;margin-top:8px}.meta div{padding:5px 0}.meta small{color:#555}.section{margin:12px 0 18px;break-inside:avoid-page}.fields,.sizes{width:100%;border-collapse:collapse;margin:8px 0}.fields th,.fields td,.sizes th,.sizes td{border:1px solid #ddd;padding:6px 8px;text-align:left;vertical-align:top}.fields th{width:30%;background:#fafafa}.original{background:#fff;margin-top:6px}.original .grid{display:block}.original .grid>div,.original .flex>div{margin:3px 0}.original .bg-surface-container-low{background:#fafafa;padding:6px;border:1px solid #e8e8e8;border-radius:4px}.original .font-bold{font-weight:bold}.original span,.original strong{word-break:break-word}.original ul{padding-left:18px}.original [class*="rounded-full"],.original [class*="bg-emerald"],.original [class*="bg-primary-fixed"]{display:none}.original .flex{display:block}.original p{margin:5px 0}.muted{color:#666}a{color:#830909;text-decoration:underline;overflow-wrap:anywhere}footer{border-top:1px solid #ddd;padding-top:7px;margin-top:18px;color:#666;font-size:10px}button{display:none}
-  </style></head><body>
-  <header><div class="brand">PRESMA KONVEKSI • FORM UNTUK DESAINER</div><h1>Detail Form Pesanan Pelanggan</h1><div class="meta"><div><small>Kode order</small><br><strong>${safe(code)}</strong></div><div><small>Deadline</small><br><strong>${safe(humanDeadline(record.deadline))}</strong></div><div><small>Nama pelanggan</small><br><strong>${safe(record.customer || 'Tidak tersedia')}</strong></div><div><small>Produk & jumlah</small><br><strong>${safe(record.product || 'Tidak tersedia')} • ${number(record.quantity)} pcs</strong></div><div><small>Instansi</small><br>${safe(record.organization || '-')}</div><div><small>Status CS</small><br>${safe(record.status || '-')}</div></div></header>
-  ${blocks}
-  <footer>Dokumen disusun dari hasil form pesanan yang tersedia di browser CS. Tautan file aktif hanya jika URL asli sudah dimasukkan. Periksa kembali isi dan lampiran sebelum dibagikan ke desainer.</footer>
-  <script>window.addEventListener('load',()=>setTimeout(()=>window.print(),350));<\/script>
-  </body></html>`;
-        const win = window.open('', '_blank');
-        if (!win) { notify('Browser memblokir tab PDF. Izinkan pop-up untuk halaman ini, lalu klik lagi.'); return; }
-        win.document.open(); win.document.write(html); win.document.close();
+
+        const kepala = `
+        <section class="bg-white rounded-xl px-5 py-5 border border-[#e1e3e3] shadow-sm">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                    <p class="text-xs text-[#635d5e]">Kode Order</p>
+                    <h1 class="text-2xl font-bold text-[#191c1c]" id="csDetailCode">${esc(o.kode_order)}</h1>
+                    <p class="text-sm text-[#635d5e] mt-1">${esc(p.nama || '—')}${p.instansi ? ' • ' + esc(p.instansi) : ''}</p>
+                </div>
+                <div class="flex flex-col items-end gap-1.5">
+                    ${badge(o.alur_label, GAYA_ALUR[o.alur] || GAYA_ALUR.verification)}
+                    ${badge(LABEL_BAYAR[bayar], GAYA_BAYAR[bayar])}
+                    <span class="text-xs text-[#635d5e]">Deadline: <strong>${o.deadline ? esc(tanggal(o.deadline)) : 'Belum ditentukan'}</strong></span>
+                </div>
+            </div>
+            <div class="flex flex-wrap gap-1.5 mt-4" aria-label="Progres produksi">${chips}</div>
+        </section>`;
+
+        const identitas = kartu('person', 'Identitas & Kontak Pemesan', grid(
+            kv('Nama Pemesan', nilai(p.nama))
+            + kv('No. WhatsApp', p.no_whatsapp ? `<a class="text-primary font-mono" target="_blank" rel="noopener" href="${esc(waLink(p.no_whatsapp))}">${esc(p.no_whatsapp)}</a>` : nilai(null))
+            + kv('Instansi', nilai(p.instansi))
+            + kv('Sumber Informasi', nilai(SUMBER[p.sumber_informasi] || p.sumber_informasi))
+            + kv('Tanggal Masuk', esc(tanggal(o.dibuat_pada, true)))
+            + kv('Dibuat Lewat', o.dibuat_dari === 'FORM_CUSTOMER' ? 'Form Customer' : 'Dibuat CS')
+            + kv('Kode Tracking Pelanggan', `<span class="font-mono text-[12px] break-all">${esc(o.kode_tracking)}</span>`)
+        ));
+
+        const spesifikasi = kartu('checkroom', 'Spesifikasi Produk', grid(
+            kv('Jenis Produk', nilai(o.jenis_produk))
+            + kv('Bahan Kain', nilai(s.bahan))
+            + kv('Warna', nilai(s.warna))
+            + kv('Model / Cutting', nilai(s.model_cuttingan))
+            + kv('Lengan', nilai(s.lengan === 'PANJANG' ? 'Panjang' : s.lengan === 'PENDEK' ? 'Pendek' : null))
+            + kv('Desain', s.status_desain === 'SUDAH_ADA_FILE' ? 'Pelanggan sudah punya file' : 'Dibuatkan tim Presma')
+            + kv('Sablon / Bordir', `${ya(s.pakai_sablon)} / ${ya(s.pakai_bordir)}`)
+            + kv('Lanyard / ID Card', `${ya(s.pakai_lanyard)} / ${ya(s.pakai_id_card)}`)
+            + kv('Catatan Bordir / Sablon', nilai(s.ket_bordir_sablon))
+            + kv('Merchandise Tambahan', nilai(s.tambahan))
+            + kv('Keterangan Order', nilai(o.keterangan))
+        ));
+
+        const barisUkuran = uk.map((x) => `<tr><td class="py-1.5 px-3">${x.ukuran === 'TANPA_UKURAN' ? 'Tanpa rincian ukuran' : esc(x.ukuran)}</td><td class="py-1.5 px-3 text-right font-semibold">${Number(x.jumlah)}</td></tr>`).join('');
+        const ukuran = kartu('straighten', 'Rincian Ukuran', `
+            ${belumDirinci ? '<p class="mb-3 px-3 py-2 rounded-lg" style="background:#fef3c7;color:#92400e">Rincian ukuran belum diisi. Lengkapi lewat tombol <strong>Edit Pesanan</strong>.</p>' : ''}
+            <table class="w-full max-w-sm text-left"><thead><tr class="text-on-surface-variant"><th class="py-1.5 px-3">Ukuran</th><th class="py-1.5 px-3 text-right">Jumlah (pcs)</th></tr></thead>
+            <tbody class="divide-y divide-surface-container">${barisUkuran || '<tr><td colspan="2" class="py-2 px-3 text-secondary">Belum ada data ukuran.</td></tr>'}</tbody>
+            <tfoot><tr class="font-bold"><td class="py-2 px-3">Total</td><td class="py-2 px-3 text-right">${totalPcs}</td></tr></tfoot></table>`);
+
+        const barisBayar = (o.pembayaran || []).map((x) => `
+            <tr><td class="py-1.5 px-3">${esc(tanggal(x.tanggal_bayar))}</td><td class="py-1.5 px-3">${esc(x.jenis)}</td>
+            <td class="py-1.5 px-3">${esc(x.metode || '—')}</td><td class="py-1.5 px-3">${esc(x.keterangan || '—')}</td>
+            <td class="py-1.5 px-3 text-right font-semibold">${esc(rupiah(x.jumlah))}</td></tr>`).join('');
+        const keuangan = kartu('payments', 'Invoice & Pembayaran', grid(
+            kv('Nomor Invoice', o.invoice ? esc(o.invoice.nomor_invoice) : '<span class="text-secondary font-normal">Belum diterbitkan</span>')
+            + kv('Harga Satuan', esc(rupiah(o.harga_satuan)))
+            + kv('Total Tagihan', esc(rupiah(rp.total_pembayaran)))
+            + kv('DP Diterima', esc(rupiah(rp.dp)))
+            + kv('Pelunasan Diterima', esc(rupiah(rp.pelunasan)))
+            + kv('Kekurangan', esc(rupiah(rp.kekurangan)), Number(rp.kekurangan) > 0 ? 'text-error' : '')
+        ) + `
+            <table class="w-full text-left mt-4"><thead><tr class="text-on-surface-variant"><th class="py-1.5 px-3">Tanggal</th><th class="py-1.5 px-3">Jenis</th><th class="py-1.5 px-3">Metode</th><th class="py-1.5 px-3">Keterangan</th><th class="py-1.5 px-3 text-right">Jumlah</th></tr></thead>
+            <tbody class="divide-y divide-surface-container">${barisBayar || '<tr><td colspan="5" class="py-2 px-3 text-secondary">Belum ada pembayaran tercatat.</td></tr>'}</tbody></table>`);
+
+        const wo = o.work_order;
+        const workOrder = kartu('assignment', 'Work Order', wo ? grid(
+            kv('Nomor WO', esc(wo.nomor_wo)) + kv('Status', wo.status_wo === 'DITERUSKAN' ? 'Diteruskan ke Produksi' : 'Dibuat (belum diteruskan)')
+            + kv('Tanggal WO', esc(tanggal(wo.tanggal_wo))) + kv('Catatan Produksi', nilai(wo.catatan_produksi))
+        ) : '<p class="text-secondary">Work Order belum dibuat. WO bisa dibuat setelah invoice terbit dan DP tercatat.</p>');
+
+        const riwayatBaris = (o.riwayat_tahap || []).map((r) => `
+            <li class="py-2 flex flex-wrap items-baseline gap-x-3">
+                <span class="font-semibold">${esc(r.tahap_baru)}${Number(r.mundur) ? ' <span style="color:#c62b2b">(mundur)</span>' : ''}</span>
+                <span class="text-secondary">${esc(tanggal(r.waktu, true))} • ${esc(r.diubah_oleh_nama || 'Sistem')}</span>
+                ${r.catatan ? `<span class="basis-full text-on-surface-variant">${esc(r.catatan)}</span>` : ''}
+            </li>`).join('');
+        const riwayat = kartu('timeline', 'Riwayat Tahap Produksi',
+            riwayatBaris ? `<ul class="divide-y divide-surface-container">${riwayatBaris}</ul>` : '<p class="text-secondary">Belum ada perubahan tahap.</p>');
+
+        const lampiran = kartu('attach_file', 'Lampiran Desain',
+            '<p class="text-secondary">Upload dan lampiran file desain belum tersedia (modul <code>file_desain</code> belum dibuat di backend).</p>');
+
+        const catatan = o.catatan_internal
+            ? kartu('sticky_note_2', 'Catatan Internal', `<p class="whitespace-pre-line">${esc(o.catatan_internal)}</p>`) : '';
+
+        body.innerHTML = kepala + identitas + spesifikasi + ukuran + keuangan + workOrder + riwayat + lampiran + catatan;
+        aturTombol();
     };
 
-    const preview = el('csDetailPreviewModal');
-    page.addEventListener('click', e => {
-        const b = e.target.closest('[data-detail-action]'); if (!b) return;
-        switch (b.dataset.detailAction) {
-            case 'preview': open('csDetailPreviewModal'); break;
-            case 'close-preview': close(); break;
-            case 'zip': notify('Berkas ZIP asli belum tersedia di proyek.'); break;
-            case 'copy': notify('URL Drive masih contoh Stitch, tidak ada tautan asli yang disalin.'); break;
-            case 'drive': notify('Link Drive masih contoh, belum dapat dibuka.'); break;
-            case 'print': printDesignerBrief(); break;
+    const aturTombol = () => {
+        const final = o.alur === 'completed' || o.alur === 'cancelled';
+        btnEdit.disabled = final;
+        btnRevisi.disabled = !o.pelanggan?.no_whatsapp;
+
+        const bisaBatal = o.alur === 'verification' || (o.alur === 'payment' && Number(o.ringkasan_pembayaran?.dp || 0) <= 0);
+        btnBatal.classList.toggle('hidden', !bisaBatal);
+
+        const label = typeof AKSI_UTAMA[o.alur] === 'function' ? AKSI_UTAMA[o.alur]() : AKSI_UTAMA[o.alur];
+        btnNext.classList.toggle('hidden', !label);
+        if (label) $('#csNextActionText').textContent = label;
+    };
+
+    // ---------- modal umum ----------------------------------------------------
+    const modal = (sel) => $(sel);
+    const buka = (sel) => { const m = modal(sel); m.classList.remove('hidden'); m.querySelector('input:not([type=hidden]),select,textarea,button')?.focus(); };
+    const tutup = () => page.querySelectorAll('.cs-workflow-overlay').forEach((m) => m.classList.add('hidden'));
+    page.querySelectorAll('[data-workflow-close]').forEach((b) => b.addEventListener('click', tutup));
+    page.querySelectorAll('.cs-workflow-overlay').forEach((m) => m.addEventListener('click', (e) => { if (e.target === m) tutup(); }));
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') tutup(); });
+    const tampilError = (sel, pesan) => { const el = $(sel); el.textContent = pesan || ''; el.classList.toggle('hidden', !pesan); };
+    const sibuk = (tombol, aktif, teks) => { tombol.disabled = aktif; if (aktif) { tombol.dataset.t = tombol.textContent; tombol.textContent = teks || 'Memproses…'; } else if (tombol.dataset.t) tombol.textContent = tombol.dataset.t; };
+
+    const muat = async () => {
+        const [detail, tahap] = await Promise.all([api('/pesanan/' + id), api('/tahap-produksi')]);
+        o = detail.data;
+        daftarTahap = tahap.data;
+        render();
+    };
+
+    // ---------- modal langkah alur -------------------------------------------
+    const form = $('#csStageForm');
+    const fields = $('#csStageFields');
+    let modeAktif = null;
+
+    const fieldBayar = (jenis, default_, maks) => `
+        <label>Nominal ${jenis} (Rp) <input name="jumlah" type="number" min="1" max="${maks}" step="1" required value="${default_}"></label>
+        <label>Metode <select name="metode"><option value="TRANSFER">Transfer</option><option value="TUNAI">Tunai</option><option value="QRIS">QRIS</option><option value="LAINNYA">Lainnya</option></select></label>
+        <label>Tanggal Bayar <input name="tanggal" type="date" value="${new Date().toISOString().slice(0, 10)}"></label>
+        <label>Referensi / Keterangan <input name="keterangan" maxlength="255" placeholder="No. transfer, nama pengirim…"></label>`;
+
+    const MODE = {
+        verification: () => ({
+            judul: 'Verifikasi & Fiksasi Pesanan',
+            desc: 'Setelah difiksasi, pesanan berstatus DIKONFIRMASI dan siap ditagihkan.',
+            submit: 'Fiksasi Pesanan',
+            isi: () => {
+                const adaHarga = o.harga_satuan !== null && o.harga_satuan !== '';
+                const belumRinci = (o.ukuran_pesanan || []).every((x) => x.ukuran === 'TANPA_UKURAN');
+                return `
+                <ul class="text-[13px] space-y-1">
+                    <li>${adaHarga ? '✅' : '❌'} Harga satuan ${adaHarga ? esc(rupiah(o.harga_satuan)) : 'belum diisi (wajib, lewat Edit Pesanan)'}</li>
+                    <li>${belumRinci ? '⚠️ Rincian ukuran belum diisi (disarankan dilengkapi)' : '✅ Rincian ukuran sudah diisi'}</li>
+                </ul>
+                <label class="cs-confirm-check"><input type="checkbox" name="konfirmasi" required ${adaHarga ? '' : 'disabled'}> Saya sudah memeriksa data pesanan bersama pelanggan.</label>`;
+            },
+            jalankan: async () => { await api(`/pesanan/${id}/konfirmasi`, { method: 'POST' }); },
+            ok: 'Pesanan berhasil diverifikasi.',
+        }),
+        payment: () => {
+            const total = Number(o.ringkasan_pembayaran?.total_pembayaran || 0);
+            return {
+                judul: 'Invoice & Pembayaran DP',
+                desc: o.invoice ? `Invoice ${o.invoice.nomor_invoice} sudah terbit. Catat DP yang diterima.` : 'Invoice akan diterbitkan otomatis, lalu DP dicatat.',
+                submit: 'Simpan DP',
+                isi: () => fieldBayar('DP', Math.round(total / 2), total),
+                jalankan: async (fd) => {
+                    if (!o.invoice) await api(`/pesanan/${id}/invoice`, { method: 'POST' });
+                    await api(`/pesanan/${id}/pembayaran`, { method: 'POST', body: {
+                        jenis: 'DP', jumlah: Number(fd.get('jumlah')), metode: fd.get('metode'),
+                        tanggal_bayar: fd.get('tanggal') || null, keterangan: fd.get('keterangan') || null } });
+                },
+                ok: 'Invoice diterbitkan dan DP tercatat.',
+            };
+        },
+        wo: () => ({
+            judul: o.work_order ? 'Teruskan Work Order' : 'Buat Work Order',
+            desc: o.work_order ? `WO ${o.work_order.nomor_wo} akan diteruskan ke Tim Produksi.` : 'Nomor WO dibuat otomatis oleh sistem. Setelah dibuat, WO langsung diteruskan ke Tim Produksi.',
+            submit: o.work_order ? 'Teruskan ke Produksi' : 'Buat & Teruskan WO',
+            isi: () => (o.work_order ? '' : '<label>Catatan untuk Produksi <textarea name="catatan" rows="3" placeholder="Penanggung jawab produksi, catatan khusus, dll."></textarea></label>'),
+            jalankan: async (fd) => {
+                let woId = o.work_order?.id;
+                if (!woId) {
+                    await api(`/pesanan/${id}/work-order`, { method: 'POST', body: { catatan_produksi: fd.get('catatan') || null } });
+                    woId = (await api('/pesanan/' + id)).data.work_order.id;
+                }
+                await api(`/work-order/${woId}/teruskan`, { method: 'POST' });
+            },
+            ok: 'Work Order diteruskan ke Tim Produksi.',
+        }),
+        settlement: () => {
+            const sisa = Number(o.ringkasan_pembayaran?.kekurangan || 0);
+            return {
+                judul: 'Pelunasan', desc: `Sisa tagihan ${rupiah(sisa)}.`, submit: 'Simpan Pelunasan',
+                isi: () => fieldBayar('Pelunasan', sisa, sisa),
+                jalankan: async (fd) => { await api(`/pesanan/${id}/pembayaran`, { method: 'POST', body: {
+                    jenis: 'PELUNASAN', jumlah: Number(fd.get('jumlah')), metode: fd.get('metode'),
+                    tanggal_bayar: fd.get('tanggal') || null, keterangan: fd.get('keterangan') || null } }); },
+                ok: 'Pelunasan tercatat.',
+            };
+        },
+        ready: () => ({
+            judul: 'Serah Terima ke Pelanggan', desc: 'Tandai barang sudah diserahkan. Order akan berstatus Selesai.', submit: 'Tandai Selesai',
+            isi: () => `<label>Metode Penyerahan <select name="metode"><option>Diambil di toko</option><option>Kurir lokal</option><option>Ekspedisi</option></select></label>
+                <label>Catatan / No. Resi <input name="catatan" maxlength="200"></label>
+                <label class="cs-confirm-check"><input type="checkbox" required> Barang sudah diterima pelanggan.</label>`,
+            jalankan: async (fd) => { await api(`/pesanan/${id}/serah-terima`, { method: 'POST', body: {
+                catatan: [fd.get('metode'), fd.get('catatan')].filter(Boolean).join(' — ') } }); },
+            ok: 'Order selesai.',
+        }),
+        cancel: () => ({
+            judul: 'Batalkan Order', desc: 'Order yang dibatalkan tidak bisa diproses lagi.', submit: 'Batalkan Order',
+            isi: () => '<label>Alasan pembatalan <textarea name="alasan" rows="3" required minlength="3" maxlength="200"></textarea></label>',
+            jalankan: async (fd) => { await api(`/pesanan/${id}/batal`, { method: 'POST', body: { alasan: fd.get('alasan') } }); },
+            ok: 'Order dibatalkan.',
+        }),
+    };
+
+    let konfigAktif = null;
+    const bukaMode = (mode) => {
+        if (!MODE[mode]) return;
+        modeAktif = mode;
+        konfigAktif = MODE[mode]();
+        $('#csStageTitle').textContent = konfigAktif.judul;
+        $('#csStageDescription').textContent = konfigAktif.desc;
+        $('#csStageSubmit').textContent = konfigAktif.submit;
+        fields.innerHTML = konfigAktif.isi();
+        tampilError('#csStageError', '');
+        buka('#csStageModal');
+    };
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!form.reportValidity() || !konfigAktif) return;
+        const submit = $('#csStageSubmit');
+        sibuk(submit, true);
+        tampilError('#csStageError', '');
+        try {
+            await konfigAktif.jalankan(new FormData(form));
+            tutup();
+            toast(konfigAktif.ok);
+            await muat();
+        } catch (err) {
+            tampilError('#csStageError', err.message);
+            await muat().catch(() => {}); // sinkronkan bila sebagian langkah sudah berhasil
+        } finally {
+            sibuk(submit, false);
         }
     });
-    render();
-    const requestedAction = params.get('action');
-    if (requestedAction === 'edit') openSectionEdit(isExample ? 'identity' : 'all');
-    if (requestedAction === 'next') {
-        if (resolveStage() === 'verification') el('csOpenVerify')?.click();
-        else el('csNextAction')?.click();
+
+    btnNext.addEventListener('click', () => bukaMode(o.alur));
+    btnBatal.addEventListener('click', () => bukaMode('cancel'));
+
+    // ---------- modal edit pesanan -------------------------------------------
+    const editForm = $('#csEditOrderForm');
+    const gridUkuran = $('#csEditSizeGrid');
+    gridUkuran.innerHTML = UKURAN.filter((u) => u !== 'TANPA_UKURAN').map((u) =>
+        `<label>${u} <input name="size_${u}" type="number" min="0" step="1"></label>`).join('');
+    const totalUkuran = () => UKURAN.filter((u) => u !== 'TANPA_UKURAN')
+        .reduce((a, u) => a + (Number(editForm.elements['size_' + u].value) || 0), 0);
+    const tampilTotalUkuran = () => { $('#csEditSizeTotal').textContent = 'Total: ' + totalUkuran() + ' pcs'; };
+    gridUkuran.addEventListener('input', tampilTotalUkuran);
+
+    btnEdit.addEventListener('click', () => {
+        const el = editForm.elements;
+        const p = o.pelanggan || {};
+        const s = o.spesifikasi || {};
+        el.customer.value = p.nama || '';
+        el.phone.value = p.no_whatsapp || '';
+        el.organization.value = p.instansi || '';
+        el.source.value = p.sumber_informasi || '';
+        el.product.value = o.jenis_produk || '';
+        el.fabric.value = s.bahan || '';
+        el.color.value = s.warna || '';
+        el.deadline.value = o.deadline || '';
+        el.unitPrice.value = o.harga_satuan === null || o.harga_satuan === undefined ? '' : Number(o.harga_satuan);
+        el.cutting.value = s.model_cuttingan || '';
+        el.lengan.value = s.lengan || '';
+        el.design.value = s.status_desain || 'DIBUATKAN_TIM';
+        el.merchandise.value = s.tambahan || '';
+        el.embroidery.value = s.ket_bordir_sablon || '';
+        el.notes.value = o.keterangan || '';
+        el.sablon.checked = Boolean(s.pakai_sablon);
+        el.bordir.checked = Boolean(s.pakai_bordir);
+        el.lanyard.checked = Boolean(s.pakai_lanyard);
+        el.idcard.checked = Boolean(s.pakai_id_card);
+
+        const peta = Object.fromEntries((o.ukuran_pesanan || []).map((x) => [x.ukuran, x.jumlah]));
+        UKURAN.filter((u) => u !== 'TANPA_UKURAN').forEach((u) => { el['size_' + u].value = peta[u] ?? ''; });
+        tampilTotalUkuran();
+
+        const kunci = terkunci();
+        el.unitPrice.disabled = kunci;
+        UKURAN.filter((u) => u !== 'TANPA_UKURAN').forEach((u) => { el['size_' + u].disabled = kunci; });
+        $('#csEditLockHint').classList.toggle('hidden', !kunci);
+        $('#csEditContext').textContent = 'Kode order ' + o.kode_order;
+        tampilError('#csEditError', '');
+        buka('#csEditOrderModal');
+    });
+
+    editForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!editForm.reportValidity()) return;
+        const el = editForm.elements;
+        const submit = $('#csEditSubmit');
+        sibuk(submit, true, 'Menyimpan…');
+        tampilError('#csEditError', '');
+
+        try {
+            const p = o.pelanggan || {};
+            const pelangganBaru = {
+                nama: el.customer.value.trim(),
+                no_whatsapp: normalisasiWa(el.phone.value),
+                instansi: el.organization.value.trim() || null,
+                sumber_informasi: el.source.value || null,
+            };
+            const berubah = pelangganBaru.nama !== (p.nama || '')
+                || pelangganBaru.no_whatsapp !== (p.no_whatsapp || '')
+                || (pelangganBaru.instansi || '') !== (p.instansi || '')
+                || (pelangganBaru.sumber_informasi || '') !== (p.sumber_informasi || '');
+            if (berubah) await api('/pelanggan/' + o.pelanggan_id, { method: 'PUT', body: pelangganBaru });
+
+            const payload = {
+                jenis_produk: el.product.value,
+                keterangan: el.notes.value.trim() || null,
+                deadline: el.deadline.value || null,
+                spesifikasi: {
+                    bahan: el.fabric.value.trim() || null,
+                    warna: el.color.value.trim() || null,
+                    model_cuttingan: el.cutting.value.trim() || null,
+                    lengan: el.lengan.value || null,
+                    status_desain: el.design.value,
+                    tambahan: el.merchandise.value.trim() || null,
+                    ket_bordir_sablon: el.embroidery.value.trim() || null,
+                    pakai_sablon: el.sablon.checked,
+                    pakai_bordir: el.bordir.checked,
+                    pakai_lanyard: el.lanyard.checked,
+                    pakai_id_card: el.idcard.checked,
+                },
+            };
+            if (!terkunci()) {
+                payload.harga_satuan = el.unitPrice.value === '' ? null : Number(el.unitPrice.value);
+                const rincian = UKURAN.filter((u) => u !== 'TANPA_UKURAN')
+                    .map((u) => ({ ukuran: u, jumlah: Number(el['size_' + u].value) || 0 }))
+                    .filter((x) => x.jumlah > 0);
+                if (rincian.length) payload.ukuran = rincian; // kosong = ukuran lama dibiarkan
+            }
+
+            await api('/pesanan/' + id, { method: 'PUT', body: payload });
+            tutup();
+            toast('Perubahan pesanan tersimpan.');
+            await muat();
+        } catch (err) {
+            tampilError('#csEditError', err.message);
+        } finally {
+            sibuk(submit, false);
+        }
+    });
+
+    // ---------- hubungi customer / revisi ------------------------------------
+    const revisiForm = $('#csRevisionForm');
+    btnRevisi.addEventListener('click', () => { revisiForm.reset(); tampilError('#csRevisionError', ''); buka('#csRevisionModal'); });
+    revisiForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!revisiForm.reportValidity()) return;
+        const alasan = revisiForm.elements.reason.value.trim();
+        const teks = `Halo ${o.pelanggan?.nama || 'Kak'}, kami dari Presma Konveksi terkait order ${o.kode_order}. ${alasan}`;
+        window.open(waLink(o.pelanggan.no_whatsapp, teks), '_blank', 'noopener'); // dibuka sinkron agar tidak diblokir popup blocker
+        try {
+            const catatan = (o.catatan_internal ? o.catatan_internal + '\n' : '')
+                + `[${tanggal(new Date().toISOString().slice(0, 10))}] Hubungi customer: ${alasan}`;
+            await api('/pesanan/' + id, { method: 'PUT', body: { catatan_internal: catatan } });
+            tutup();
+            toast('Catatan tersimpan.');
+            await muat();
+        } catch (err) {
+            tampilError('#csRevisionError', err.message);
+        }
+    });
+
+    // ---------- mulai --------------------------------------------------------
+    if (!id) {
+        statusLine.textContent = 'Order tidak dipilih. Buka dari daftar order.';
+        return;
     }
+    muat().then(() => {
+        if (params.get('action') === 'next' && !btnNext.classList.contains('hidden')) btnNext.click();
+    }).catch((err) => {
+        statusLine.textContent = err.message;
+        body.innerHTML = '';
+    });
 };
-if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initCsOrderDetailV4, { once: true }); else initCsOrderDetailV4();
+
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startDetail);
+else startDetail();

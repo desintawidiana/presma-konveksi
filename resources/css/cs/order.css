@@ -1,13 +1,35 @@
-/* CS Order - scoped overrides for Stitch UI */
+/* Presma CS Order page: scoped styling */
 .cs-order-page {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.cs-order-page *,
+.cs-order-page *::before,
+.cs-order-page *::after {
+    box-sizing: border-box;
+}
+
+.cs-order-page .cs-order-main-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 24px;
+    width: 100%;
     min-width: 0;
 }
 
-.cs-order-page>div {
+.cs-order-page .cs-order-main-stack>* {
     min-width: 0;
+    max-width: 100%;
 }
 
 .cs-order-page table {
+    width: 100%;
+    border-collapse: collapse;
     font-size: 12px;
 }
 
@@ -17,6 +39,7 @@
     line-height: 1.5;
     white-space: nowrap;
     letter-spacing: .03em;
+    text-align: left;
 }
 
 .cs-order-page table td {
@@ -26,17 +49,15 @@
     vertical-align: middle;
 }
 
-.cs-order-page table td .text-\[15px\] {
-    font-size: 12px;
-}
-
-.cs-order-page table td button {
+.cs-order-page table td button,
+.cs-order-page table td a {
     font-size: 11px;
     padding: 7px 10px;
     white-space: nowrap;
 }
 
-.cs-order-page table td button .material-symbols-outlined {
+.cs-order-page table td button .material-symbols-outlined,
+.cs-order-page table td a .material-symbols-outlined {
     font-size: 15px;
 }
 
@@ -50,6 +71,122 @@
     cursor: pointer;
 }
 
+/* Filter controls and status tabs */
+.cs-order-page .cs-order-tab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex: 0 0 auto;
+    padding: 11px 16px;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    border-radius: 8px 8px 0 0;
+    background: transparent;
+    color: #635d5e;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    box-shadow: none;
+    cursor: pointer;
+    transition: background .15s, color .15s;
+}
+
+.cs-order-page .cs-order-tab:hover {
+    background: #f3eeee;
+    color: #830909;
+}
+
+.cs-order-page .cs-order-tab.cs-tab-active {
+    background: #fff;
+    color: #830909;
+    font-weight: 700;
+    border-bottom-color: #830909;
+}
+
+.cs-order-page .cs-order-tab>span:last-child {
+    display: inline-flex;
+    min-width: 24px;
+    justify-content: center;
+    align-items: center;
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: #e8e9e9;
+    color: #383232;
+    font-size: 11px;
+}
+
+.cs-order-page .cs-order-tab.cs-tab-active>span:last-child {
+    background: #f8e6e6;
+    color: #830909;
+}
+
+/* KPI cards */
+.cs-order-page .cs-order-kpi-number {
+    display: inline-block;
+    font-size: 38px !important;
+    line-height: 1.12 !important;
+    font-weight: 700;
+    letter-spacing: -.03em;
+}
+
+/* Header actions */
+.cs-order-page .cs-order-header-btn {
+    min-height: 44px;
+    padding: 0 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    text-decoration: none;
+}
+
+/* Table action column */
+.cs-order-page #csOrderTable {
+    min-width: 1250px;
+}
+
+.cs-order-page #csOrderTable td:last-child {
+    min-width: 190px;
+    white-space: nowrap;
+}
+
+.cs-order-page #csOrderTable td:last-child>div,
+.cs-order-page #csOrderTable td:last-child .cs-order-actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.cs-order-page #csOrderTable td:last-child a,
+.cs-order-page #csOrderTable td:last-child button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    min-height: 36px;
+    padding: 8px 12px;
+    white-space: nowrap;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.cs-order-page .cs-table-deadline {
+    display: block;
+    margin-top: 4px;
+    color: #830909;
+    font-size: 10px;
+    white-space: nowrap;
+}
+
+/* Modals */
 .cs-order-overlay {
     position: fixed;
     inset: 0;
@@ -110,9 +247,10 @@
 }
 
 .cs-order-form input,
-.cs-order-form textarea {
+.cs-order-form textarea,
+.cs-order-form select {
     width: 100%;
-    background: #f3f4f4;
+    background: #f8f8f8;
     border: 1px solid #d9dada;
     border-radius: 8px;
     padding: 10px 12px;
@@ -121,14 +259,15 @@
 }
 
 .cs-order-form input:focus,
-.cs-order-form textarea:focus {
+.cs-order-form textarea:focus,
+.cs-order-form select:focus {
     outline: 2px solid rgba(131, 9, 9, .2);
     border-color: #830909;
 }
 
 .cs-order-form-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
 }
 
@@ -179,7 +318,7 @@
 
 .cs-order-detail-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 14px;
     padding: 20px;
 }
@@ -211,7 +350,7 @@
     right: 20px;
     z-index: 100;
     background: #2e3131;
-    color: white;
+    color: #fff;
     padding: 11px 15px;
     border-radius: 8px;
     font-size: 12px;
@@ -219,7 +358,21 @@
     max-width: 340px;
 }
 
-@media(max-width:640px) {
+@media (max-width: 900px) {
+    .cs-order-page .cs-order-kpi-number {
+        font-size: 32px !important;
+    }
+
+    .cs-order-page .cs-order-header-btn {
+        min-width: 0;
+    }
+
+    .cs-order-page #csOrderTable {
+        min-width: 1100px;
+    }
+}
+
+@media (max-width: 640px) {
     .cs-order-page {
         padding-left: 16px;
         padding-right: 16px;
@@ -229,108 +382,9 @@
     .cs-order-detail-grid {
         grid-template-columns: 1fr;
     }
-}
 
-/* Unified interactive order status tabs */
-.cs-order-page .cs-order-tab {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    flex-shrink: 0;
-    padding: 11px 16px;
-    border: 0;
-    border-bottom: 2px solid transparent;
-    border-radius: 8px 8px 0 0;
-    background: transparent;
-    color: #635d5e;
-    font-size: 13px;
-    font-weight: 500;
-    white-space: nowrap;
-    box-shadow: none;
-    cursor: pointer;
-    transition: background .15s, color .15s;
-}
-
-.cs-order-page .cs-order-tab:hover {
-    background: #e7e8e8;
-    color: #830909;
-}
-
-.cs-order-page .cs-order-tab.cs-tab-active {
-    background: #fff;
-    color: #830909;
-    font-weight: 700;
-    border-bottom-color: #830909;
-}
-
-.cs-order-page .cs-order-tab>span:last-child {
-    display: inline-flex;
-    min-width: 24px;
-    justify-content: center;
-    align-items: center;
-    padding: 2px 7px;
-    border-radius: 999px;
-    font-size: 11px;
-}
-
-.cs-order-page .cs-order-kpi-number {
-    font-size: 38px !important;
-    line-height: 1.12 !important;
-    font-weight: 700;
-    letter-spacing: -.03em;
-}
-
-.cs-order-page .cs-order-header-btn {
-    height: 44px !important;
-    min-width: 200px;
-    padding: 0 16px !important;
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    font-weight: 600;
-    white-space: nowrap;
-}
-
-@media(max-width:640px) {
-    .cs-order-page .cs-order-kpi-number {
-        font-size: 32px !important;
+    .cs-order-page .cs-order-tab {
+        padding: 10px 12px;
+        font-size: 12px;
     }
-
-    .cs-order-page .cs-order-header-btn {
-        min-width: 0;
-    }
-}
-
-/* Kolom aksi order */
-.cs-order-page td:last-child {
-    min-width: 310px;
-    white-space: nowrap;
-}
-
-/* Tombol aksi dalam satu baris */
-.cs-order-page td:last-child .cs-order-actions {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 8px;
-    flex-wrap: nowrap;
-}
-
-/* Ukuran tombol */
-.cs-order-page .cs-order-actions a,
-.cs-order-page .cs-order-actions button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-    min-height: 36px;
-    padding: 8px 12px;
-    white-space: nowrap;
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 600;
 }

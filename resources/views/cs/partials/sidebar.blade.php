@@ -70,10 +70,16 @@
 
             {{-- Order --}}
             <a
-                href="#"
-                class="flex items-center gap-3 rounded-lg px-3 py-2 text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface"
-                data-path="order-management"
-            >
+            href="{{ route('cs.order') }}"
+            @if (request()->routeIs('cs.order', 'cs.order.detail'))
+                aria-current="page"
+            @endif
+            class="flex items-center gap-3 rounded-lg px-3 py-2 transition-colors
+                {{ request()->routeIs('cs.order', 'cs.order.detail')
+                    ? 'bg-[#F7E7E7] font-semibold text-[#830909]'
+                    : 'text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface' }}"
+            data-path="order-management"
+        >
                 <span class="material-symbols-outlined text-[20px]">shopping_bag</span>
                 <span>Order</span>
             </a>

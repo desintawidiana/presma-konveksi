@@ -63,42 +63,53 @@ Route::get('/cs/customer', function () {
     return view('cs.customer');
 })->middleware('auth')->name('cs.customer');
 
-// HALAMAN ORDER CS
-// Nama 'cs.order.preview' dipertahankan karena dipakai tombol "kembali" di
-// resources/views/cs/order-detail.blade.php (sebelumnya route ini tidak ada
-// sehingga halaman detail error "Route [cs.order.preview] not defined").
+// HALAMAN ORDER CS (daftar order, terhubung ke database lewat /api/pesanan)
 Route::get('/cs/order', function () {
-    if (!in_array('CS', explode(',', (string) Auth::user()->peran))) {
+    if (Auth::user()->peran !== 'CS') {
         abort(403, 'Kamu tidak memiliki akses ke halaman Order.');
     }
 
     return view('cs.order');
-})->middleware('auth')->name('cs.order.preview');
+})->middleware('auth')->name('cs.order');
 
-// HALAMAN DETAIL ORDER CS (versi terlindungi login dari /preview-order/detail)
-// Frontend: set data-detail-url="{{ route('cs.order.detail') }}" pada .cs-order-page
+// HALAMAN DETAIL ORDER CS  (dibuka dengan /cs/order/detail?id=<id pesanan>)
 Route::get('/cs/order/detail', function () {
-    if (!in_array('CS', explode(',', (string) Auth::user()->peran))) {
+    if (Auth::user()->peran !== 'CS') {
         abort(403, 'Kamu tidak memiliki akses ke halaman Detail Order.');
     }
 
     return view('cs.order-detail');
 })->middleware('auth')->name('cs.order.detail');
 
-// PREVIEW DASHBOARD OWNER
+/*
+|--------------------------------------------------------------------------
+| PREVIEW FRONTEND (dari branch frontend)
+|--------------------------------------------------------------------------
+| Hanya untuk lingkungan local; tidak memakai login. Halaman yang sudah
+| terhubung database akan mengarahkan ke /login bila dibuka lewat preview.
+*/
+
 if (app()->environment('local')) {
+
+    // Preview Owner
     Route::view('/owner', 'owner.dashboard')
         ->name('owner.preview');
-}
 
-// PREVIEW DASHBOARD CS
-if (app()->environment('local')) {
-    Route::view('/cs', 'cs.dashboard')
+    // Preview Customer Service
+    Route::view('/preview-cs', 'cs.dashboard')
         ->name('cs.preview');
+
+    // Alias preview CS dari backend
+    Route::view('/cs', 'cs.dashboard');
+
+    Route::view('/preview-customer', 'cs.customer')
+        ->name('cs.customer.preview');
+
+    Route::view('/preview-order', 'cs.order')
+        ->name('cs.order.preview');
 }
 
-// PREVIEW DETAIL PESANAN
-if (app()->environment('local')) {
-    Route::view('/preview-order/detail', 'cs.order-detail')
-        ->name('cs.order.detail.preview');
-}
+Route::view('/preview-order/detail', 'cs.order-detail')
+    ->name('cs.order.detail.preview');
+
+require __DIR__.'/presma-public-order-preview.php';

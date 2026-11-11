@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\FormOrderController;
 use App\Http\Controllers\Api\InvoiceController;
 use App\Http\Controllers\Api\LaporanController;
@@ -47,6 +48,9 @@ Route::middleware(['web', 'auth', 'db.user'])->group(function () {
             ->only(['index', 'show', 'store', 'update']);
         Route::post('/pesanan/{pesanan}/konfirmasi', [PesananController::class, 'konfirmasi']);
         Route::post('/pesanan/{pesanan}/batal', [PesananController::class, 'batal']);
+        Route::post('/pesanan/{pesanan}/serah-terima', [PesananController::class, 'serahTerima']);
+
+        Route::get('/dashboard/cs', [DashboardController::class, 'cs']);
 
         Route::get('/pesanan/{pesanan}/invoice', [InvoiceController::class, 'show']);
         Route::post('/pesanan/{pesanan}/invoice', [InvoiceController::class, 'store']);

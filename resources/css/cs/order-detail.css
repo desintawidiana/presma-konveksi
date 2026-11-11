@@ -717,3 +717,7 @@
     font-weight: 700;
     white-space: nowrap
 }
+/* Kelompok centang perlengkapan di modal Edit Pesanan (ditambahkan saat integrasi database) */
+.cs-edit-flags { display: flex; flex-wrap: wrap; gap: 8px 16px; grid-column: 1 / -1; padding: 10px 12px; border: 1px solid #e1e3e3; border-radius: 10px; }
+.cs-edit-flags legend { padding: 0 6px; font-size: 12px; font-weight: 700; }
+.cs-edit-flags label { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }
