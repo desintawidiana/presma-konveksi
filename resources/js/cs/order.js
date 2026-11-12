@@ -1,441 +1,238 @@
-// Frontend-only CS Order preview. No database or API writes.*
+// Halaman Order CS — terhubung ke database lewat API (/api/pesanan).
+import {
+    api, esc, rupiah, tanggal, normalisasiWa, toast,
+    GAYA_ALUR, badge, statusBayar, LABEL_BAYAR, GAYA_BAYAR,
+} from './api.js';
 
 const startCSOrder = () => {
-
     const page = document.querySelector('.cs-order-page');
+    if (!page || !page.querySelector('#csOrderTable')) return;
 
-    if (!page) return;
-
-    const table = page.querySelector('#csOrderTable');
-
+    const tbody = page.querySelector('#csOrderTable tbody');
     const search = page.querySelector('#csOrderSearch');
-
-    const payment = page.querySelector('[data-cs-filter="payment"]');
-
-    const category = page.querySelector('[data-cs-filter="category"]');
-
+    const filterBayar = page.querySelector('[data-cs-filter="payment"]');
+    const filterKategori = page.querySelector('[data-cs-filter="category"]');
     const createModal = page.querySelector('#csOrderCreateModal');
-
-    const detailModal = page.querySelector('#csOrderDetailModal');
-
     const createForm = page.querySelector('#csOrderCreateForm');
+    const summary = page.querySelector('[data-cs-summary]');
+    const detailUrl = page.dataset.detailUrl || '/cs/order/detail';
 
-    let activeTab = 'all';
+    let semuaOrder = [];
+    let tabAktif = 'all';
 
-    const toast = (message) => {
+    // ----- pemetaan alur kerja -> tab, kategori, tombol aksi -------------------
+    const TAB_ALUR = {
+        verification: 'verification', payment: 'verification', wo: 'verification',
+        tracking: 'production', settlement: 'production',
+        ready: 'ready', completed: 'ready',
+    };
+    const AKSI = {
+        verification: 'Verifikasi', payment: 'Pembayaran', wo: 'Work Order',
+        tracking: 'Pantau', settlement: 'Pelunasan', ready: 'Serah Terima',
+    };
+    const kategori = (jenis) => {
+        const j = String(jenis || '').toLowerCase();
+        if (j.includes('korsa')) return 'korsa';
+        if (j.includes('jaket') || j.includes('vest')) return 'jaket';
+        if (j.includes('kaos') || j.includes('polo')) return 'kaos';
+        return 'other';
+    };
+    const SUMBER_ORDER = { FORM_CUSTOMER: 'Form Customer', CS: 'Dibuat CS' };
 
-        page.querySelector('.cs-order-toast')?.remove();
+    const linkDetail = (id, aksi) =>
+        detailUrl + '?id=' + encodeURIComponent(id) + (aksi ? '&action=next' : '');
 
-        const node = document.createElement('div');
+    // ----- render tabel --------------------------------------------------------
+    const barisPesan = (teks, kelas = 'text-secondary') =>
+        `<tr><td colspan="9" class="py-10 px-4 text-center ${kelas}">${teks}</td></tr>`;
 
-        node.className = 'cs-order-toast';
-
-        node.textContent = message;
-
-        page.appendChild(node);
-
-        window.setTimeout(() => node.remove(), 2800);
-
+    const barisHtml = (o) => {
+        const bayar = statusBayar(o);
+        const aksi = AKSI[o.alur];
+        const btn = 'inline-flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-lg border border-[#D9DADB] font-semibold text-[12px] whitespace-nowrap hover:bg-[#f3f4f4]';
+        const btnUtama = btn + ' bg-[#830909] text-white border-[#830909] hover:bg-[#6b0707]';
+        return `
+        <tr class="hover:bg-surface-container-low transition-colors cursor-pointer" data-order-row="true" data-id="${esc(o.no)}">
+            <td class="py-3.5 px-4 font-semibold text-primary">${esc(o.kode_order)}</td>
+            <td class="py-3.5 px-4">${esc(tanggal(o.dibuat_pada))}
+                <span class="block text-[11px] text-secondary">Deadline: ${o.deadline ? esc(tanggal(o.deadline)) : 'Belum ditentukan'}</span></td>
+            <td class="py-3.5 px-4"><span class="font-semibold">${esc(o.customer)}</span>
+                <span class="block text-secondary text-[12px]">${esc(o.instansi || '—')}</span></td>
+            <td class="py-3.5 px-4">${esc(o.jenis_order)}
+                <small class="block text-secondary">${Number(o.jumlah) || 0} pcs</small></td>
+            <td class="py-3.5 px-4">${esc(SUMBER_ORDER[o.dibuat_dari] || o.dibuat_dari)}</td>
+            <td class="py-3.5 px-4">${badge(o.alur_label, GAYA_ALUR[o.alur] || GAYA_ALUR.verification)}
+                <small class="block text-secondary mt-1">Tahap: ${esc(o.tahap_saat_ini)}</small></td>
+            <td class="py-3.5 px-4">${badge(LABEL_BAYAR[bayar], GAYA_BAYAR[bayar])}</td>
+            <td class="py-3.5 px-4 text-right font-semibold">${esc(rupiah(o.total_pembayaran))}</td>
+            <td class="py-3.5 px-4 text-center"><div class="flex items-center justify-center gap-1.5 flex-wrap">
+                <a href="${linkDetail(o.no)}" class="${btn}" data-cs-action="detail">Detail</a>
+                ${aksi ? `<a href="${linkDetail(o.no, true)}" class="${btnUtama}" data-cs-action="next">${esc(aksi)}</a>` : ''}
+            </div></td>
+        </tr>`;
     };
 
-    const rows = () => Array.from(table?.querySelectorAll('tbody tr[data-order-row]') || []);
-
-    // Sinkronisasi perubahan dari halaman Detail Order saat kembali ke tabel.*
-
-    const escText = value => String(value ?? '');
-
-    const reloadEdits = () => rows().forEach(row => {
-
-        const cells = row.querySelectorAll('td');
-
-        if (cells.length < 9) return;
-
-        const code = cells[0].textContent.trim();
-
-        let d = null;
-
-        try { d = JSON.parse(sessionStorage.getItem('presma.cs.order.' + code) || 'null'); } catch (_) { }
-
-        if (!d || !d.lastEditedAt && !d.verifiedAt && !d.revisionReason) return;
-
-        const cs = cells[2].querySelectorAll('span');
-
-        if (cs[0] && d.customer) cs[0].textContent = escText(d.customer);
-
-        if (cs[1] && d.organization) cs[1].textContent = escText(d.organization);
-
-        if (d.product) { const first = cells[3].querySelector('span'); if (first) first.textContent = escText(d.product); else cells[3].textContent = escText(d.product); }
-
-        if (d.status) {
-
-            const pill = cells[5].querySelector('span');
-
-            if (pill) { pill.textContent = escText(d.status); pill.classList.remove('bg-amber-100', 'text-amber-900', 'bg-emerald-100', 'text-emerald-900'); pill.classList.add(d.status.includes('Terverifikasi') ? 'bg-emerald-100' : 'bg-amber-100', d.status.includes('Terverifikasi') ? 'text-emerald-900' : 'text-amber-900'); }
-
-            row.dataset.stage = d.stage || 'verification';
-
-        }
-
-    });
-
-    reloadEdits();
-
-    const workflowStage = d => d.workflowStage || (d.verifiedAt ? 'payment' : d.stage === 'ready' ? 'ready' : d.stage === 'production' ? 'tracking' : 'verification');
-
-    const actionByStage = { verification: 'Verifikasi', payment: 'Pembayaran', wo: 'Upload WO', tracking: 'Tracking', settlement: 'Pelunasan', ready: 'Siap Kirim', handover: 'Selesai', completed: 'Selesai' };
-
-    const syncRowActions = row => {
-
-        const cells = row.querySelectorAll('td'); if (cells.length < 9) return;
-
-        const code = cells[0].textContent.trim(); let d = {};
-
-        try { d = JSON.parse(sessionStorage.getItem('presma.cs.order.' + code) || '{}') || {}; } catch (e) { }
-
-        const stage = workflowStage({ ...{ stage: row.dataset.stage }, ...d });
-
-        // Render status pembayaran sebagai badge, tanpa menampilkan kode ikon mentah.*
-
-        const rawPayment = d.payment || cells[6].dataset.paymentLabel || cells[6].textContent;
-
-        const paymentLabel = String(rawPayment || 'Belum Bayar')
-
-            .replace(/check_circle|verified|pending|\u2713|\u2714|\u2717/gi, '')
-
-            .replace(/\s+/g, ' ').trim() || 'Belum Bayar';
-
-        cells[6].dataset.paymentLabel = paymentLabel;
-
-        const paymentKind = /tanpa\s\*dp/i.test(paymentLabel) ? 'exception'
-
-            : /lunas|100\s\*%/i.test(paymentLabel) ? 'paid'
-
-                : /dp|masuk|diterima/i.test(paymentLabel) ? 'dp' : 'unpaid';
-
-        const paymentStyles = {
-
-            paid: 'background:#d1fae5;color:#065f46',
-
-            dp: 'background:#d1fae5;color:#065f46',
-
-            exception: 'background:#dbeafe;color:#1e40af',
-
-            unpaid: 'background:#fef3c7;color:#92400e'
-
-        };
-
-        const paymentPill = document.createElement('span');
-
-        paymentPill.className = 'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold';
-
-        paymentPill.style.cssText = paymentStyles[paymentKind] + ';white-space:nowrap;';
-
-        const paymentIcon = document.createElement('span');
-
-        paymentIcon.textContent = paymentKind === 'unpaid' ? '!' : '\u2713';
-
-        paymentIcon.setAttribute('aria-hidden', 'true');
-
-        const paymentName = document.createElement('span');
-
-        paymentName.textContent = paymentLabel;
-
-        paymentPill.append(paymentIcon, paymentName);
-
-        cells[6].replaceChildren(paymentPill);
-
-        row.dataset.payment = paymentKind === 'paid' ? 'lunas' : paymentKind === 'dp' ? 'dp' : 'belum';
-
-        if (d.owner) { const p = cells[4].querySelector('.font-semibold'); if (p) p.textContent = d.owner; else cells[4].textContent = d.owner; }
-
-        row.dataset.stage = stage === 'verification' ? 'verification' : stage === 'payment' || stage === 'wo' ? 'verification' : stage === 'tracking' || stage === 'settlement' ? 'production' : stage === 'ready' || stage === 'handover' || stage === 'completed' ? 'ready' : 'verification';
-
-        const bClass = 'inline-flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-lg border border-[#D9DADB] font-semibold text-[12px] whitespace-nowrap hover:bg-[#f3f4f4]';
-
-        const actionClass = bClass + ' bg-[#830909] text-white border-[#830909] hover:bg-[#6b0707]';
-
-        cells[8].innerHTML = `\<div class="cs-order-actions-inline">\<button type="button" class="cs-order-icon-action" data-cs-action="edit" title="Edit pesanan" aria-label="Edit pesanan"><span class="material-symbols-outlined">edit</span></button>\<button type="button" class="cs-order-icon-action is-danger" data-cs-action="delete" title="Hapus dari pratinjau" aria-label="Hapus dari pratinjau"><span class="material-symbols-outlined">delete</span></button>\<button type="button" class="${actionClass}" data-cs-action="next" ${stage === 'completed' ? 'disabled' : ''}>${actionByStage[stage] || 'Verifikasi'}\</button>\</div>`;
-
-    };
-
-    rows().forEach(syncRowActions);
-
-    // Deadline di tanggal order, tanpa menambah kolom yang merusak pemetaan indeks tabel.*
-
-    const deadlineLabel = value => {
-
-        if (!value) return 'Belum ditentukan';
-
-        const parsed = /^\d{4}-\d{2}-\d{2}$/.test(value) ? new Date(value + 'T12:00:00') : null;
-
-        return parsed && !Number.isNaN(parsed.getTime()) ? parsed.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : String(value);
-
-    };
-
-    rows().forEach(row => {
-
-        const cells = row.querySelectorAll('td'); if (cells.length < 9) return;
-
-        const code = cells[0].textContent.trim();
-
-        let order = {}; try { order = JSON.parse(sessionStorage.getItem('presma.cs.order.' + code) || '{}') || {}; } catch (e) { }
-
-        // Hanya deadline yang diketahui dari contoh Stitch. Jangan membuat tanggal untuk pesanan lain.*
-
-        const deadline = order.deadline || (code === 'ORD-2024-0330' ? '2024-11-05' : '');
-
-        let badge = cells[1].querySelector('.cs-table-deadline');
-
-        if (!badge) { badge = document.createElement('span'); badge.className = 'cs-table-deadline'; cells[1].appendChild(badge); }
-
-        badge.textContent = 'Deadline: ' + deadlineLabel(deadline);
-
-        if (deadline) row.dataset.deadline = deadline;
-
-    });
-
-
-
-
-
-    let currentPage = 1;
-    let pageSize = 10;
-    const pagination = page.querySelector('[data-cs-pagination]');
-    const updateFilters = () => {
+    const terfilter = () => {
         const q = (search?.value || '').toLocaleLowerCase('id-ID').trim();
-        const matched = rows().filter(row =>
-            (!q || row.textContent.toLocaleLowerCase('id-ID').includes(q)) &&
-            (!payment || payment.value === 'all' || row.dataset.payment === payment.value) &&
-            (!category || category.value === 'all' || row.dataset.category === category.value) &&
-            (activeTab === 'all' || row.dataset.stage === activeTab)
-        );
-        const pages = Math.max(1, Math.ceil(matched.length / pageSize));
-        currentPage = Math.min(currentPage, pages);
-        const start = (currentPage - 1) * pageSize;
-        const end = Math.min(start + pageSize, matched.length);
-        rows().forEach(row => { row.hidden = !matched.includes(row) || matched.indexOf(row) < start || matched.indexOf(row) >= end; });
-        const summary = page.querySelector('[data-cs-summary]');
-        if (summary) summary.textContent = matched.length
-            ? `Menampilkan ${start + 1}–${end} dari ${matched.length} data`
-            : 'Tidak ada data yang sesuai filter';
-        if (!pagination) return;
-        pagination.innerHTML = `
-          <div class="presma-pagination-info">
-            <span>${matched.length ? `Menampilkan ${start + 1}–${end} dari ${matched.length} data` : 'Tidak ada data untuk ditampilkan'}</span>
-            <label>Tampilkan <select data-page-size aria-label="Jumlah data per halaman">
-              <option value="10" ${pageSize === 10 ? 'selected' : ''}>10</option>
-              <option value="20" ${pageSize === 20 ? 'selected' : ''}>20</option>
-            </select></label>
-          </div>
-          <div class="presma-page-actions">
-            <button type="button" data-prev aria-label="Halaman sebelumnya" ${currentPage <= 1 ? 'disabled' : ''}>‹</button>
-            <span class="presma-page-current">${currentPage} / ${pages}</span>
-            <button type="button" data-next aria-label="Halaman berikutnya" ${currentPage >= pages ? 'disabled' : ''}>›</button>
-          </div>`;
-        pagination.querySelector('[data-page-size]')?.addEventListener('change', e => { pageSize = Number(e.target.value) || 10; currentPage = 1; updateFilters(); });
-        pagination.querySelector('[data-prev]')?.addEventListener('click', () => { if (currentPage > 1) { currentPage--; updateFilters(); } });
-        pagination.querySelector('[data-next]')?.addEventListener('click', () => { if (currentPage < pages) { currentPage++; updateFilters(); } });
+        return semuaOrder.filter((o) => {
+            const teks = [o.kode_order, o.customer, o.instansi, o.jenis_order, o.no_whatsapp]
+                .join(' ').toLocaleLowerCase('id-ID');
+            return (!q || teks.includes(q))
+                && (!filterBayar || filterBayar.value === 'all' || statusBayar(o) === filterBayar.value)
+                && (!filterKategori || filterKategori.value === 'all' || kategori(o.jenis_order) === filterKategori.value)
+                && (tabAktif === 'all' || TAB_ALUR[o.alur] === tabAktif);
+        });
     };
 
-    page.querySelectorAll('[data-cs-tab]').forEach(button => button.addEventListener('click', () => {
-
-        activeTab = button.dataset.csTab;
-        currentPage = 1;
-
-        page.querySelectorAll('[data-cs-tab]').forEach(b => b.classList.toggle('cs-tab-active', b === button));
-
-        updateFilters();
-
-    }));
-
-    page.querySelectorAll('[data-cs-tab]').forEach(b => b.classList.toggle('cs-tab-active', b.dataset.csTab === activeTab));
-
-    search?.addEventListener('input', () => { currentPage = 1; updateFilters(); });
-
-    payment?.addEventListener('change', () => { currentPage = 1; updateFilters(); });
-
-    category?.addEventListener('change', () => { currentPage = 1; updateFilters(); });
-
-    const openModal = modal => { if (modal) { modal.classList.remove('hidden'); modal.querySelector('button, input')?.focus(); } };
-
-    const closeModals = () => { createModal?.classList.add('hidden'); detailModal?.classList.add('hidden'); };
-
-    page.querySelectorAll('[data-order-close]').forEach(b => b.addEventListener('click', closeModals));
-
-    [createModal, detailModal].forEach(modal => modal?.addEventListener('click', e => { if (e.target === modal) closeModals(); }));
-
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModals(); });
-
-    const topCreate = Array.from(page.querySelectorAll('button')).find(b => b.textContent.includes('Tambah Order Baru'));
-
-    topCreate?.addEventListener('click', () => openModal(createModal));
-
-    const getData = row => {
-
-        const tds = row?.querySelectorAll('td');
-
-        if (!tds || tds.length < 9) return null;
-
-        return {
-
-            code: tds[0].textContent.trim(), customer: tds[2].querySelector('span')?.textContent.trim() || tds[2].textContent.trim(),
-
-            product: tds[3].textContent.trim(), owner: tds[4].textContent.trim(), status: tds[5].textContent.trim(),
-
-            payment: tds[6].textContent.trim(), amount: tds[7].textContent.trim()
-
-        };
-
+    // Kartu ringkasan di atas tabel (dihitung dari data database).
+    const isiKpi = () => {
+        const kpi = page.querySelectorAll('.cs-order-kpi-number');
+        const n = (alur) => semuaOrder.filter((o) => alur.includes(o.alur)).length;
+        const hariIni = new Date().toISOString().slice(0, 10);
+        const nilai = [
+            semuaOrder.filter((o) => o.alur !== 'cancelled').length,
+            n(['verification']),
+            n(['tracking', 'settlement']),
+            n(['ready']),
+        ];
+        kpi.forEach((el, i) => { el.textContent = nilai[i] ?? 0; });
+        const baru = semuaOrder.filter((o) => String(o.dibuat_pada || '').startsWith(hariIni)).length;
+        if (kpi[0]?.nextElementSibling) kpi[0].nextElementSibling.textContent = '+' + baru + ' hari ini';
+        const periode = kpi[0]?.closest('div.bg-surface-container-lowest')?.querySelector('.border-t span:last-child');
+        if (periode) periode.textContent = 'Periode ' + new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
     };
 
-    // Membuka detail berdasarkan baris yang diklik, bukan modal statis.*
+    const render = () => {
+        isiKpi();
+        const tampil = terfilter();
+        tbody.innerHTML = tampil.length
+            ? tampil.map(barisHtml).join('')
+            : barisPesan(semuaOrder.length ? 'Tidak ada order yang cocok dengan filter.' : 'Belum ada order. Klik “Tambah Order Baru”.');
+        if (summary) summary.textContent = `Menampilkan ${tampil.length} dari ${semuaOrder.length} order`;
+    };
 
-    const openDetail = (row, action = 'detail') => {
-
-        const d = getData(row);
-
-        if (!d) return;
-
-        const cells = row.querySelectorAll('td');
-
-        const record = {
-
-            ...d,
-
-            organization: cells[2]?.querySelectorAll('span')[1]?.textContent.trim() || '',
-
-            date: cells[1]?.textContent.replace(/\s+/g, ' ').trim() || '',
-
-            stage: row.dataset.stage || '',
-
-            paymentCode: row.dataset.payment || '',
-
-            notes: row.querySelector('small')?.textContent.trim() || ''
-
-        };
-
-        // Jangan menimpa data edit/verifikasi yang tersimpan dari halaman detail.*
-
+    const muatData = async () => {
+        tbody.innerHTML = barisPesan('Memuat data order…');
         try {
-
-            const saved = JSON.parse(sessionStorage.getItem('presma.cs.order.' + record.code) || 'null');
-
-            if (saved && typeof saved === 'object') Object.assign(record, saved);
-
-            sessionStorage.setItem('presma.cs.order.' + record.code, JSON.stringify(record));
-
-        } catch (_) { /* Tetap bisa masuk halaman meski storage browser diblokir. */ }
-
-        const base = page.dataset.detailUrl || '/preview-order/detail';
-
-        window.location.assign(base + '?code=' + encodeURIComponent(record.code) + (action === 'next' ? '&action=next' : action === 'edit' ? '&action=edit' : ''));
-
+            semuaOrder = (await api('/pesanan')).data;
+            render();
+        } catch (e) {
+            tbody.innerHTML = barisPesan(`${esc(e.message)} <button type="button" id="csOrderRetry" class="underline font-semibold">Coba lagi</button>`, 'text-error');
+            tbody.querySelector('#csOrderRetry')?.addEventListener('click', muatData);
+        }
     };
 
-    table?.addEventListener('click', e => {
+    // ----- tab, pencarian, filter ---------------------------------------------
+    page.querySelectorAll('[data-cs-tab]').forEach((b) => b.addEventListener('click', () => {
+        tabAktif = b.dataset.csTab;
+        page.querySelectorAll('[data-cs-tab]').forEach((x) => x.classList.toggle('cs-tab-active', x === b));
+        render();
+    }));
+    page.querySelectorAll('[data-cs-tab]').forEach((b) => b.classList.toggle('cs-tab-active', b.dataset.csTab === tabAktif));
+    search?.addEventListener('input', render);
+    filterBayar?.addEventListener('change', render);
+    filterKategori?.addEventListener('change', render);
 
-        const btn = e.target.closest('[data-cs-action], a[href*="preview-order/detail"]');
-
+    // Klik baris = buka detail (tombol/tautan di dalam baris punya tujuannya sendiri).
+    tbody.addEventListener('click', (e) => {
+        if (e.target.closest('a')) return;
         const row = e.target.closest('tr[data-order-row]');
-
-        if (!row) return;
-
-        if (!btn) { openDetail(row); return; }
-
-        const action = btn.dataset.csAction || 'detail';
-
-        if (action === 'detail' || action === 'verify' || action === 'next' || action === 'edit') {
-
-            e.preventDefault();
-
-            openDetail(row, action);
-
-        } else if (action === 'delete') {
-
-            e.preventDefault();
-            const code = row.querySelector('td')?.textContent.trim() || 'pesanan ini';
-            if (!window.confirm(`Hapus ${code} dari daftar pratinjau? Data database tidak akan berubah.`)) return;
-            row.remove();
-            currentPage = 1;
-            updateFilters();
-            toast(`${code} dihapus dari daftar pratinjau. Perubahan belum tersimpan ke database.`);
-
-        } else if (action === 'tracking') {
-
-            toast('Tracking produksi akan dihubungkan oleh backend.');
-
-        }
-
+        if (row) window.location.assign(linkDetail(row.dataset.id));
     });
 
-    const esc = text => String(text ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    // Pagination bawaan desain tidak dipakai: semua order ditampilkan sekaligus.
+    summary?.parentElement?.querySelectorAll('button').forEach((b) => { b.hidden = true; });
 
-    createForm?.addEventListener('submit', e => {
+    // ----- modal tambah order -------------------------------------------------
+    const bukaModal = () => { createModal?.classList.remove('hidden'); createModal?.querySelector('input,select')?.focus(); };
+    const tutupModal = () => createModal?.classList.add('hidden');
+    Array.from(page.querySelectorAll('button')).find((b) => b.textContent.includes('Tambah Order Baru'))
+        ?.addEventListener('click', bukaModal);
+    page.querySelectorAll('[data-order-close]').forEach((b) => b.addEventListener('click', tutupModal));
+    createModal?.addEventListener('click', (e) => { if (e.target === createModal) tutupModal(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') tutupModal(); });
 
+    createForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
-
         if (!createForm.reportValidity()) return;
 
         const fd = new FormData(createForm);
+        const submit = createForm.querySelector('[type="submit"]');
+        const teksAwal = submit?.textContent;
+        const nomor = normalisasiWa(fd.get('phone'));
+        const jumlah = Number(fd.get('quantity')) || 0;
+        const harga = fd.get('unitPrice');
 
-        const customer = String(fd.get('customer') || '').trim();
+        if (submit) { submit.disabled = true; submit.textContent = 'Menyimpan…'; }
 
-        const org = String(fd.get('organization') || '').trim();
+        try {
+            // 1) cari pelanggan berdasarkan nomor WhatsApp; kalau belum ada, buat baru
+            const daftar = (await api('/pelanggan')).data;
+            let pelanggan = daftar.find((p) => p.no_whatsapp === nomor);
+            if (!pelanggan) {
+                pelanggan = (await api('/pelanggan', {
+                    method: 'POST',
+                    body: {
+                        nama: String(fd.get('customer')).trim(),
+                        no_whatsapp: nomor,
+                        instansi: String(fd.get('organization') || '').trim() || null,
+                        sumber_informasi: fd.get('source') || null,
+                    },
+                })).data;
+            }
 
-        const product = String(fd.get('product') || '').trim();
+            // 2) buat pesanan. Rincian ukuran dilengkapi nanti lewat "Edit Pesanan".
+            const hasil = await api('/pesanan', {
+                method: 'POST',
+                body: {
+                    pelanggan_id: pelanggan.id,
+                    jenis_produk: fd.get('product'),
+                    keterangan: String(fd.get('notes') || '').trim() || null,
+                    harga_satuan: harga === '' || harga === null ? null : Number(harga),
+                    deadline: fd.get('deadline') || null,
+                    spesifikasi: { status_desain: fd.get('design') || 'DIBUATKAN_TIM' },
+                    ukuran: [{ ukuran: 'TANPA_UKURAN', jumlah }],
+                },
+            });
 
-        const qty = Number(fd.get('quantity') || 0);
-
-        const unitPrice = Number(fd.get('unitPrice') || 0);
-
-        const deadline = String(fd.get('deadline') || '');
-
-        if (!customer || !product || qty <= 0 || !/^\d{4}-\d{2}-\d{2}$/.test(deadline)) return;
-
-        const code = `DRAFT-${Date.now().toString().slice(-7)}`;
-
-        const amount = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(qty * unitPrice);
-
-        const tr = document.createElement('tr');
-
-        tr.className = 'hover:bg-surface-container-low transition-colors cursor-pointer';
-
-        tr.dataset.orderRow = 'true'; tr.dataset.payment = 'belum'; tr.dataset.stage = 'verification';
-
-        const pl = product.toLowerCase(); tr.dataset.category = pl.includes('korsa') || pl.includes('pdh') ? 'korsa' : pl.includes('jaket') || pl.includes('rompi') ? 'jaket' : pl.includes('polo') || pl.includes('kaos') ? 'kaos' : 'other';
-
-        tr.innerHTML = `\<td class="font-semibold text-primary">${esc(code)}\</td>\<td>${esc(new Date().toLocaleDateString('id-ID'))}\</td>\<td>\<span class="font-semibold">${esc(customer)}\</span>\<span class="block text-secondary">${esc(org)}\</span>\</td>\<td>${esc(product)} \<small class="block">${qty} pcs\</small>\</td>\<td>Belum ditugaskan\</td>\<td>Menunggu Verifikasi CS \<small class="block">Deadline: ${esc(deadline)}\</small>\</td>\<td>Belum Bayar\</td>\<td class="text-right">${esc(amount)}\</td>\<td class="text-center">\<button type="button" data-cs-action="detail" class="bg-[#830909] text-white rounded-lg px-3 py-2">Detail Pesanan\</button>\</td>`;
-
-        table.querySelector('tbody')?.prepend(tr);
-
-        search.value = ''; payment.value = 'all'; category.value = 'all'; activeTab = 'verification';
-
-        page.querySelectorAll('[data-cs-tab]').forEach(b => b.classList.toggle('cs-tab-active', b.dataset.csTab === 'verification'));
-
-        syncRowActions(tr); currentPage = 1; updateFilters(); closeModals(); createForm.reset(); toast('Order contoh ditambahkan ke antrean (belum tersimpan ke database).');
-
+            createForm.reset();
+            tutupModal();
+            toast('Order ' + hasil.data.kode_order + ' berhasil dibuat.');
+            await muatData();
+        } catch (err) {
+            toast(err.message, false);
+        } finally {
+            if (submit) { submit.disabled = false; submit.textContent = teksAwal; }
+        }
     });
 
-    // Export CSV uses only rows already in the preview, not Excel format.*
-
-    const exportBtn = Array.from(page.querySelectorAll('button')).find(b => b.textContent.includes('Export Data'));
-
-    if (exportBtn) {
-
-        exportBtn.querySelector('span:last-child').textContent = 'Export Data (.CSV)'; exportBtn.addEventListener('click', () => {
-
-            const header = ['Kode Order', 'Tanggal', 'Pelanggan', 'Produk', 'PJ', 'Status', 'Pembayaran', 'Total'];
-
-            const csv = [header, ...rows().map(r => { const t = r.querySelectorAll('td'); return [0, 1, 2, 3, 4, 5, 6, 7].map(i => t[i]?.textContent.trim().replace(/\s+/g, ' ') || ''); })].map(cells => cells.map(v => '"' + v.replace(/"/g, '""') + '"').join(',')).join('\r\n');
-
-            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' }); const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = 'presma-cs-order-preview.csv'; link.click(); URL.revokeObjectURL(url);
-
+    // ----- export CSV (sesuai filter yang sedang tampil) ----------------------
+    const aman = (v) => {
+        let s = String(v ?? '').replace(/\s+/g, ' ').trim();
+        if (/^[=+\-@]/.test(s)) s = "'" + s; // cegah formula injection di Excel
+        return '"' + s.replace(/"/g, '""') + '"';
+    };
+    Array.from(page.querySelectorAll('button')).find((b) => b.textContent.includes('Export Data'))
+        ?.addEventListener('click', () => {
+            const kepala = ['Kode Order', 'Tanggal Masuk', 'Pelanggan', 'Instansi', 'WhatsApp', 'Produk', 'Jumlah',
+                'Deadline', 'Status Alur', 'Tahap Produksi', 'Status Pembayaran', 'Total', 'Dibayar', 'Kekurangan'];
+            const baris = terfilter().map((o) => [
+                o.kode_order, tanggal(o.dibuat_pada), o.customer, o.instansi, o.no_whatsapp, o.jenis_order, o.jumlah,
+                o.deadline || '', o.alur_label, o.tahap_saat_ini, LABEL_BAYAR[statusBayar(o)],
+                o.total_pembayaran ?? '', o.total_dibayar ?? '', o.kekurangan ?? '',
+            ]);
+            const csv = [kepala, ...baris].map((r) => r.map(aman).join(',')).join('\r\n');
+            const url = URL.createObjectURL(new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' }));
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'presma-order-' + new Date().toISOString().slice(0, 10) + '.csv';
+            a.click();
+            URL.revokeObjectURL(url);
         });
 
-    }
-~
-    updateFilters();
-
+    muatData();
+    if (new URLSearchParams(window.location.search).get('new') === '1') bukaModal();
 };
 
-if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startCSOrder); else startCSOrder();
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startCSOrder);
+else startCSOrder();

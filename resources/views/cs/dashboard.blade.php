@@ -3,7 +3,7 @@
 @section('title', 'Dashboard | Presma Operations')
 
 @section('content')
-    <main class="relative pt-16 min-h-screen bg-surface cs-main cs-dashboard-page">
+    <main class="relative pt-16 min-h-screen bg-surface cs-main" data-order-url="{{ route('cs.order') }}">
         <div class="flex flex-col w-full">
             <div class="px-space-lg py-space-lg flex flex-col gap-space-lg max-w-[1720px] mx-auto w-full">
                 <!-- 1. HEADER RINGKAS & ACTIONS -->
@@ -261,199 +261,15 @@
                                 </tr>
 
                             </thead>
-                            <tbody class="divide-y divide-[#D9DADB] font-body-sm text-on-surface">
-                                <!-- Row 1: Mendesak -->
-                                <tr class="hover:bg-surface-container-low transition-colors bg-error-container/10"
-                                    data-cs-row="true">
-                                    <td class="py-3.5 px-4 font-data-tabular">
-                                        <span class="font-bold text-primary-container font-label-md">ORD-2024-0329</span>
-                                        <span class="block text-[11px] text-secondary">08:30 WIB</span>
-                                    </td>
-                                    <td class="py-3.5 px-4">
-                                        <div class="font-semibold text-on-surface">Komunitas Sinema Jogja</div>
-                                        <div class="text-secondary text-[11px]">Nadia (0899-0418-xxxx)</div>
-                                    </td>
-                                    <td class="py-3.5 px-4">
-                                        <div class="font-medium text-on-surface">Jaket Varsity Fleece</div>
-                                        <div class="text-secondary text-[11px] font-semibold">120 pcs • Navy Putih</div>
-                                    </td>
-                                    <td class="py-3.5 px-4">
-                                        <span
-                                            class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#FDE8E8] text-[#C62B2B] font-label-sm font-semibold">
-                                            02 Nov (H-3)
-                                        </span>
-                                    </td>
-                                    <td class="py-3.5 px-4">
-                                        <span
-                                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FDE8E8] text-[#C62B2B] font-label-sm font-semibold">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-[#C62B2B]"></span>
-                                            Data Belum Lengkap
-                                        </span>
-                                    </td>
-                                    <td class="py-3.5 px-4 text-center">
-                                        <div class="flex items-center justify-center gap-2">
-                                            <button aria-disabled="true"
-                                                class="inline-flex items-center gap-1.5 px-3.5 h-[44px] rounded-lg bg-[#16804B] text-on-primary hover:bg-[#12663b] font-label-md font-semibold transition-colors shadow-sm cs-disabled-action"
-                                                disabled="disabled"
-                                                title="Fitur ini akan dihubungkan setelah modul backend siap"
-                                                type="button">
-                                                <span class="material-symbols-outlined text-[16px]">chat</span>
-                                                <span class="">Chat WA</span>
-                                            </button>
-                                            <button aria-disabled="true"
-                                                class="px-3.5 h-[44px] rounded-lg bg-surface-container-lowest border border-[#D9DADB] hover:bg-surface-container-low text-on-surface font-label-md font-medium transition-colors shadow-sm cs-disabled-action"
-                                                disabled="disabled"
-                                                title="Fitur ini akan dihubungkan setelah modul backend siap"
-                                                type="button">
-                                                Detail
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <!-- Row 2 -->
-                                <tr class="hover:bg-surface-container-low transition-colors" data-cs-row="true">
-                                    <td class="py-3.5 px-4 font-data-tabular">
-                                        <span class="font-bold text-primary-container font-label-md">ORD-2024-0330</span>
-                                        <span class="block text-[11px] text-secondary">09:15 WIB</span>
-                                    </td>
-                                    <td class="py-3.5 px-4">
-                                        <div class="font-semibold text-on-surface">BEM FT UGM</div>
-                                        <div class="text-secondary text-[11px]">Farhan (0812-4491-xxxx)</div>
-                                    </td>
-                                    <td class="py-3.5 px-4">
-                                        <div class="font-medium text-on-surface">Korsa PDH Nagata Drill</div>
-                                        <div class="text-secondary text-[11px] font-semibold">350 pcs • Khaki</div>
-                                    </td>
-                                    <td class="py-3.5 px-4">
-                                        <span class="font-medium text-on-surface font-data-tabular">10 Nov 2024</span>
-                                        <span class="block text-[11px] text-secondary">Standar 14 Hari</span>
-                                    </td>
-                                    <td class="py-3.5 px-4">
-                                        <span
-                                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FEF3E6] text-[#B86B00] font-label-sm font-semibold">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-[#B86B00]"></span>
-                                            Belum Diverifikasi
-                                        </span>
-                                    </td>
-                                    <td class="py-3.5 px-4 text-center">
-                                        <div class="flex items-center justify-center gap-2">
-                                            <button aria-disabled="true"
-                                                class="inline-flex items-center justify-center gap-1.5 px-3.5 h-[44px] rounded-lg bg-[#830909] text-on-primary hover:bg-[#A10B0B] transition-colors shadow-sm font-label-md font-semibold cs-disabled-action"
-                                                disabled="disabled"
-                                                title="Fitur ini akan dihubungkan setelah modul backend siap"
-                                                type="button">
-                                                <span class="material-symbols-outlined text-[16px]">task_alt</span>
-                                                <span class="">Verifikasi</span>
-                                            </button>
-                                            <button aria-disabled="true"
-                                                class="px-3.5 h-[44px] rounded-lg bg-surface-container-lowest border border-[#D9DADB] hover:bg-surface-container-low text-on-surface font-label-md font-medium transition-colors shadow-sm cs-disabled-action"
-                                                disabled="disabled"
-                                                title="Fitur ini akan dihubungkan setelah modul backend siap"
-                                                type="button">
-                                                Detail
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <!-- Row 3 -->
-                                <tr class="hover:bg-surface-container-low transition-colors" data-cs-row="true">
-                                    <td class="py-3.5 px-4 font-data-tabular">
-                                        <span class="font-bold text-primary-container font-label-md">ORD-2024-0328</span>
-                                        <span class="block text-[11px] text-secondary">Kemarin, 16:40</span>
-                                    </td>
-                                    <td class="py-3.5 px-4">
-                                        <div class="font-semibold text-on-surface">PT Sinar Maju Perkasa</div>
-                                        <div class="text-secondary text-[11px]">Budi Santoso (0821-3091-xxxx)</div>
-                                    </td>
-                                    <td class="py-3.5 px-4">
-                                        <div class="font-medium text-on-surface">Polo Lacoste CVC</div>
-                                        <div class="text-secondary text-[11px] font-semibold">200 pcs • Manset Rajut</div>
-                                    </td>
-                                    <td class="py-3.5 px-4">
-                                        <span class="font-medium text-on-surface font-data-tabular">05 Nov 2024</span>
-                                        <span class="block text-[11px] text-secondary">Tenggat 7 Hari</span>
-                                    </td>
-                                    <td class="py-3.5 px-4">
-                                        <span
-                                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EBF2FA] text-[#2563A8] font-label-sm font-semibold">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-[#2563A8]"></span>
-                                            Siap Diberi Harga
-                                        </span>
-                                    </td>
-                                    <td class="py-3.5 px-4 text-center">
-                                        <div class="flex items-center justify-center gap-2">
-                                            <button aria-disabled="true"
-                                                class="inline-flex items-center justify-center gap-1.5 px-3.5 h-[44px] rounded-lg bg-[#830909] text-on-primary hover:bg-[#A10B0B] transition-colors shadow-sm font-label-md font-semibold cs-disabled-action"
-                                                disabled="disabled"
-                                                title="Fitur ini akan dihubungkan setelah modul backend siap"
-                                                type="button">
-                                                <span class="material-symbols-outlined text-[16px]">price_check</span>
-                                                <span class="">Beri Harga</span>
-                                            </button>
-                                            <button aria-disabled="true"
-                                                class="px-3.5 h-[44px] rounded-lg bg-surface-container-lowest border border-[#D9DADB] hover:bg-surface-container-low text-on-surface font-label-md font-medium transition-colors shadow-sm cs-disabled-action"
-                                                disabled="disabled"
-                                                title="Fitur ini akan dihubungkan setelah modul backend siap"
-                                                type="button">
-                                                Detail
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <!-- Row 4 -->
-                                <tr class="hover:bg-surface-container-low transition-colors" data-cs-row="true">
-                                    <td class="py-3.5 px-4 font-data-tabular">
-                                        <span class="font-bold text-primary-container font-label-md">ORD-2024-0327</span>
-                                        <span class="block text-[11px] text-secondary">Kemarin, 14:10</span>
-                                    </td>
-                                    <td class="py-3.5 px-4">
-                                        <div class="font-semibold text-on-surface">Himpunan Biologi UNISA</div>
-                                        <div class="text-secondary text-[11px]">Tika (0877-3897-xxxx)</div>
-                                    </td>
-                                    <td class="py-3.5 px-4">
-                                        <div class="font-medium text-on-surface">Rompi Vest Drill Lapangan</div>
-                                        <div class="text-secondary text-[11px] font-semibold">45 pcs • Hijau Army</div>
-                                    </td>
-                                    <td class="py-3.5 px-4">
-                                        <span class="font-medium text-on-surface font-data-tabular">18 Nov 2024</span>
-                                        <span class="block text-[11px] text-secondary">Tenggat 20 Hari</span>
-                                    </td>
-                                    <td class="py-3.5 px-4">
-                                        <span
-                                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FEF3E6] text-[#B86B00] font-label-sm font-semibold">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-[#B86B00]"></span>
-                                            Menunggu Cek CS
-                                        </span>
-                                    </td>
-                                    <td class="py-3.5 px-4 text-center">
-                                        <div class="flex items-center justify-center gap-2">
-                                            <button aria-disabled="true"
-                                                class="inline-flex items-center justify-center gap-1.5 px-3.5 h-[44px] rounded-lg bg-[#830909] text-on-primary hover:bg-[#A10B0B] transition-colors shadow-sm font-label-md font-semibold cs-disabled-action"
-                                                disabled="disabled"
-                                                title="Fitur ini akan dihubungkan setelah modul backend siap"
-                                                type="button">
-                                                <span class="material-symbols-outlined text-[16px]">search</span>
-                                                <span class="">Cek Pesanan</span>
-                                            </button>
-                                            <button aria-disabled="true"
-                                                class="px-3.5 h-[44px] rounded-lg bg-surface-container-lowest border border-[#D9DADB] hover:bg-surface-container-low text-on-surface font-label-md font-medium transition-colors shadow-sm cs-disabled-action"
-                                                disabled="disabled"
-                                                title="Fitur ini akan dihubungkan setelah modul backend siap"
-                                                type="button">
-                                                Detail
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
+                            <tbody id="csDashRows" class="divide-y divide-[#D9DADB] font-body-sm text-on-surface"></tbody>
                         </table>
                     </div>
                     <!-- Table Footer -->
                     <div
                         class="p-3 px-4 flex items-center justify-between bg-surface-container-low border-t border-[#D9DADB] text-secondary font-label-md">
-                        <span class="">Menampilkan 4 dari 6 pesanan aktif</span>
+                        <span class="" id="csDashFooter">Memuat data…</span>
                         <a class="text-primary-container font-semibold hover:underline flex items-center gap-1 text-[13px]"
-                            href="#">
+                            href="{{ route('cs.order') }}" id="csDashAll">
                             <span class="">Buka Seluruh Antrean</span>
                             <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
                         </a>

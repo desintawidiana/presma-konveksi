@@ -1,3 +1,17 @@
+```blade
+<aside
+    class="cs-sidebar fixed left-0 top-0 z-50 flex h-full w-64 select-none flex-col justify-between bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.04)]"
+    id="cs-sidebar"
+>
+    <div class="flex flex-col">
+        {{-- Logo dan nama aplikasi --}}
+        <div class="flex h-16 items-center gap-space-sm bg-surface-container-lowest px-space-md">
+            <div class="flex w-full items-center gap-3">
+                <img
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuBI7NzLLvbSZK-R70072_RFmOBCKj09oADam5Dq4uAMA0OfCPsFCYuLj9GPsA4sxxj36JA5X5Y7BVwOJl4HPuJ8V0xhXCsTAiYhjsz0WxYotg5ILTSBJE5UNLt3G44NtGkbK1HatrjXAxThAwCchCNihTTWGxFBeIDzOA1rgRK6FvRO3wv5eOivrtsOx1NKtBTziuGE6KVM7PJ17Rn8RPt-20SCK9M7WbctTZaZZX1hL9FMvgJbM8JwWPFT2UZlvOmf6k4"
+                    alt="Presma Logo"
+                    class="h-9 w-9 shrink-0 rounded object-contain"
+                >
 
 <aside
     id="cs-sidebar"
@@ -48,91 +62,95 @@
             </span>
         </div>
 
-        {{-- NAVIGASI --}}
-        <nav class="cs-sidebar-nav flex flex-col gap-1 px-3"
-            aria-label="Menu navigasi CS">
-
-            {{-- DASHBOARD --}}
-            <a href="{{ route('cs.preview') }}"
-                title="Dashboard"
-                class="cs-nav-link flex items-center gap-3 rounded-lg px-3 py-2 transition-colors
-                {{ request()->routeIs('cs.preview')
-                    ? 'bg-[#F7E7E7] text-[#830909] font-semibold'
-                    : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface' }}">
-
-                <span class="material-symbols-outlined">grid_view</span>
-                <span class="cs-sidebar-label">Dashboard</span>
+        {{-- Navigasi --}}
+        <nav
+            class="flex flex-col gap-1 px-space-sm"
+            data-active-classes="bg-primary-container text-on-primary font-semibold shadow-sm"
+        >
+            {{-- Dashboard --}}
+            <a
+                href="{{ route('dashboard.cs') }}"
+                @if (request()->routeIs('dashboard.cs'))
+                    aria-current="page"
+                @endif
+                class="flex items-center gap-3 rounded-lg px-3 py-2 transition-colors
+                    {{ request()->routeIs('dashboard.cs')
+                        ? 'bg-[#F7E7E7] font-semibold text-[#830909]'
+                        : 'text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface' }}"
+                data-path="cs-dashboard"
+            >
+                <span class="material-symbols-outlined text-[20px]">grid_view</span>
+                <span>Dashboard</span>
             </a>
 
-            {{-- CUSTOMER --}}
-            <a href="{{ route('cs.customer.preview') }}"
-                title="Customer"
-                class="cs-nav-link flex items-center gap-3 rounded-lg px-3 py-2 transition-colors
-                {{ request()->routeIs('cs.customer.preview')
-                    ? 'bg-[#F7E7E7] text-[#830909] font-semibold'
-                    : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface' }}">
-
-                <span class="material-symbols-outlined">people</span>
-                <span class="cs-sidebar-label">Customer</span>
+            {{-- Customer --}}
+            <a
+                href="{{ route('cs.customer') }}"
+                @if (request()->routeIs('cs.customer'))
+                    aria-current="page"
+                @endif
+                class="flex items-center gap-3 rounded-lg px-3 py-2 transition-colors
+                    {{ request()->routeIs('cs.customer')
+                        ? 'bg-[#F7E7E7] font-semibold text-[#830909]'
+                        : 'text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface' }}"
+                data-path="customer-management"
+            >
+                <span class="material-symbols-outlined text-[20px]">people</span>
+                <span>Customer</span>
             </a>
 
-            {{-- ORDER --}}
-            <a href="{{ route('cs.order.preview') }}"
-                title="Order"
-                class="cs-nav-link flex items-center gap-3 rounded-lg px-3 py-2 transition-colors
-                {{ request()->routeIs('cs.order.preview')
-                    ? 'bg-[#F7E7E7] text-[#830909] font-semibold'
-                    : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface' }}">
-
-                <span class="material-symbols-outlined">shopping_bag</span>
-                <span class="cs-sidebar-label">Order</span>
+            {{-- Order --}}
+            <a
+            href="{{ route('cs.order') }}"
+            @if (request()->routeIs('cs.order', 'cs.order.detail'))
+                aria-current="page"
+            @endif
+            class="flex items-center gap-3 rounded-lg px-3 py-2 transition-colors
+                {{ request()->routeIs('cs.order', 'cs.order.detail')
+                    ? 'bg-[#F7E7E7] font-semibold text-[#830909]'
+                    : 'text-label-md text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface' }}"
+            data-path="order-management"
+        >
+                <span class="material-symbols-outlined text-[20px]">shopping_bag</span>
+                <span>Order</span>
             </a>
 
-            {{-- WORK ORDER --}}
-            <a href="{{ route('cs.work-order.preview') }}"
-                title="Work Order"
-                class="cs-nav-link flex items-center gap-3 rounded-lg px-3 py-2 transition-colors
-                {{ request()->routeIs('cs.work-order.preview')
-                    ? 'bg-[#F7E7E7] text-[#830909] font-semibold'
-                    : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface' }}">
-
-                <span class="material-symbols-outlined">assignment</span>
-                <span class="cs-sidebar-label">Work Order</span>
+            {{-- Work Order --}}
+            <a
+                href="#"
+                class="flex items-center gap-3 rounded-lg px-3 py-2 text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface"
+                data-path="work-order"
+            >
+                <span class="material-symbols-outlined text-[20px]">assignment</span>
+                <span>Work Order</span>
             </a>
 
-            {{-- INVOICE DAN PEMBAYARAN --}}
-            <a href="{{ route('cs.invoice-pembayaran.preview') }}"
-                title="Invoice & Pembayaran"
-                class="cs-nav-link flex items-center gap-3 rounded-lg px-3 py-2 transition-colors
-                {{ request()->routeIs('cs.invoice-pembayaran.preview')
-                    ? 'bg-[#F7E7E7] text-[#830909] font-semibold'
-                    : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface' }}">
-
-                <span class="material-symbols-outlined">payments</span>
-                <span class="cs-sidebar-label">Invoice &amp; Pembayaran</span>
+            {{-- Invoice dan Pembayaran --}}
+            <a
+                href="#"
+                class="flex items-center gap-3 rounded-lg px-3 py-2 text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface"
+                data-path="invoice-and-pembayaran"
+            >
+                <span class="material-symbols-outlined text-[20px]">payments</span>
+                <span>Invoice &amp; Pembayaran</span>
             </a>
 
-            {{-- TRACKING --}}
-            <a href="{{ route('cs.tracking.preview') }}"
-                title="Tracking"
-                class="cs-nav-link flex items-center gap-3 rounded-lg px-3 py-2 transition-colors
-                {{ request()->routeIs('cs.tracking.preview')
-                    ? 'bg-[#F7E7E7] text-[#830909] font-semibold'
-                    : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface' }}">
-
-                <span class="material-symbols-outlined">near_me</span>
-                <span class="cs-sidebar-label">Tracking</span>
+            {{-- Tracking --}}
+            <a
+                href="#"
+                class="flex items-center gap-3 rounded-lg px-3 py-2 text-label-md text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface"
+                data-path="order-tracking"
+            >
+                <span class="material-symbols-outlined text-[20px]">near_me</span>
+                <span>Tracking</span>
             </a>
 
         </nav>
     </div>
 
-    {{-- BAGIAN BAWAH SIDEBAR --}}
-    <div class="cs-sidebar-footer flex flex-col gap-3 bg-surface-container-low p-4">
-
-        {{-- STATUS WORKSPACE --}}
-        <div class="cs-status-box flex items-center justify-between rounded-lg bg-surface-container-lowest px-3 py-2 shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
-
+    {{-- Status dan logout --}}
+    <div class="flex flex-col gap-3 bg-surface-container-low p-space-md">
+        <div class="flex items-center justify-between rounded-lg bg-surface-container-lowest px-3 py-2 shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
             <div class="flex items-center gap-2">
                 <span class="h-2 w-2 shrink-0 animate-pulse rounded-full bg-primary-container"></span>
 
@@ -155,14 +173,10 @@
 
                 <button
                     type="submit"
-                    class="cs-logout-button flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-error transition-colors hover:bg-[#F7E7E7] hover:text-[#830909]">
-
-                    <span class="cs-sidebar-label">Keluar Akun</span>
-
-                    <span class="material-symbols-outlined text-xl">
-                        logout
-                    </span>
-
+                    class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-label-md text-error transition-colors hover:bg-[#F7E7E7] hover:text-[#830909]"
+                >
+                    <span class="font-medium">Keluar Akun</span>
+                    <span class="material-symbols-outlined text-[18px]">logout</span>
                 </button>
             </form>
 
@@ -170,221 +184,4 @@
     </div>
 
 </aside>
-
-
-{{-- CSS SIDEBAR --}}
-<style>
-    /* SIDEBAR UTAMA */
-    .cs-sidebar {
-        width: 256px;
-        transition: width .25s ease;
-        overflow-x: hidden;
-    }
-
-    /* HEADER */
-    .cs-sidebar-header {
-        position: relative;
-        flex-shrink: 0;
-    }
-
-    .cs-brand-text {
-        transition: opacity .2s ease;
-    }
-
-    .cs-sidebar-toggle {
-        cursor: pointer;
-        flex-shrink: 0;
-    }
-
-    /* UKURAN FONT KONSISTEN */
-    .cs-sidebar-label {
-        font-size: 14px;
-        line-height: 20px;
-        white-space: nowrap;
-    }
-
-    .cs-nav-link {
-        min-height: 40px;
-        font-size: 14px;
-        line-height: 20px;
-        font-weight: 500;
-    }
-
-    .cs-nav-link .material-symbols-outlined {
-        font-size: 20px;
-        line-height: 1;
-        flex-shrink: 0;
-    }
-
-    .cs-section-label {
-        font-size: 11px;
-        line-height: 16px;
-    }
-
-    /* TRANSISI */
-    .cs-sidebar-label,
-    .cs-section-label,
-    .cs-brand-text {
-        transition: opacity .2s ease;
-    }
-
-    /* SIDEBAR COLLAPSE */
-    .cs-sidebar.collapsed {
-        width: 76px;
-    }
-
-    .cs-sidebar.collapsed .cs-brand-text,
-    .cs-sidebar.collapsed .cs-sidebar-label,
-    .cs-sidebar.collapsed .cs-section-label {
-        display: none;
-    }
-
-    .cs-sidebar.collapsed .cs-sidebar-header {
-        justify-content: center;
-        padding-left: 0;
-        padding-right: 0;
-    }
-
-    .cs-sidebar.collapsed #cs-sidebar-brand {
-        justify-content: center;
-    }
-
-    .cs-sidebar.collapsed #cs-sidebar-toggle {
-        position: absolute;
-        top: 72px;
-        right: 8px;
-        z-index: 2;
-        width: 24px;
-        height: 24px;
-        background: #F7E7E7;
-    }
-
-    .cs-sidebar.collapsed #cs-sidebar-toggle span {
-        transform: rotate(180deg);
-    }
-
-    .cs-sidebar.collapsed .cs-sidebar-nav {
-        padding-left: 10px;
-        padding-right: 10px;
-    }
-
-    .cs-sidebar.collapsed .cs-nav-link {
-        justify-content: center;
-        padding-left: 0;
-        padding-right: 0;
-    }
-
-    .cs-sidebar.collapsed .cs-sidebar-footer {
-        padding-left: 8px;
-        padding-right: 8px;
-    }
-
-    .cs-sidebar.collapsed .cs-status-box {
-        justify-content: center;
-        padding-left: 0;
-        padding-right: 0;
-    }
-
-    .cs-sidebar.collapsed .cs-logout-button {
-        justify-content: center;
-        padding-left: 0;
-        padding-right: 0;
-    }
-
-    /* TOOLTIP MENU SAAT COLLAPSE */
-    .cs-sidebar.collapsed .cs-nav-link {
-        position: relative;
-    }
-
-    .cs-sidebar.collapsed .cs-nav-link:hover::after {
-        content: attr(title);
-        position: absolute;
-        left: 60px;
-        top: 50%;
-        transform: translateY(-50%);
-        z-index: 100;
-        padding: 7px 10px;
-        border-radius: 6px;
-        background: #292929;
-        color: white;
-        font-size: 12px;
-        white-space: nowrap;
-        pointer-events: none;
-    }
-
-    /* SHELL DAN HEADER UTAMA */
-    .cs-shell {
-        margin-left: 256px;
-        min-width: 0;
-        transition: margin-left .25s ease;
-    }
-
-    body.sidebar-collapsed .cs-shell {
-        margin-left: 76px;
-    }
-
-    .cs-header {
-        left: 256px;
-        transition: left .25s ease;
-    }
-
-    body.sidebar-collapsed .cs-header {
-        left: 76px;
-    }
-
-    /* RESPONSIVE MOBILE */
-    @media (max-width: 768px) {
-        .cs-sidebar {
-            transform: translateX(-100%);
-            transition: transform .25s ease;
-        }
-
-        .cs-sidebar.mobile-open {
-            transform: translateX(0);
-            width: 256px;
-        }
-
-        .cs-shell,
-        body.sidebar-collapsed .cs-shell {
-            margin-left: 0;
-        }
-
-        .cs-header,
-        body.sidebar-collapsed .cs-header {
-            left: 0;
-        }
-    }
-</style>
-
-
-{{-- JAVASCRIPT SIDEBAR --}}
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-
-    const sidebar = document.getElementById('cs-sidebar');
-    const toggleButton = document.getElementById('cs-sidebar-toggle');
-
-    if (!sidebar || !toggleButton) return;
-
-    toggleButton.addEventListener('click', function () {
-
-        const isCollapsed = sidebar.classList.toggle('collapsed');
-
-        document.body.classList.toggle(
-            'sidebar-collapsed',
-            isCollapsed
-        );
-
-        toggleButton.title = isCollapsed
-            ? 'Buka sidebar'
-            : 'Tutup sidebar';
-
-        toggleButton.setAttribute(
-            'aria-label',
-            isCollapsed ? 'Buka sidebar' : 'Tutup sidebar'
-        );
-
-    });
-
-});
-</script>
+```
