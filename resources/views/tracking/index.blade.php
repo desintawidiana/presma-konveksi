@@ -168,7 +168,7 @@
             ],
         ];
     @endphp
-<div class="tracking-page">
+<div class="tracking-page w-full pt-11 px-space-xl py-space-lg bg-surface">
         <section class="tracking-hero">
             <div class="tracking-hero-copy">
                 <h1>Tracking Order</h1>

@@ -3,7 +3,7 @@
 @section('title', 'Work Order | Presma Operations')
 
 @section('content')
-    <main class="cs-wo-page">
+    <main class="cs-wo-page w-full pt-16 px-space-xl py-space-lg bg-surface">
         <div class="cs-wo-stack">
             <section class="cs-wo-heading">
                 <div>

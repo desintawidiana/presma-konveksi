@@ -112,4 +112,32 @@ if (app()->environment('local')) {
 Route::view('/preview-order/detail', 'cs.order-detail')
     ->name('cs.order.detail.preview');
 
+// HALAMAN INVOICE & PEMBAYARAN CS
+Route::get('/cs/invoice-pembayaran', function () {
+    if (Auth::user()->peran !== 'CS') {
+        abort(403);
+    }
+
+    return view('cs.invoice-pembayaran');
+})->middleware('auth')->name('cs.invoice-pembayaran.preview');
+
+// HALAMAN WORK ORDER CS
+Route::get('/cs/work-order', function () {
+    if (Auth::user()->peran !== 'CS') {
+        abort(403);
+    }
+
+    return view('cs.work-order');
+})->middleware('auth')->name('cs.work-order');
+
+// HALAMAN TRACKING CS
+Route::get('/cs/tracking', function () {
+    if (Auth::user()->peran !== 'CS') {
+        abort(403);
+    }
+
+    return view('tracking.index');
+})->middleware('auth')->name('cs.tracking');
+
+
 require __DIR__.'/presma-public-order-preview.php';

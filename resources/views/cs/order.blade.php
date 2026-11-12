@@ -1,7 +1,7 @@
 @extends('layout.cs')
 @section('title', 'Order Management | Presma Operations')
 @section('content')
-    <main class="cs-order-page w-full min-w-0 pt-20 px-space-xl py-space-lg bg-surface" data-detail-url="{{ route('cs.order.detail') }}">
+    <main class="cs-order-page w-full pt-12 px-space-xl py-space-lg bg-surface" data-detail-url="{{ route('cs.order.detail') }}">
         <div class="cs-order-main-stack flex flex-col w-full min-w-0 gap-space-lg">
             <!-- Top Banner / Operational Context Bar -->
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md pb-space-xs">

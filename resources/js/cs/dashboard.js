@@ -21,8 +21,26 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.cs-sidebar a[href="#"]').forEach((l) => l.addEventListener('click', (e) => e.preventDefault()));
 
     // ----- hanya jalan di halaman dashboard (ada tabel #csDashRows) --------------
-    const rowsEl = document.getElementById('csDashRows');
-    if (!rowsEl) return;
+   // ----- SIDEBAR COLLAPSE DESKTOP -----
+const sidebarToggle = document.getElementById('cs-sidebar-toggle');
+
+sidebarToggle?.addEventListener('click', () => {
+    if (window.innerWidth <= 900) return;
+
+    document.body.classList.toggle('cs-sidebar-collapsed');
+
+    const isCollapsed = document.body.classList.contains('cs-sidebar-collapsed');
+
+    sidebarToggle.title = isCollapsed ? 'Buka sidebar' : 'Tutup sidebar';
+    sidebarToggle.setAttribute(
+        'aria-label',
+        isCollapsed ? 'Buka sidebar' : 'Tutup sidebar'
+    );
+});
+
+// ----- hanya jalan di halaman dashboard -----
+const rowsEl = document.getElementById('csDashRows');
+if (!rowsEl) return;
 
     const main = document.querySelector('main[data-order-url]');
     const orderUrl = main?.dataset.orderUrl || '/cs/order';

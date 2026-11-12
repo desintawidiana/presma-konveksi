@@ -3,7 +3,7 @@
 @section('title', 'Customer | Presma Operations')
 
 @section('content')
-    <main class="w-full pt-20 px-space-xl py-space-lg flex-1 bg-surface cs-customer-page">
+    <main class="w-full pt-16 px-space-xl py-space-lg flex-1 bg-surface cs-customer-page">
         <div class="flex flex-col w-full gap-space-lg">
             <!-- Header Workspace -->
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md">

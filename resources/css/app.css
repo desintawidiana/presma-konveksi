@@ -12,501 +12,83 @@
 @import './cs/notification.css';
 @import './cs/profile.css';
 
+/
+/* ==========================================
+   SHARED CS SIDEBAR COLLAPSE
+========================================== */
 
-/* ==========================================================
-   PRESMA OPERATIONS — SHARED UI CONSISTENCY LAYER
-   Applied after page styles; preserves each page's content.
-   ========================================================== */
-:root {
-    --presma-red: #830909;
-    --presma-red-hover: #A10B0B;
-    --presma-red-soft: #F7E7E7;
-    --presma-border: #D9DADB;
-    --presma-text: #191C1C;
-    --presma-muted: #635D5E;
-    --presma-surface: #FFFFFF;
-    --presma-page: #F8F9F9;
-    --presma-radius-sm: 8px;
-    --presma-radius-md: 12px;
-    --presma-radius-lg: 16px;
-    --presma-shadow: 0 1px 8px rgba(0,0,0,.045);
+.cs-sidebar {
+    width: 16rem !important;
+    transition: width .25s ease;
+    overflow-x: hidden;
 }
 
-html { font-family: Inter, sans-serif; }
-body { color: var(--presma-text); font-family: Inter, sans-serif; font-size: 14px; line-height: 1.5; }
-button, input, select, textarea { font: inherit; }
-button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
-button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
-    outline: 2px solid rgba(131,9,9,.35);
-    outline-offset: 2px;
-}
-
-/* Typography scale */
-h1 { font-size: 24px; line-height: 1.3; font-weight: 700; letter-spacing: -.02em; }
-h2 { font-size: 20px; line-height: 1.35; font-weight: 650; }
-h3 { font-size: 16px; line-height: 1.4; font-weight: 600; }
-p { line-height: 1.55; }
-.font-display-lg, .cs-order-kpi-number, [data-tabular], .tabular-nums { font-variant-numeric: tabular-nums; }
-
-/* Shared controls */
-input:not([type="checkbox"]):not([type="radio"]),
-select, textarea {
-    border-radius: var(--presma-radius-sm);
-    border-color: var(--presma-border);
-    font-size: 13px;
-    line-height: 1.45;
-}
-input:not([type="checkbox"]):not([type="radio"]):focus,
-select:focus, textarea:focus {
-    border-color: var(--presma-red) !important;
-    box-shadow: 0 0 0 3px rgba(131,9,9,.08);
-    outline: none;
-}
-
-/* Consistent buttons without overriding semantic colors or disabled states */
-button:not(.material-symbols-outlined) { transition: background-color .18s ease, border-color .18s ease, color .18s ease, box-shadow .18s ease; }
-button:disabled, [aria-disabled="true"] { cursor: not-allowed !important; }
-
-/* Cards and panels */
-:where(.cs-notification-page, .cs-customer-page, .cs-order-page, .cs-main, .owner-page, .cs-profile-page) {
+.cs-shell {
+    margin-left: 16rem;
+    width: calc(100% - 16rem);
     min-width: 0;
-}
-:where(.cs-notification-page, .cs-customer-page, .cs-order-page, .cs-main, .owner-page) table {
-    font-variant-numeric: tabular-nums;
-}
-:where(.cs-notification-page, .cs-customer-page, .cs-order-page, .cs-main, .owner-page) th {
-    font-weight: 600;
+    transition: margin-left .25s ease, width .25s ease;
 }
 
-/* Notification palette aligned with Presma red */
-.cs-notification-page { color: var(--presma-text); }
-.cs-notification-page .btn-mark-all { color: var(--presma-red); border-color: #F0CDD2; border-radius: var(--presma-radius-sm); }
-.cs-notification-page .btn-mark-all:hover { background: var(--presma-red-soft); }
-.cs-notification-page .notification-summary-card,
-.cs-notification-page .notification-card { border-color: #E5E7E7; border-radius: var(--presma-radius-md); }
-.cs-notification-page .notification-summary-card > span { color: var(--presma-red); background: var(--presma-red-soft); }
-.cs-notification-page .notification-filter-tabs button.active { color: var(--presma-red); background: var(--presma-red-soft); }
-.cs-notification-page .notification-action { color: var(--presma-red); font-weight: 600; }
-
-/* Consistent page spacing on smaller screens */
-@media (max-width: 768px) {
-    h1 { font-size: 21px; }
-    h2 { font-size: 18px; }
-    .cs-notification-page { padding: 22px 16px; }
-    .notification-page-heading { align-items: flex-start; flex-direction: column; }
-    .notification-summary { grid-template-columns: 1fr; }
-    .notification-filter { align-items: stretch; flex-direction: column; }
-    .notification-filter-tabs { flex-wrap: wrap; }
+/* Sidebar tertutup */
+body.cs-sidebar-collapsed .cs-sidebar {
+    width: 5rem !important;
 }
 
-/* Placeholder dokumen: tampil sebagai informasi, bukan tautan palsu */
-.cs-wo-file-link.is-unavailable {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    color: #7A7777;
-    cursor: not-allowed;
-    font-size: 12px;
-}
-.cs-wo-file-link.is-unavailable small {
-    color: #9A9696;
-    font-size: 10px;
+body.cs-sidebar-collapsed .cs-shell {
+    margin-left: 5rem !important;
+    width: calc(100% - 5rem) !important;
 }
 
-@media (max-width: 900px) {
-    .cs-shell,
-    body.sidebar-collapsed .cs-shell {
-        margin-left: 0;
-    }
+/* Header harus mengikuti posisi sidebar */
+body.cs-sidebar-collapsed .cs-header {
+    left: 5rem !important;
+    width: calc(100% - 5rem) !important;
 }
 
-
-/* SHARED COMPONENT STANDARD — CS, OWNER, TRACKING */
-:where(.cs-main, .owner-page, .tracking-page) .cs-queue-filter {
-    min-height: 40px; border-radius: 8px; font-size: 13px; font-weight: 600;
-}
-:where(.cs-main, .owner-page) .cs-queue-filter.is-active,
-:where(.cs-main, .owner-page) .cs-queue-filter[aria-pressed="true"] {
-    color: #830909 !important; background: #F7E7E7 !important; border: 1px solid #EBC9C9 !important;
-    box-shadow: inset 0 0 0 1px rgba(131,9,9,.04);
-}
-:where(.cs-main, .owner-page) table { border-collapse: separate; border-spacing: 0; font-size: 13px; }
-:where(.cs-main, .owner-page) table thead th {
-    background: #F5F5F5; color: #635D5E; font-size: 11px; font-weight: 700;
-    letter-spacing: .035em; text-transform: uppercase; border-bottom: 1px solid #D9DADB;
-}
-:where(.cs-main, .owner-page) table tbody td { color: #343030; font-size: 13px; border-bottom: 1px solid #ECEDEE; }
-:where(.cs-main, .owner-page) table tbody tr:hover td { background: #FAF7F7; }
-:where(.cs-main, .owner-page) .cs-wo-pagination,
-:where(.cs-main, .owner-page) .invoice-table-footer {
-    min-height: 52px; display: flex; align-items: center; justify-content: space-between;
-    gap: 12px; padding: 10px 16px; border-top: 1px solid #E5E7E7;
-    background: #fff; color: #635D5E; font-size: 12px;
-}
-.cs-wo-page-controls { display: inline-flex; align-items: center; gap: 8px; }
-.cs-wo-page-controls button {
-    width: 30px; height: 30px; border: 1px solid #D9DADB; border-radius: 7px;
-    background: #fff; color: #830909; font-size: 18px; line-height: 1;
-}
-.cs-wo-page-controls button:disabled { opacity: .4; }
-:where(.cs-main, .owner-page) h1 { font-size: 24px; line-height: 32px; font-weight: 700; letter-spacing: -.02em; }
-:where(.cs-main, .owner-page) h2 { font-size: 18px; line-height: 26px; font-weight: 650; }
-@media (max-width: 640px) {
-    :where(.cs-main, .owner-page) .cs-wo-pagination,
-    :where(.cs-main, .owner-page) .invoice-table-footer { flex-wrap: wrap; }
+/* Sembunyikan teks menu */
+body.cs-sidebar-collapsed .cs-brand-text,
+body.cs-sidebar-collapsed .cs-section-label,
+body.cs-sidebar-collapsed .cs-sidebar nav a > span:not(.material-symbols-outlined),
+body.cs-sidebar-collapsed .cs-sidebar-label {
+    display: none !important;
 }
 
-
-/* ==========================================================
-   PRESMA — FINAL SHARED COMPONENT STANDARD
-   ========================================================== */
-:root {
-  --ui-font-xs: 11px;
-  --ui-font-sm: 12px;
-  --ui-font-md: 13px;
-  --ui-font-base: 14px;
-  --ui-title: 24px;
-  --ui-card-radius: 11px;
-  --ui-control-radius: 8px;
-  --ui-border: #D9DADB;
-  --ui-red: #830909;
-  --ui-red-soft: #F7E7E7;
-  --ui-muted: #635D5E;
-}
-.cs-main, .owner-page, .tracking-page {
-  font-family: Inter, sans-serif;
-  font-size: var(--ui-font-base);
-  color: #191C1C;
-}
-.cs-main h1, .owner-page h1, .tracking-page h1 {
-  font-size: var(--ui-title) !important;
-  line-height: 1.3 !important;
-  font-weight: 700 !important;
-  letter-spacing: -.02em;
-}
-.cs-main h2, .owner-page h2, .tracking-page h2 {
-  font-size: 18px !important;
-  line-height: 26px !important;
-  font-weight: 650 !important;
-}
-.cs-main h3, .owner-page h3, .tracking-page h3 {
-  font-size: 15px;
-  line-height: 22px;
-  font-weight: 600;
-}
-.cs-main :is(button, a[class*="rounded"], input, select),
-.owner-page :is(button, a[class*="rounded"], input, select),
-.tracking-page :is(button, input, select) {
-  border-radius: var(--ui-control-radius);
-}
-.cs-main table, .owner-page table {
-  width: 100%;
-  font-size: 13px;
-  font-variant-numeric: tabular-nums;
-}
-.cs-main table thead th, .owner-page table thead th {
-  padding-top: 12px;
-  padding-bottom: 12px;
-  background: #F5F5F5 !important;
-  color: #635D5E !important;
-  font-size: 11px !important;
-  font-weight: 700 !important;
-  letter-spacing: .035em;
-  border-bottom: 1px solid var(--ui-border);
-}
-.cs-main table tbody td, .owner-page table tbody td {
-  padding-top: 11px;
-  padding-bottom: 11px;
-  color: #343030;
-  font-size: 13px !important;
-  border-bottom: 1px solid #ECEDEE;
-}
-.cs-main table tbody tr:hover td, .owner-page table tbody tr:hover td {
-  background: #FAF7F7;
-}
-/* Ringkasan/card paling atas: satu bahasa visual di semua halaman */
-:where(.cs-main, .owner-page) .rounded-xl.border,
-:where(.cs-main, .owner-page) .rounded-2xl.border {
-  border-color: #D9DADB;
-  border-radius: 11px;
-  box-shadow: 0 1px 3px rgba(0,0,0,.035);
-}
-:where(.cs-main, .owner-page) .rounded-xl.border > :first-child,
-:where(.cs-main, .owner-page) .rounded-2xl.border > :first-child {
-  min-width: 0;
-}
-/* Tombol primer dan sekunder konsisten tanpa mengubah aksi */
-:where(.cs-main, .owner-page) button[class*="bg-[#830909]"],
-:where(.cs-main, .owner-page) a[class*="bg-[#830909]"] {
-  background-color: #830909;
-  border-color: #830909;
-  color: #fff;
-  font-size: 13px;
-  font-weight: 600;
-}
-:where(.cs-main, .owner-page) button[class*="bg-[#830909]"]:hover,
-:where(.cs-main, .owner-page) a[class*="bg-[#830909]"]:hover {
-  background-color: #A10B0B;
-}
-.presma-pagination {
-  display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap;
-  gap:12px; min-height:54px; padding:10px 16px; border-top:1px solid #E5E7E7;
-  background:#fff; color:#635D5E; font-size:12px;
-}
-.presma-pagination .presma-page-actions { display:flex; align-items:center; gap:6px; }
-.presma-pagination button, .presma-pagination select {
-  height:32px; min-width:32px; padding:0 9px; border:1px solid #D9DADB;
-  border-radius:7px; background:#fff; color:#4B4546; font-size:12px;
-}
-.presma-pagination button[aria-current="page"] {
-  color:#fff; background:#830909; border-color:#830909; font-weight:700;
-}
-.presma-pagination button:disabled { opacity:.4; cursor:not-allowed; }
-.presma-pagination select { height:30px; padding:0 24px 0 8px; }
-@media(max-width:640px) {
-  .cs-main h1, .owner-page h1, .tracking-page h1 { font-size:21px !important; }
-  .presma-pagination { align-items:flex-start; flex-direction:column; }
-}
-
-.presma-page-hidden { display: none !important; }
-
-/* Metric cards — compact style aligned to the supplied reference */
-:where(.cs-main, .owner-page) .presma-metric-card {
-    min-height: 106px;
-    padding: 12px;
-    border: 1px solid #D9DADB;
-    border-radius: 11px;
-    background: #fff;
-    box-shadow: 0 1px 3px rgba(0,0,0,.035);
-}
-:where(.cs-main, .owner-page) .presma-metric-card .metric-label {
-    font-size: 10px; line-height: 14px; font-weight: 600;
-    letter-spacing: .035em; text-transform: uppercase; color: #635D5E;
-}
-:where(.cs-main, .owner-page) .presma-metric-card .metric-value {
-    font-size: 28px; line-height: 32px; font-weight: 700;
-    letter-spacing: -.02em; color: #191C1C; font-variant-numeric: tabular-nums;
-}
-:where(.cs-main, .owner-page) .presma-metric-card .metric-caption {
-    font-size: 10px; line-height: 14px; color: #635D5E;
-}
-
-
-/* ==========================================================
-   CLEAN PROFESSIONAL — PAGE HEADING STANDARD
-   Shared by operational pages (CS, Owner and Tracking).
-   Breadcrumb remains in the top application header only.
-   ========================================================== */
-:where(
-  .cs-main,
-  .cs-order-page,
-  .cs-customer-page,
-  .cs-wo-page,
-  .cs-notification-page,
-  .cs-profile-page,
-  .owner-page,
-  .tracking-page
-) h1 {
-    margin: 0;
-    color: #191C1C;
-    font-family: Inter, sans-serif;
-    font-size: 24px !important;
-    font-weight: 700 !important;
-    line-height: 1.3 !important;
-    letter-spacing: -0.025em;
-}
-
-:where(
-  .cs-main,
-  .cs-order-page,
-  .cs-customer-page,
-  .cs-wo-page,
-  .cs-notification-page,
-  .cs-profile-page,
-  .owner-page,
-  .tracking-page
-) h1 + p {
-    margin-top: 6px;
-    max-width: 760px;
-    color: #635D5E;
-    font-family: Inter, sans-serif;
-    font-size: 13px;
-    font-weight: 400;
-    line-height: 20px;
-}
-
-/* Keep page heading blocks aligned without changing their content. */
-:where(
-  .cs-order-page,
-  .cs-customer-page,
-  .cs-wo-page,
-  .cs-notification-page,
-  .cs-profile-page,
-  .tracking-page
-) :is(.cs-wo-heading, .notification-page-heading, .tracking-hero-copy) {
-    min-width: 0;
-}
-
-/* Clean Professional title scale on narrow screens. */
-@media (max-width: 640px) {
-    :where(
-      .cs-main,
-      .cs-order-page,
-      .cs-customer-page,
-      .cs-wo-page,
-      .cs-notification-page,
-      .cs-profile-page,
-      .owner-page,
-      .tracking-page
-    ) h1 {
-        font-size: 21px !important;
-        line-height: 28px !important;
-    }
-}
-
-
-/* ==========================================================
-   SHARED DATA TABLE + PAGINATION — one Presma standard
-   ========================================================== */
-.presma-pagination,
-.cs-wo-pagination {
-    min-height: 48px;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 9px 12px;
-    border-top: 1px solid var(--presma-border, #D9DADB);
-    background: #fff;
-    color: #777;
-    font-family: Inter, Arial, sans-serif;
-    font-size: 10px;
-    line-height: 1.4;
-    box-sizing: border-box;
-}
-.presma-pagination-info {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 12px;
-    min-width: 0;
-}
-.presma-pagination-info label {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    white-space: nowrap;
-}
-.presma-pagination select,
-.cs-wo-pagination select {
-    height: 28px;
-    min-width: 44px;
-    padding: 0 8px;
-    border: 1px solid #D9DADB;
-    border-radius: 6px;
-    background: #fff;
-    color: #292929;
-    font: 11px Inter, Arial, sans-serif;
-}
-.presma-page-actions,
-.cs-wo-page-controls {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 7px;
-    flex: 0 0 auto;
-}
-.presma-page-actions button,
-.cs-wo-page-controls button {
-    width: 27px;
-    height: 27px;
-    display: inline-flex;
-    align-items: center;
+/* Pusatkan ikon */
+body.cs-sidebar-collapsed .cs-sidebar nav a {
     justify-content: center;
-    padding: 0;
-    border: 1px solid #E2E4E5;
-    border-radius: 7px;
-    background: #fff;
-    color: #830909;
-    font: 13px Inter, Arial, sans-serif;
-    line-height: 1;
-    cursor: pointer;
+    padding-left: .5rem;
+    padding-right: .5rem;
 }
-.presma-page-actions button:disabled,
-.cs-wo-page-controls button:disabled {
-    color: #B8B8B8;
-    background: #fff;
-    opacity: .65;
-    cursor: not-allowed;
-}
-.presma-page-current,
-.cs-wo-page-controls span {
-    min-width: 26px;
-    text-align: center;
-    color: #830909;
-    font-size: 10px;
-    font-weight: 700;
-}
-.presma-page-hidden { display: none !important; }
 
-/* Keep horizontally scrollable tables and the footer visually connected. */
-.cs-order-page .overflow-x-auto,
-.cs-customer-page .overflow-x-auto,
-.cs-wo-table-wrap,
-.cs-invoice-page .invoice-table-wrap {
-    max-width: 100%;
-    overflow-x: auto;
-    scrollbar-width: thin;
-    scrollbar-color: #A6A6A6 #F1F2F2;
+body.cs-sidebar-collapsed .cs-sidebar-header {
+    justify-content: center;
+    padding-left: .5rem;
+    padding-right: .5rem;
 }
-.cs-order-page table,
-.cs-customer-page table,
-.cs-wo-page table,
-.cs-invoice-page .invoice-table {
-    border-collapse: collapse;
+
+body.cs-sidebar-collapsed .cs-sidebar-header > div {
+    display: none;
 }
-.cs-order-page table th,
-.cs-customer-page table th,
-.cs-wo-page table th,
-.cs-invoice-page .invoice-table th {
-    background: #F3F4F4;
-    color: #635D5E;
-    font-family: Inter, Arial, sans-serif;
-    font-size: 10px;
-    font-weight: 700;
-    line-height: 1.4;
-    letter-spacing: .025em;
-    text-transform: uppercase;
+
+body.cs-sidebar-collapsed .cs-sidebar-toggle {
+    transform: rotate(180deg);
 }
-.cs-order-page table td,
-.cs-customer-page table td,
-.cs-wo-page table td,
-.cs-invoice-page .invoice-table td {
-    color: #393536;
-    font-family: Inter, Arial, sans-serif;
-    font-size: 11px;
-    line-height: 1.45;
-}
-.cs-order-page table tbody tr,
-.cs-customer-page table tbody tr,
-.cs-wo-page table tbody tr,
-.cs-invoice-page .invoice-table tbody tr {
-    border-bottom: 1px solid #E5E6E6;
-}
-.cs-order-page table tbody tr:hover,
-.cs-customer-page table tbody tr:hover,
-.cs-wo-page table tbody tr:hover,
-.cs-invoice-page .invoice-table tbody tr:hover {
-    background: #FAF7F7;
-}
-@media (max-width: 640px) {
-    .presma-pagination,
-    .cs-wo-pagination {
-        align-items: flex-start;
-        flex-direction: column;
-        padding: 10px 12px;
+
+/* Mobile */
+@media (max-width: 900px) {
+    .cs-shell {
+        margin-left: 0 !important;
+        width: 100% !important;
     }
-    .presma-page-actions,
-    .cs-wo-page-controls { align-self: flex-end; }
+
+    body.cs-sidebar-collapsed .cs-shell {
+        margin-left: 0 !important;
+        width: 100% !important;
+    }
+
+    body.cs-sidebar-collapsed .cs-header {
+        left: 0 !important;
+        width: 100% !important;
+    }
 }
