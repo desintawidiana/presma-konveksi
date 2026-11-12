@@ -24,9 +24,7 @@
         };
     @endphp
     <nav aria-label="Breadcrumb" class="flex min-w-0 items-center gap-2 text-[12px] sm:text-[13px]">
-        <a href="{{ route('cs.preview') }}" class="whitespace-nowrap text-secondary transition-colors hover:text-[#830909]">Presma Operations</a>
-        <span class="material-symbols-outlined text-[15px] text-[#A39A9A]" aria-hidden="true">chevron_right</span>
-        <span class="whitespace-nowrap text-secondary">Customer Service</span>
+        <a href="{{ route('cs.preview') }}" class="whitespace-nowrap text-secondary transition-colors hover:text-[#830909]">Customer Service</a>
         <span class="material-symbols-outlined text-[15px] text-[#A39A9A]" aria-hidden="true">chevron_right</span>
         <span class="truncate font-semibold text-on-surface" aria-current="page">{{ $csCurrentPage }}</span>
     </nav>

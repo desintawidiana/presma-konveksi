@@ -18,7 +18,7 @@
                             class="">Export Data (.CSV)</span></button>
                     <button type="button" id="csOrderNewBtn"
                         class="cs-order-header-btn inline-flex items-center justify-center gap-2 px-4 h-[44px] rounded-lg bg-[#830909] hover:bg-[#A10B0B] text-white font-title-sm text-title-sm font-semibold transition-all shadow-sm">
-                        <span class="material-symbols-outlined text-[18px]">add_circle</span>
+                        <span class="material-symbols-outlined text-[18px]">add</span>
                         <span>Tambah Order Baru</span>
                     </button>
                 </div>

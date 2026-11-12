@@ -91,3 +91,73 @@ body.cs-sidebar-collapsed .cs-sidebar-toggle {
         width: 100% !important;
     }
 }
+
+
+/* ==========================================
+   SHARED TABLE PAGINATION
+========================================== */
+.presma-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
+    min-height: 48px;
+    padding: 8px 12px;
+    border: 1px solid #dedede;
+    border-top: 0;
+    border-radius: 0 0 12px 12px;
+    background: #fff;
+    color: #777;
+    font-size: 11px;
+}
+.presma-pagination-info { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.presma-pagination-info label { display: flex; align-items: center; gap: 7px; }
+.presma-pagination select {
+    height: 25px; min-width: 46px; padding: 2px 7px;
+    border: 1px solid #d9d9d9; border-radius: 7px;
+    background: #fff; color: #555; font-size: 11px;
+}
+.presma-page-actions { display: flex; align-items: center; gap: 8px; }
+.presma-page-actions button {
+    display: flex; align-items: center; justify-content: center;
+    width: 25px; height: 25px; border: 1px solid #dedede;
+    border-radius: 7px; background: #fff; color: #9b2525;
+    font-size: 19px; line-height: 1;
+}
+.presma-page-actions button:disabled { opacity: .4; cursor: not-allowed; }
+.presma-page-current { min-width: 36px; color: #9b2525; font-weight: 700; text-align: center; }
+@media (max-width: 600px) {
+    .presma-pagination { align-items: flex-start; flex-direction: column; }
+    .presma-page-actions { align-self: flex-end; }
+}
+
+
+/* Work Order footer mengikuti gaya pagination tabel lainnya. */
+.cs-wo-pagination {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 48px;
+    padding: 8px 12px !important;
+    border: 1px solid #dedede;
+    border-top: 0;
+    border-radius: 0 0 12px 12px;
+    background: #fff;
+    color: #777;
+    font-size: 11px;
+}
+.cs-wo-page-controls button {
+    width: 25px;
+    height: 25px;
+    border: 1px solid #dedede;
+    border-radius: 7px;
+    background: #fff;
+    color: #9b2525;
+}
+.cs-wo-page-controls span { color: #9b2525; font-weight: 700; }
+@media (max-width: 600px) {
+    .cs-wo-pagination { align-items: flex-start; flex-direction: column; }
+    .cs-wo-page-controls { align-self: flex-end; }
+}

@@ -111,22 +111,7 @@
     </div>
 
     {{-- Status dan logout --}}
-    <div class="flex flex-col gap-3 bg-surface-container-low p-space-md">
-        <div
-            class="flex items-center justify-between rounded-lg bg-surface-contaiqner-lowest px-3 py-2 shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
-            <div class="flex items-center gap-2">
-                <span class="h-2 w-2 shrink-0 animate-pulse rounded-full bg-primary-container"></span>
-
-                <span class="cs-sidebar-label text-xs font-medium text-secondary">
-                    CS Workspace
-                </span>
-            </div>
-
-            <span class="cs-sidebar-label text-xs font-semibold text-primary-container">
-                Aktif
-            </span>
-
-        </div>
+    <div class="flex flex-col gap-3 justify-between bg-surface-container-low p-space-md">
 
         {{-- LOGOUT --}}
         <div class="border-t border-[#D9DADB] pt-2">

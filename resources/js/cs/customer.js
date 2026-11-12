@@ -443,11 +443,9 @@ document.addEventListener('DOMContentLoaded', () => {
             // Data order dan domisili belum tersedia dari API.
             const matchQuick = activeFilter === 'all';
 
-            row.hidden = !(
-                matchText &&
-                matchCategory &&
-                matchQuick
-            );
+            const filteredOut = !(matchText && matchCategory && matchQuick);
+            row.dataset.filterHidden = String(filteredOut);
+            row.hidden = filteredOut;
 
             if (!row.hidden) shown++;
         });
@@ -469,6 +467,7 @@ document.addEventListener('DOMContentLoaded', () => {
             : 'Tidak ada pelanggan yang sesuai dengan pencarian atau filter.';
 
         updateSummary();
+        window.PresmaTablePagination?.refresh(table);
     }
 
     function redraw() {

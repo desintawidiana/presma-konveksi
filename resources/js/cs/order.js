@@ -19,6 +19,9 @@ const startCSOrder = () => {
 
     let semuaOrder = [];
     let tabAktif = 'all';
+    let orderPage = 1;
+    let orderPageSize = 10;
+    let orderFooter = null;
 
     // ----- pemetaan alur kerja -> tab, kategori, tombol aksi -------------------
     const TAB_ALUR = {
@@ -105,10 +108,21 @@ const startCSOrder = () => {
     const render = () => {
         isiKpi();
         const tampil = terfilter();
-        tbody.innerHTML = tampil.length
-            ? tampil.map(barisHtml).join('')
+        const pages = Math.max(1, Math.ceil(tampil.length / orderPageSize));
+        orderPage = Math.min(orderPage, pages);
+        const start = (orderPage - 1) * orderPageSize;
+        const end = Math.min(start + orderPageSize, tampil.length);
+        const pageData = tampil.slice(start, end);
+        tbody.innerHTML = pageData.length
+            ? pageData.map(barisHtml).join('')
             : barisPesan(semuaOrder.length ? 'Tidak ada order yang cocok dengan filter.' : 'Belum ada order. Klik “Tambah Order Baru”.');
-        if (summary) summary.textContent = `Menampilkan ${tampil.length} dari ${semuaOrder.length} order`;
+        if (summary) summary.textContent = `Menampilkan ${tampil.length ? start + 1 : 0}–${end} dari ${tampil.length} data`;
+        if (orderFooter) {
+            orderFooter.innerHTML = `<div class="presma-pagination-info"><span>${tampil.length ? `Menampilkan ${start + 1}–${end} dari ${tampil.length} data` : 'Tidak ada data untuk ditampilkan'}</span><label>Tampilkan <select data-order-page-size><option value="10" ${orderPageSize === 10 ? 'selected' : ''}>10</option><option value="20" ${orderPageSize === 20 ? 'selected' : ''}>20</option></select></label></div><div class="presma-page-actions"><button type="button" data-order-prev ${orderPage <= 1 ? 'disabled' : ''}>‹</button><span class="presma-page-current">${orderPage} / ${pages}</span><button type="button" data-order-next ${orderPage >= pages ? 'disabled' : ''}>›</button></div>`;
+            orderFooter.querySelector('[data-order-page-size]')?.addEventListener('change', e => { orderPageSize = Number(e.target.value) || 10; orderPage = 1; render(); });
+            orderFooter.querySelector('[data-order-prev]')?.addEventListener('click', () => { if (orderPage > 1) { orderPage--; render(); } });
+            orderFooter.querySelector('[data-order-next]')?.addEventListener('click', () => { if (orderPage < pages) { orderPage++; render(); } });
+        }
     };
 
     const muatData = async () => {
@@ -125,13 +139,15 @@ const startCSOrder = () => {
     // ----- tab, pencarian, filter ---------------------------------------------
     page.querySelectorAll('[data-cs-tab]').forEach((b) => b.addEventListener('click', () => {
         tabAktif = b.dataset.csTab;
+        orderPage = 1;
         page.querySelectorAll('[data-cs-tab]').forEach((x) => x.classList.toggle('cs-tab-active', x === b));
+        orderPage = 1;
         render();
     }));
     page.querySelectorAll('[data-cs-tab]').forEach((b) => b.classList.toggle('cs-tab-active', b.dataset.csTab === tabAktif));
-    search?.addEventListener('input', render);
-    filterBayar?.addEventListener('change', render);
-    filterKategori?.addEventListener('change', render);
+    search?.addEventListener('input', () => { orderPage = 1; render(); });
+    filterBayar?.addEventListener('change', () => { orderPage = 1; render(); });
+    filterKategori?.addEventListener('change', () => { orderPage = 1; render(); });
 
     // Klik baris = buka detail (tombol/tautan di dalam baris punya tujuannya sendiri).
     tbody.addEventListener('click', (e) => {
@@ -140,8 +156,16 @@ const startCSOrder = () => {
         if (row) window.location.assign(linkDetail(row.dataset.id));
     });
 
-    // Pagination bawaan desain tidak dipakai: semua order ditampilkan sekaligus.
-    summary?.parentElement?.querySelectorAll('button').forEach((b) => { b.hidden = true; });
+    // Footer pagination disisipkan tepat setelah pembungkus tabel.
+    const tableWrapper = page.querySelector('#csOrderTable')?.closest('.overflow-x-auto');
+    if (tableWrapper) {
+        const legacyFooter = tableWrapper.nextElementSibling;
+        legacyFooter?.querySelectorAll('button').forEach(button => button.hidden = true);
+        orderFooter = document.createElement('div');
+        orderFooter.className = 'presma-pagination';
+        orderFooter.setAttribute('aria-label', 'Navigasi halaman order');
+        tableWrapper.insertAdjacentElement('afterend', orderFooter);
+    }
 
     // ----- modal tambah order -------------------------------------------------
     const bukaModal = () => { createModal?.classList.remove('hidden'); createModal?.querySelector('input,select')?.focus(); };

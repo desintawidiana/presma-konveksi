@@ -20,12 +20,12 @@
                             <div class="flex flex-wrap items-center gap-2"></div>
                         </div>
                         <div class="flex items-center gap-3 shrink-0 self-start sm:self-center"><button aria-disabled="true"
-                                class="inline-flex items-center justify-center gap-2 px-4 h-[44px] rounded-lg bg-surface-container-lowest border border-[#D9DADB] text-on-surface hover:bg-surface-container-low transition-colors shadow-sm font-title-sm font-medium cs-disabled-action"
+                                class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-lg bg-surface-container-lowest hover:bg-surface-container text-on-surface font-title-sm text-title-sm font-medium border border-[#D9DADB] transition-colors shadow-sm"
                                 disabled="disabled" title="Fitur ini akan dihubungkan setelah modul backend siap"
                                 type="button"><span
-                                    class="material-symbols-outlined text-[18px] text-secondary">download</span><span
+                                    class="material-symbols-outlined text-[18px] text-emerald-700">download</span><span
                                     class="">Export Laporan (XLSX)<br /></span></button><a href="{{ route('cs.public-order.preview') }}"
-                                class="inline-flex items-center justify-center gap-2 px-5 h-[44px] rounded-lg bg-[#830909] text-on-primary hover:bg-[#A10B0B] transition-colors shadow-sm font-title-sm font-semibold">
+                                class="inline-flex items-center justify-center gap-2 px-4 h-[44px] rounded-lg bg-[#830909] hover:bg-[#A10B0B] text-white font-title-sm text-title-sm font-semibold transition-all shadow-sm">
                                 <span class="material-symbols-outlined text-[18px]">add</span>
                                 <span>Buat Order Baru</span>
                             </a></div>
