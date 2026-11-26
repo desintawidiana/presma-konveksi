@@ -1,0 +1,20 @@
+@extends('layout.owner')
+@section('title','Monitoring Produksi | Owner')
+@section('content')
+<main class="owner-main" data-owner-table-page>
+ <div class="owner-page-heading"><div><h1>Monitoring Produksi</h1><p>Pantau tahapan pekerjaan, PIC setiap proses, dan ketepatan deadline.</p></div><a href="{{ route('owner.tracking') }}" class="owner-btn-light"><span class="material-symbols-outlined">near_me</span>Lihat Tracking</a></div>
+ <section class="owner-grid owner-metrics">
+  <article class="owner-card owner-metric"><div class="owner-metric-top">Work Order Aktif</div><strong>24</strong><small>Sudah ACC dan dikerjakan</small></article>
+  <article class="owner-card owner-metric"><div class="owner-metric-top">Tahap Jahit</div><strong>9</strong><small>Pesanan sedang dijahit</small></article>
+  <article class="owner-card owner-metric"><div class="owner-metric-top">Menunggu QC</div><strong>5</strong><small>Perlu pemeriksaan kualitas</small></article>
+  <article class="owner-card owner-metric"><div class="owner-metric-top">Mendekati Deadline</div><strong>3</strong><small>Deadline dalam 3 hari</small></article>
+ </section>
+ <section class="owner-card"><div class="owner-toolbar"><label class="owner-search"><span class="material-symbols-outlined">search</span><input id="owner-search" placeholder="Cari order, produk, atau PIC..."></label><div class="owner-filters" data-filters><button class="owner-filter active" data-filter="all">Semua</button><button class="owner-filter" data-filter="berjalan">Berjalan</button><button class="owner-filter" data-filter="qc">Menunggu QC</button><button class="owner-filter" data-filter="packing">Packing</button></div></div>
+ <div class="owner-table-wrap"><table class="owner-table" id="owner-data-table"><thead><tr><th>Pesanan / WO</th><th>Produk</th><th>Tahap Saat Ini</th><th>PIC Tahap</th><th>Progres</th><th>Deadline</th><th>Status</th></tr></thead><tbody>
+ <tr data-state="berjalan"><td class="owner-code">ORD-2026-0342<span class="owner-subtext">WO-2026-0342</span></td><td><strong>Korsa PDH Nagata Drill</strong><span class="owner-subtext">350 pcs · BEM FT UGM</span></td><td>Jahit</td><td>Dimas Saputra</td><td><div class="owner-progress"><span style="width:55%"></span></div><span class="owner-subtext">55%</span></td><td>28 Nov 2026</td><td><span class="owner-badge blue">Berjalan</span></td></tr>
+ <tr data-state="berjalan"><td class="owner-code">ORD-2026-0338<span class="owner-subtext">WO-2026-0338</span></td><td><strong>Jaket Bomber</strong><span class="owner-subtext">150 pcs · HIMASISKO Undip</span></td><td>Cutting</td><td>Bambang Prakoso</td><td><div class="owner-progress"><span style="width:32%"></span></div><span class="owner-subtext">32%</span></td><td>25 Nov 2026</td><td><span class="owner-badge blue">Berjalan</span></td></tr>
+ <tr data-state="qc"><td class="owner-code">ORD-2026-0331<span class="owner-subtext">WO-2026-0331</span></td><td><strong>Hoodie Custom</strong><span class="owner-subtext">120 pcs · BEM FISIP UPN</span></td><td>QC</td><td>Rudi Hartono</td><td><div class="owner-progress"><span style="width:88%"></span></div><span class="owner-subtext">88%</span></td><td>21 Nov 2026</td><td><span class="owner-badge orange">Menunggu QC</span></td></tr>
+ <tr data-state="packing"><td class="owner-code">ORD-2026-0329<span class="owner-subtext">WO-2026-0329</span></td><td><strong>Rompi Lapangan</strong><span class="owner-subtext">80 pcs · UKM Musik</span></td><td>Packing</td><td>Slamet Riyadi</td><td><div class="owner-progress"><span style="width:96%"></span></div><span class="owner-subtext">96%</span></td><td>20 Nov 2026</td><td><span class="owner-badge green">Siap Packing</span></td></tr>
+ </tbody></table></div><div class="owner-table-footer"><span>Menampilkan 4 dari 4 pesanan demo</span><span>PIC berdasarkan penugasan tahap</span></div></section>
+</main>
+@endsection

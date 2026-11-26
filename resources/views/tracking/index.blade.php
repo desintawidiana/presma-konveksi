@@ -1,4 +1,4 @@
-@extends('layout.cs')
+@extends(auth()->user()->peran === 'OWNER' ? 'layout.owner' : (auth()->user()->peran === 'PRODUKSI' ? 'layout.produksi' : 'layout.cs'))
 
 @section('title', 'Order Tracking | Presma Konveksi')
 

@@ -1,2 +1,26 @@
-<!-- Header Owner: data pengguna masih ilustrasi Stitch. -->
-<header class="fixed top-0 left-64 right-0 h-16 bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-space-lg"><div class="flex items-center gap-space-md"><nav class="flex items-center gap-space-xs text-on-surface-variant font-label-md text-label-md"><span class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer font-medium">Presma Operations</span><span class="material-symbols-outlined text-sm leading-none">chevron_right</span><span class="font-label-md text-label-md text-on-surface font-semibold">Owner Dashboard</span></nav><div class="h-4 w-px bg-surface-container-highest hidden sm:block"></div><div class="relative hidden lg:flex items-center"><span class="material-symbols-outlined absolute left-3 text-on-surface-variant text-lg leading-none pointer-events-none">search</span><input aria-label="Cari order di tabel dashboard" class="w-80 h-[44px] pl-9 pr-space-md rounded-lg bg-surface-container-lowest border border-[#D9DADB] text-on-surface placeholder:text-on-surface-variant font-body-sm text-body-sm focus:outline-none focus:ring-1 focus:ring-primary-container transition-all" id="ownerOrderSearch" placeholder="Cari order, pelanggan, SKU..." type="text"/></div></div><div class="flex items-center gap-space-md"><button aria-label="Alerts" class="relative p-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors owner-disabled-button" disabled="disabled" title="Notifikasi belum terhubung" type="button"><span class="material-symbols-outlined text-xl leading-none">notifications</span><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#830909] ring-2 ring-surface-container-lowest"></span></button><div class="h-6 w-px bg-surface-container-highest"></div><div class="flex items-center gap-space-sm pl-space-xs"><div class="relative"><img alt="Abiyyu" class="w-9 h-9 rounded-full object-cover border border-[#D9DADB]" src="https://lh3.googleusercontent.com/aida/AEtjO1VnXQY8IXDJrp_2ih7VdFCNnN1EFtlQnQmRujpi1p9ipuCCSINHgRXZd5uNii050SZ8zMCQfCLKAnPIcrPhCihI9FvTvYV-kh-iM3lJtHc0YJ2b0yD1WKBDgeYXilPUouZP-6vGqPq-EPMShQfbStI9RXcfSxEpQOnCOWXoOpsC3I8kgbfX-iyiumbOiHxzZoVWUVMKE6mpGStXWYSDMIQ_T57lr0SI9VPsrLtSOypahrd_AdgkWz1agHTa"/><span class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#16804B] ring-2 ring-surface-container-lowest"></span></div><div class="flex flex-col text-left"><div class="flex items-center gap-space-xs"><span class="font-title-sm text-title-sm text-on-surface leading-tight font-semibold">Abiyyu</span><span class="px-1.5 py-0.5 rounded font-label-sm text-[11px] bg-[#F7E7E7] text-[#830909] font-bold leading-none">Owner Presma</span></div><span class="font-body-sm text-[12px] text-on-surface-variant leading-tight">abiyyu@presmakonveksi.com</span></div><span class="material-symbols-outlined text-on-surface-variant text-base cursor-pointer">expand_more</span></div></div></header>
+<header class="owner-header">
+ @php
+  $ownerPage = match(true) {
+   request()->routeIs('dashboard.owner') => 'Dashboard',
+   request()->routeIs('owner.order') => 'Order Management',
+   request()->routeIs('owner.produksi') => 'Monitoring Produksi',
+   request()->routeIs('owner.tracking') => 'Tracking Pesanan',
+   request()->routeIs('owner.inventaris') => 'Inventaris & Aset',
+   request()->routeIs('owner.keuangan') => 'Keuangan',
+   request()->routeIs('owner.laporan') => 'Laporan & Analitik',
+   request()->routeIs('owner.karyawan') => 'Manajemen Karyawan',
+   request()->routeIs('owner.notifikasi') => 'Notifikasi',
+   request()->routeIs('owner.profil') => 'Profil Saya',
+   default => 'Owner Workspace'
+  };
+  $ownerName = auth()->user()->nama ?? 'Owner Presma';
+  $ownerUser = auth()->user()->username ?? '-';
+ @endphp
+ <button class="owner-mobile-menu" id="owner-mobile-menu" type="button" aria-label="Buka navigasi"><span class="material-symbols-outlined">menu</span></button>
+ <nav class="owner-breadcrumb"><span>Owner</span><span class="material-symbols-outlined">chevron_right</span><b>{{ $ownerPage }}</b></nav>
+ <div class="owner-header-actions">
+  <div class="owner-dropdown-wrap"><button type="button" class="owner-icon-button" id="owner-notif-toggle" aria-label="Notifikasi"><span class="material-symbols-outlined">notifications</span></button><div class="owner-dropdown hidden" id="owner-notif-menu"><div class="owner-dropdown-heading"><b>Notifikasi Owner</b></div><a href="{{ route('owner.notifikasi') }}" class="owner-dropdown-footer">Lihat Semua Notifikasi</a></div></div>
+  <span class="owner-header-divider"></span>
+  <div class="owner-dropdown-wrap"><button type="button" class="owner-profile-toggle" id="owner-profile-toggle"><span class="owner-avatar">{{ strtoupper(substr($ownerName,0,2)) }}</span><span class="owner-profile-copy"><b>{{ $ownerName }}</b><small>Owner</small></span><span class="material-symbols-outlined">arrow_drop_down</span></button><div class="owner-dropdown owner-profile-dropdown hidden" id="owner-profile-menu"><div class="owner-dropdown-user"><b>{{ $ownerName }}</b><small>{{ $ownerUser }}</small></div><a href="{{ route('owner.profil') }}"><span class="material-symbols-outlined">account_circle</span>Profil Saya</a><form action="{{ route('logout') }}" method="POST">@csrf<button type="submit"><span class="material-symbols-outlined">logout</span>Keluar Akun</button></form></div></div>
+ </div>
+</header>

@@ -1,5 +1,4 @@
 @import './auth/login.css';
-@import './owner/dashboard.css';
 
 
 @import './cs/dashboard.css';
@@ -11,6 +10,8 @@
 @import './tracking.css';
 @import './cs/notification.css';
 @import './cs/profile.css';
+
+@import './produksi/produksi.css';
 
 /* ==========================================
    SHARED CS SIDEBAR COLLAPSE
@@ -161,3 +162,4 @@ body.cs-sidebar-collapsed .cs-sidebar-toggle {
     .cs-wo-pagination { align-items: flex-start; flex-direction: column; }
     .cs-wo-page-controls { align-self: flex-end; }
 }
+

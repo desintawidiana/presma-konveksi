@@ -1,0 +1,32 @@
+@extends('layout.owner')
+@section('title','Inventaris & Aset | Owner')
+@section('content')
+<main class="owner-main" data-owner-table-page>
+ <div class="owner-page-heading"><div><h1>Inventaris & Aset</h1><p>Pantau persediaan bahan baku dan aset operasional Presma.</p></div><div class="owner-actions"><button class="owner-btn" type="button" data-open-modal="inventory-modal"><span class="material-symbols-outlined">add</span>Tambah Inventaris</button></div></div>
+ <section class="owner-grid owner-metrics">
+  <article class="owner-card owner-metric"><div class="owner-metric-top">Jenis Bahan Aktif</div><strong>38</strong><small>Item persediaan tercatat</small></article>
+  <article class="owner-card owner-metric"><div class="owner-metric-top">Nilai Persediaan</div><strong>Rp 142,5 jt</strong><small>Estimasi nilai stok</small></article>
+  <article class="owner-card owner-metric"><div class="owner-metric-top">Stok Menipis</div><strong>6</strong><small>Bahan prioritas pembelian</small></article>
+  <article class="owner-card owner-metric"><div class="owner-metric-top">Aset Tetap</div><strong>12</strong><small>2 aset perlu perawatan</small></article>
+ </section>
+ <section class="owner-card">
+  <div class="owner-toolbar"><label class="owner-search"><span class="material-symbols-outlined">search</span><input id="owner-search" placeholder="Cari nama atau kode inventaris..."></label><div class="owner-filters" data-filters><button class="owner-filter active" data-filter="all">Semua</button><button class="owner-filter" data-filter="bahan">Bahan Baku</button><button class="owner-filter" data-filter="aset">Aset Tetap</button><button class="owner-filter" data-filter="low">Perlu Perhatian</button></div></div>
+  <div class="owner-table-wrap"><table class="owner-table" id="owner-data-table"><thead><tr><th>Kode</th><th>Nama Inventaris</th><th>Kategori</th><th>Jumlah</th><th>Minimum</th><th>Lokasi</th><th>Prioritas</th><th>Status</th></tr></thead><tbody>
+   <tr data-state="bahan"><td class="owner-code">BHN-001</td><td><strong>Kain Drill American</strong></td><td>Bahan Baku</td><td>125 meter</td><td>40 meter</td><td>Rak A1</td><td><span class="owner-badge red">Penting</span></td><td><span class="owner-badge green">Aman</span></td></tr>
+   <tr data-state="bahan low"><td class="owner-code">BHN-003</td><td><strong>Kain Taslan</strong></td><td>Bahan Baku</td><td>18 meter</td><td>25 meter</td><td>Rak A1</td><td><span class="owner-badge red">Penting</span></td><td><span class="owner-badge orange">Menipis</span></td></tr>
+   <tr data-state="bahan low"><td class="owner-code">BHN-005</td><td><strong>Resleting YKK 60 cm</strong></td><td>Aksesori</td><td>12 pcs</td><td>30 pcs</td><td>Rak B2</td><td><span class="owner-badge red">Penting</span></td><td><span class="owner-badge orange">Menipis</span></td></tr>
+   <tr data-state="bahan"><td class="owner-code">BHN-008</td><td><strong>Plastik Packing</strong></td><td>Packing</td><td>380 pcs</td><td>100 pcs</td><td>Rak C2</td><td><span class="owner-badge">Tidak prioritas</span></td><td><span class="owner-badge green">Aman</span></td></tr>
+   <tr data-state="aset"><td class="owner-code">AST-001</td><td><strong>Mesin Jahit High Speed</strong></td><td>Aset Tetap</td><td>4 unit</td><td>—</td><td>Workshop</td><td><span class="owner-badge">Aset</span></td><td><span class="owner-badge green">Baik</span></td></tr>
+   <tr data-state="aset low"><td class="owner-code">AST-004</td><td><strong>Mesin Obras</strong></td><td>Aset Tetap</td><td>2 unit</td><td>—</td><td>Workshop</td><td><span class="owner-badge">Aset</span></td><td><span class="owner-badge orange">Perlu servis</span></td></tr>
+  </tbody></table></div><div class="owner-table-footer"><span>Data inventaris demo</span><span>Stok bahan dan aset tetap dipisahkan kategorinya</span></div>
+ </section>
+ <section class="owner-card" style="margin-top:15px">
+  <div class="owner-panel" style="padding-bottom:8px"><div class="owner-panel-heading"><div><h2>Pengajuan Pembelian Bahan</h2><p>Pengajuan dari tim Produksi yang memerlukan keputusan Owner.</p></div><span class="owner-badge orange">2 Menunggu</span></div></div>
+  <div class="owner-table-wrap"><table class="owner-table" id="owner-purchase-table"><thead><tr><th>No. Pengajuan</th><th>Bahan</th><th>Jumlah</th><th>Pengaju</th><th>Alasan</th><th>Status</th><th>Aksi Owner</th></tr></thead><tbody>
+   <tr><td class="owner-code">PB-2026-009</td><td><strong>Kain Taslan</strong></td><td>50 meter</td><td>Produksi Presma</td><td>Stok 18 meter, di bawah minimum</td><td><span class="owner-badge orange" data-purchase-status>Menunggu</span></td><td><button class="owner-btn-light owner-approve" type="button">Setujui</button> <button class="owner-btn-light owner-reject" type="button">Tolak</button></td></tr>
+   <tr><td class="owner-code">PB-2026-010</td><td><strong>Resleting YKK 60 cm</strong></td><td>100 pcs</td><td>Produksi Presma</td><td>Stok 12 pcs, kebutuhan WO berjalan</td><td><span class="owner-badge orange" data-purchase-status>Menunggu</span></td><td><button class="owner-btn-light owner-approve" type="button">Setujui</button> <button class="owner-btn-light owner-reject" type="button">Tolak</button></td></tr>
+  </tbody></table></div>
+ </section>
+ <div class="owner-modal" id="inventory-modal"><div class="owner-modal-backdrop" data-close-modal></div><section class="owner-modal-content"><button class="owner-modal-close" data-close-modal><span class="material-symbols-outlined">close</span></button><h2 style="font-size:16px;font-weight:700">Tambah Inventaris (Demo)</h2><form class="owner-form-grid" data-demo-form><div class="owner-field"><label>Kode Inventaris</label><input required placeholder="BHN-009"></div><div class="owner-field"><label>Nama Inventaris</label><input required placeholder="Nama bahan / aset"></div><div class="owner-field"><label>Kategori</label><select><option>Bahan Baku</option><option>Aset Tetap</option></select></div><div class="owner-field"><label>Jumlah</label><input type="number" min="0" required></div><div class="owner-field full"><label>Lokasi</label><input placeholder="Rak / Workshop"></div><div class="owner-modal-actions full"><button type="button" class="owner-btn-light" data-close-modal>Batal</button><button class="owner-btn">Simpan Demo</button></div></form></section></div>
+</main>
+@endsection

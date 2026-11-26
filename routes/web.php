@@ -1,11 +1,14 @@
+
 <?php
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\OwnerPasswordController;
 
+// HALAMAN UTAMA
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
 
 // HALAMAN LOGIN
@@ -23,7 +26,7 @@ Route::post('/logout', [AuthController::class, 'logout'])
 
 // PENGALIHAN DASHBOARD BERDASARKAN PERAN
 Route::get('/dashboard', function () {
-    $peran = Auth::user()->peran;
+    $peran = trim((string) Auth::user()->peran);
 
     if ($peran === 'OWNER') {
         return redirect()->route('dashboard.owner');
@@ -31,6 +34,10 @@ Route::get('/dashboard', function () {
 
     if ($peran === 'CS') {
         return redirect()->route('dashboard.cs');
+    }
+
+    if ($peran === 'PRODUKSI') {
+        return redirect()->route('dashboard.produksi');
     }
 
     abort(403, 'Kamu tidak memiliki akses ke halaman ini.');
@@ -47,7 +54,7 @@ Route::get('/dashboard/owner', function () {
 
 // DASHBOARD CS
 Route::get('/dashboard/cs', function () {
-    if (Auth::user()->peran !== 'CS') {
+    if (!in_array(Auth::user()->peran, ['CS', 'OWNER', 'PRODUKSI'], true)) {
         abort(403, 'Kamu tidak memiliki akses ke dashboard CS.');
     }
 
@@ -56,39 +63,32 @@ Route::get('/dashboard/cs', function () {
 
 // HALAMAN CUSTOMER CS
 Route::get('/cs/customer', function () {
-    if (Auth::user()->peran !== 'CS') {
+    if (!in_array(Auth::user()->peran, ['CS', 'OWNER', 'PRODUKSI'], true)) {
         abort(403, 'Kamu tidak memiliki akses ke halaman Customer.');
     }
 
     return view('cs.customer');
 })->middleware('auth')->name('cs.customer');
 
-// HALAMAN ORDER CS (daftar order, terhubung ke database lewat /api/pesanan)
+// HALAMAN ORDER CS
 Route::get('/cs/order', function () {
-    if (Auth::user()->peran !== 'CS') {
+    if (!in_array(Auth::user()->peran, ['CS', 'OWNER', 'PRODUKSI'], true)) {
         abort(403, 'Kamu tidak memiliki akses ke halaman Order.');
     }
 
     return view('cs.order');
 })->middleware('auth')->name('cs.order');
 
-// HALAMAN DETAIL ORDER CS  (dibuka dengan /cs/order/detail?id=<id pesanan>)
+// HALAMAN DETAIL ORDER CS
 Route::get('/cs/order/detail', function () {
-    if (Auth::user()->peran !== 'CS') {
+    if (!in_array(Auth::user()->peran, ['CS', 'OWNER', 'PRODUKSI'], true)) {
         abort(403, 'Kamu tidak memiliki akses ke halaman Detail Order.');
     }
 
     return view('cs.order-detail');
 })->middleware('auth')->name('cs.order.detail');
 
-/*
-|--------------------------------------------------------------------------
-| PREVIEW FRONTEND (dari branch frontend)
-|--------------------------------------------------------------------------
-| Hanya untuk lingkungan local; tidak memakai login. Halaman yang sudah
-| terhubung database akan mengarahkan ke /login bila dibuka lewat preview.
-*/
-
+// PREVIEW FRONTEND (LOCAL)
 if (app()->environment('local')) {
 
     // Preview Owner
@@ -99,7 +99,7 @@ if (app()->environment('local')) {
     Route::view('/preview-cs', 'cs.dashboard')
         ->name('cs.preview');
 
-    // Alias preview CS dari backend
+    // Alias preview CS
     Route::view('/cs', 'cs.dashboard');
 
     Route::view('/preview-customer', 'cs.customer')
@@ -109,12 +109,13 @@ if (app()->environment('local')) {
         ->name('cs.order.preview');
 }
 
+// PREVIEW DETAIL ORDER
 Route::view('/preview-order/detail', 'cs.order-detail')
     ->name('cs.order.detail.preview');
 
 // HALAMAN INVOICE & PEMBAYARAN CS
 Route::get('/cs/invoice-pembayaran', function () {
-    if (Auth::user()->peran !== 'CS') {
+    if (!in_array(Auth::user()->peran, ['CS', 'OWNER', 'PRODUKSI'], true)) {
         abort(403);
     }
 
@@ -123,7 +124,7 @@ Route::get('/cs/invoice-pembayaran', function () {
 
 // HALAMAN WORK ORDER CS
 Route::get('/cs/work-order', function () {
-    if (Auth::user()->peran !== 'CS') {
+    if (!in_array(Auth::user()->peran, ['CS', 'OWNER', 'PRODUKSI'], true)) {
         abort(403);
     }
 
@@ -132,12 +133,146 @@ Route::get('/cs/work-order', function () {
 
 // HALAMAN TRACKING CS
 Route::get('/cs/tracking', function () {
-    if (Auth::user()->peran !== 'CS') {
+    if (!in_array(Auth::user()->peran, ['CS', 'OWNER', 'PRODUKSI'], true)) {
         abort(403);
     }
 
     return view('tracking.index');
 })->middleware('auth')->name('cs.tracking');
 
+// ROLE PRODUKSI
+Route::middleware(['auth'])->group(function () {
 
-require __DIR__.'/presma-public-order-preview.php';
+    // DASHBOARD PRODUKSI
+    Route::get('/dashboard/produksi', function () {
+        abort_unless(
+            in_array(trim((string) Auth::user()->peran), ['PRODUKSI', 'OWNER'], true),
+            403
+        );
+
+        return view('produksi.dashboard');
+    })->name('dashboard.produksi');
+
+    // LIST ORDER PRODUKSI
+    Route::get('/produksi/order', function () {
+        abort_unless(
+            in_array(trim((string) Auth::user()->peran), ['PRODUKSI', 'OWNER'], true),
+            403
+        );
+
+        return view('produksi.order');
+    })->name('produksi.order');
+
+    Route::get('/produksi/proses', function () {
+    return view('produksi.proses');
+})->name('produksi.proses');
+
+Route::get('/produksi/stok', function () {
+    return view('produksi.stok');
+})->name('produksi.stok');
+
+Route::get('/produksi/pembelian', function () {
+    return view('produksi.pembelian');
+})->name('produksi.pembelian');
+});
+/*
+|--------------------------------------------------------------------------
+| ROLE PRODUKSI
+|--------------------------------------------------------------------------
+| Letakkan blok ini sebelum require presma-public-order-preview.php.
+| Halaman tracking tetap memakai view tracking yang sudah ada.
+*/
+Route::middleware(['auth', 'peran:PRODUKSI,OWNER'])->group(function () {
+    Route::get('/dashboard/produksi', function () {
+        return view('produksi.dashboard');
+    })->name('dashboard.produksi');
+
+    Route::get('/produksi/order', function () {
+        return view('produksi.order');
+    })->name('produksi.order');
+
+    Route::get('/produksi/proses', function () {
+        return view('produksi.proses');
+    })->name('produksi.proses');
+
+    // Halaman stok dan pembelian berisi data dummy frontend pada tahap ini.
+    Route::get('/produksi/stok', function () {
+        return view('produksi.stok');
+    })->name('produksi.stok');
+
+    Route::get('/produksi/pembelian', function () {
+        return view('produksi.pembelian');
+    })->name('produksi.pembelian');
+
+    Route::get('/produksi/notifikasi', function () {
+        return view('produksi.notifikasi');
+    })->name('produksi.notifikasi');
+    
+    Route::get('/produksi/profil', function () {
+        return view('produksi.profil');
+    })->name('produksi.profil');
+});
+
+// Tambahkan kondisi ini di route /dashboard yang sudah ada:
+// if ($peran === 'PRODUKSI') return redirect()->route('dashboard.produksi');
+
+// Tracking sudah tersedia. Ubah pengecekan role pada route cs.tracking
+// agar menerima PRODUKSI dan OWNER juga.
+
+// Tracking memakai halaman tracking yang sudah ada, tetapi diberi route khusus Produksi.
+Route::get('/produksi/tracking', function () { return redirect()->route('cs.tracking'); })->middleware(['auth', 'peran:PRODUKSI,OWNER'])->name('produksi.tracking');
+
+// Pastikan route cs.tracking yang sudah ada mengarah ke view Tracking yang sama dan middleware-nya mengizinkan CS, PRODUKSI, OWNER. Jika halaman Tracking memang publik untuk pelanggan, pertahankan route publik tersebut; jangan gandakan view/route.
+
+Route::middleware(['auth', 'peran:OWNER'])
+    ->prefix('owner')
+    ->name('owner.')
+    ->group(function () {
+
+        Route::view('/order', 'owner.order')->name('order');
+        Route::view('/produksi', 'owner.produksi')->name('produksi');
+
+        // Tambahkan route tracking
+        Route::get('/tracking', fn () => redirect()->route('cs.tracking'))->name('tracking');
+
+        Route::view('/inventaris', 'owner.inventaris')->name('inventaris');
+        Route::view('/keuangan', 'owner.keuangan')->name('keuangan');
+        Route::view('/laporan', 'owner.laporan')->name('laporan');
+        Route::view('/karyawan', 'owner.karyawan')->name('karyawan');
+        Route::view('/notifikasi', 'owner.notifikasi')->name('notifikasi');
+        Route::view('/profil', 'owner.profil')->name('profil');
+
+    });
+
+    use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
+
+Route::patch('/owner/profil', function (Request $request) {
+    $data = $request->validate([
+        'name' => ['required', 'string', 'max:255'],
+        'phone' => ['nullable', 'string', 'max:30'],
+    ]);
+
+    $user = $request->user();
+    $user->nama = $data['name'];
+    $user->phone = $data['phone'] ?? null;
+    $user->save();
+
+    return back()->with('success', 'Profil berhasil diperbarui.');
+})->name('owner.profile.update');
+
+Route::patch('/owner/profil/password', function (Request $request) {
+    $data = $request->validate([
+        'current_password' => ['required', 'current_password'],
+        'password' => ['required', 'confirmed', Password::min(8)],
+    ]);
+
+    $user = $request->user();
+    $user->password = Hash::make($data['password']);
+    $user->save();
+
+    return back()->with('success', 'Password berhasil diperbarui.');
+})->name('owner.profile.password');
+// PUBLIC ORDER PREVIEW
+require __DIR__ . '/presma-public-order-preview.php';
